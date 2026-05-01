@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crems.mapper.CremsFavoriteMapper">
+
+    <resultMap type="CremsFavorite" id="CremsFavoriteResult">
+        <result property="favoriteId"   column="favorite_id"   />
+        <result property="jobId"        column="job_id"        />
+        <result property="studentId"    column="student_id"    />
+        <result property="createTime"   column="create_time"   />
+        <result property="jobTitle"     column="job_title"     />
+        <result property="companyName"  column="company_name"  />
+    </resultMap>
+
+    <sql id="selectFavoriteVo">
+        select f.favorite_id, f.job_id, f.student_id, f.create_time,
+               j.job_title, c.company_name
+        from crems_favorite f
+        left join crems_job j on f.job_id = j.job_id
+        left join crems_company c on j.company_id = c.company_id
+    </sql>
+
+    <select id="selectFavoriteList" parameterType="CremsFavorite" resultMap="CremsFavoriteResult">
+        <include refid="selectFavoriteVo"/>
+        <where>
+            <if test="studentId != null">
+                AND f.student_id = #{studentId}
+            </if>
+            <if test="jobId != null">
+                AND f.job_id = #{jobId}
+            </if>
+        </where>
+        order by f.create_time desc
+    </select>
+
+    <insert id="insertFavorite" parameterType="CremsFavorite" useGeneratedKeys="true" keyProperty="favoriteId">
+        insert into crems_favorite (job_id, student_id, create_time)
+        values (#{jobId}, #{studentId}, sysdate())
+    </insert>
+
+    <delete id="deleteFavoriteById" parameterType="Long">
+        delete from crems_favorite where favorite_id = #{favoriteId}
+    </delete>
+
+    <delete id="deleteFavoriteByJobAndStudent">
+        delete from crems_favorite where job_id = #{param1} and student_id = #{param2}
+    </delete>
+
+</mapper>

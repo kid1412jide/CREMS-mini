@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.crems.mapper.CremsJobMapper">
+
+    <resultMap type="CremsJob" id="CremsJobResult">
+        <result property="jobId"              column="job_id"              />
+        <result property="companyId"          column="company_id"          />
+        <result property="companyName"        column="company_name"        />
+        <result property="jobTitle"           column="job_title"           />
+        <result property="jobType"            column="job_type"            />
+        <result property="category"           column="category"            />
+        <result property="department"         column="department"          />
+        <result property="recruitNum"         column="recruit_num"         />
+        <result property="workCity"           column="work_city"           />
+        <result property="workAddress"        column="work_address"        />
+        <result property="salaryMin"          column="salary_min"          />
+        <result property="salaryMax"          column="salary_max"          />
+        <result property="educationRequired"  column="education_required"  />
+        <result property="experienceRequired" column="experience_required" />
+        <result property="jobDescription"     column="job_description"     />
+        <result property="jobRequirements"    column="job_requirements"    />
+        <result property="welfare"            column="welfare"             />
+        <result property="publishDate"        column="publish_date"        />
+        <result property="deadline"           column="deadline"            />
+        <result property="viewCount"          column="view_count"          />
+        <result property="applyCount"         column="apply_count"         />
+        <result property="status"             column="status"              />
+        <result property="createBy"           column="create_by"           />
+        <result property="createTime"         column="create_time"         />
+        <result property="updateBy"           column="update_by"           />
+        <result property="updateTime"         column="update_time"         />
+        <result property="remark"             column="remark"              />
+    </resultMap>
+
+    <sql id="selectJobVo">
+        select j.job_id, j.company_id, c.company_name, j.job_title, j.job_type, j.category,
+               j.department, j.recruit_num, j.work_city, j.work_address, j.salary_min,
+               j.salary_max, j.education_required, j.experience_required, j.job_description,
+               j.job_requirements, j.welfare, j.publish_date, j.deadline, j.view_count,
+               j.apply_count, j.status, j.create_by, j.create_time, j.update_by,
+               j.update_time, j.remark
+        from crems_job j
+        left join crems_company c on j.company_id = c.company_id
+    </sql>
+
+    <select id="selectJobById" parameterType="Long" resultMap="CremsJobResult">
+        <include refid="selectJobVo"/>
+        where j.job_id = #{jobId}
+    </select>
+
+    <select id="selectJobList" parameterType="CremsJob" resultMap="CremsJobResult">
+        <include refid="selectJobVo"/>
+        <where>
+            <if test="companyId != null">
+                AND j.company_id = #{companyId}
+            </if>
+            <if test="jobTitle != null and jobTitle != ''">
+                AND j.job_title like concat('%', #{jobTitle}, '%')
+            </if>
+            <if test="jobType != null and jobType != ''">
+                AND j.job_type = #{jobType}
+            </if>
+            <if test="category != null and category != ''">
+                AND j.category = #{category}
+            </if>
+            <if test="workCity != null and workCity != ''">
+                AND j.work_city like concat('%', #{workCity}, '%')
+            </if>
+            <if test="educationRequired != null and educationRequired != ''">
+                AND j.education_required = #{educationRequired}
+            </if>
+            <if test="status != null and status != ''">
+                AND j.status = #{status}
+            </if>
+        </where>
+        order by j.job_id desc
+    </select>
+
+    <insert id="insertJob" parameterType="CremsJob" useGeneratedKeys="true" keyProperty="jobId">
+        insert into crems_job
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="companyId != null">company_id,</if>
+            <if test="jobTitle != null and jobTitle != ''">job_title,</if>
+            <if test="jobType != null">job_type,</if>
+            <if test="category != null">category,</if>
+            <if test="department != null">department,</if>
+            <if test="recruitNum != null">recruit_num,</if>
+            <if test="workCity != null">work_city,</if>
+            <if test="workAddress != null">work_address,</if>
+            <if test="salaryMin != null">salary_min,</if>
+            <if test="salaryMax != null">salary_max,</if>
+            <if test="educationRequired != null">education_required,</if>
+            <if test="experienceRequired != null">experience_required,</if>
+            <if test="jobDescription != null">job_description,</if>
+            <if test="jobRequirements != null">job_requirements,</if>
+            <if test="welfare != null">welfare,</if>
+            <if test="publishDate != null">publish_date,</if>
+            <if test="deadline != null">deadline,</if>
+            <if test="status != null">status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="remark != null">remark,</if>
+            create_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="companyId != null">#{companyId},</if>
+            <if test="jobTitle != null and jobTitle != ''">#{jobTitle},</if>
+            <if test="jobType != null">#{jobType},</if>
+            <if test="category != null">#{category},</if>
+            <if test="department != null">#{department},</if>
+            <if test="recruitNum != null">#{recruitNum},</if>
+            <if test="workCity != null">#{workCity},</if>
+            <if test="workAddress != null">#{workAddress},</if>
+            <if test="salaryMin != null">#{salaryMin},</if>
+            <if test="salaryMax != null">#{salaryMax},</if>
+            <if test="educationRequired != null">#{educationRequired},</if>
+            <if test="experienceRequired != null">#{experienceRequired},</if>
+            <if test="jobDescription != null">#{jobDescription},</if>
+            <if test="jobRequirements != null">#{jobRequirements},</if>
+            <if test="welfare != null">#{welfare},</if>
+            <if test="publishDate != null">#{publishDate},</if>
+            <if test="deadline != null">#{deadline},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="remark != null">#{remark},</if>
+            sysdate()
+        </trim>
+    </insert>
+
+    <update id="updateJob" parameterType="CremsJob">
+        update crems_job
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="jobTitle != null and jobTitle != ''">job_title = #{jobTitle},</if>
+            <if test="jobType != null">job_type = #{jobType},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="department != null">department = #{department},</if>
+            <if test="recruitNum != null">recruit_num = #{recruitNum},</if>
+            <if test="workCity != null">work_city = #{workCity},</if>
+            <if test="workAddress != null">work_address = #{workAddress},</if>
+            <if test="salaryMin != null">salary_min = #{salaryMin},</if>
+            <if test="salaryMax != null">salary_max = #{salaryMax},</if>
+            <if test="educationRequired != null">education_required = #{educationRequired},</if>
+            <if test="experienceRequired != null">experience_required = #{experienceRequired},</if>
+            <if test="jobDescription != null">job_description = #{jobDescription},</if>
+            <if test="jobRequirements != null">job_requirements = #{jobRequirements},</if>
+            <if test="welfare != null">welfare = #{welfare},</if>
+            <if test="publishDate != null">publish_date = #{publishDate},</if>
+            <if test="deadline != null">deadline = #{deadline},</if>
+            <if test="viewCount != null">view_count = #{viewCount},</if>
+            <if test="applyCount != null">apply_count = #{applyCount},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = sysdate()
+        </trim>
+        where job_id = #{jobId}
+    </update>
+
+    <delete id="deleteJobById" parameterType="Long">
+        delete from crems_job where job_id = #{jobId}
+    </delete>
+
+    <delete id="deleteJobByIds" parameterType="Long">
+        delete from crems_job where job_id in
+        <foreach item="jobId" collection="array" open="(" separator="," close=")">
+            #{jobId}
+        </foreach>
+    </delete>
+
+</mapper>
