@@ -12,7 +12,7 @@ import usePermissionStore from '@/store/modules/permission'
 
 NProgress.configure({ showSpinner: false })
 
-const whiteList = ['/login', '/register']
+const whiteList = ['/login', '/register', '/portal', '/portal/home']
 
 const isWhiteList = (path) => {
   return whiteList.some(pattern => isPathMatch(pattern, path))
@@ -44,6 +44,10 @@ router.beforeEach(async (to, from) => {
         // 拉取user_info信息
         await useUserStore().getInfo()
         isRelogin.show = false
+        // 门户路由跳过动态路由生成
+        if (to.meta && to.meta.portal) {
+          return { ...to, replace: true }
+        }
         // 根据roles权限生成可访问的路由
         const accessRoutes = await usePermissionStore().generateRoutes()
         accessRoutes.forEach(route => {
