@@ -112,7 +112,7 @@
 </template>
 
 <script setup>
-import { listInterview, updateInterview } from '@/api/crems/interview'
+import { listInterview, updateInterview } from '@/api/portal'
 import { parseTime } from '@/utils/ruoyi'
 
 const { proxy } = getCurrentInstance()

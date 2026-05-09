@@ -2,6 +2,26 @@
   <div class="register">
     <el-form ref="registerRef" :model="registerForm" :rules="registerRules" class="register-form">
       <h3 class="title">{{ title }}</h3>
+      <el-form-item prop="roleType">
+        <div class="role-select">
+          <div
+            class="role-option"
+            :class="{ active: registerForm.roleType === 'student' }"
+            @click="registerForm.roleType = 'student'"
+          >
+            <div class="role-icon">🎓</div>
+            <div class="role-label">我是学生</div>
+          </div>
+          <div
+            class="role-option"
+            :class="{ active: registerForm.roleType === 'company' }"
+            @click="registerForm.roleType = 'company'"
+          >
+            <div class="role-icon">🏢</div>
+            <div class="role-label">我是企业</div>
+          </div>
+        </div>
+      </el-form-item>
       <el-form-item prop="username">
         <el-input 
           v-model="registerForm.username" 
@@ -91,6 +111,7 @@ const registerForm = ref({
   username: "",
   password: "",
   confirmPassword: "",
+  roleType: "student",
   code: "",
   uuid: ""
 })
@@ -107,6 +128,9 @@ const registerRules = {
   username: [
     { required: true, trigger: "blur", message: "请输入您的账号" },
     { min: 2, max: 20, message: "用户账号长度必须介于 2 和 20 之间", trigger: "blur" }
+  ],
+  roleType: [
+    { required: true, trigger: "change", message: "请选择注册身份" }
   ],
   confirmPassword: [
     { required: true, trigger: "blur", message: "请再次输入您的密码" },
@@ -215,5 +239,45 @@ getCode()
 .register-code-img {
   height: 40px;
   padding-left: 12px;
+}
+
+.role-select {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+.role-option {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 12px;
+  border: 2px solid #e4e7ed;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: #c0c4cc;
+    background: #fafafa;
+  }
+
+  &.active {
+    border-color: #409eff;
+    background: rgba(64, 158, 255, 0.06);
+  }
+
+  .role-icon {
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  .role-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #303133;
+  }
 }
 </style>

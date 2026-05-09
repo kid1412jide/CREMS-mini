@@ -58,7 +58,7 @@
 </template>
 
 <script setup>
-import { listApplication } from '@/api/crems/application'
+import { listApplication } from '@/api/portal'
 import { parseTime } from '@/utils/ruoyi'
 
 const loading = ref(false)

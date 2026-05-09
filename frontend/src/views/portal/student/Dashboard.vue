@@ -86,10 +86,7 @@
 
 <script setup>
 import { Document, Calendar, StarFilled, Trophy } from '@element-plus/icons-vue'
-import { listApplication } from '@/api/crems/application'
-import { listInterview } from '@/api/crems/interview'
-import { listFavorite } from '@/api/crems/favorite'
-import { listJob } from '@/api/crems/job'
+import { listApplication, listInterview, listFavorite, listJob } from '@/api/portal'
 import { parseTime } from '@/utils/ruoyi'
 import useUserStore from '@/store/modules/user'
 import StatCard from '@/components/portal/StatCard.vue'

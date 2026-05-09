@@ -34,7 +34,7 @@
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item command="profile">
-                  <el-icon><User /></el-icon>个人中心
+                  <el-icon><User /></el-icon>{{ isCompany ? '企业资料' : '个人中心' }}
                 </el-dropdown-item>
                 <el-dropdown-item command="admin" v-if="hasAdminRole" divided>
                   <el-icon><Setting /></el-icon>管理后台
@@ -105,7 +105,8 @@ const companyMenus = [
   { label: '工作台', path: '/portal/company/dashboard' },
   { label: '职位管理', path: '/portal/company/jobs' },
   { label: '简历处理', path: '/portal/company/applications' },
-  { label: '面试管理', path: '/portal/company/interviews' }
+  { label: '面试管理', path: '/portal/company/interviews' },
+  { label: '企业资料', path: '/portal/company/profile' }
 ]
 
 const guestMenus = [

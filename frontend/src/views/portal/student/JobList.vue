@@ -68,8 +68,7 @@
 
 <script setup>
 import { Search } from '@element-plus/icons-vue'
-import { listJob } from '@/api/crems/job'
-import { listFavorite, addFavorite, delFavoriteByJobAndStudent } from '@/api/crems/favorite'
+import { listJob, listFavorite, addFavorite, delFavoriteByJobAndStudent } from '@/api/portal'
 import JobCard from '@/components/portal/JobCard.vue'
 import useUserStore from '@/store/modules/user'
 

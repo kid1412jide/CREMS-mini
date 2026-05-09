@@ -49,6 +49,7 @@ public class SysRegisterService
     public String register(RegisterBody registerBody)
     {
         String msg = "", username = registerBody.getUsername(), password = registerBody.getPassword();
+        String roleType = registerBody.getRoleType();
         SysUser sysUser = new SysUser();
         sysUser.setUserName(username);
 
@@ -77,6 +78,10 @@ public class SysRegisterService
         {
             msg = "密码长度必须在5到20个字符之间";
         }
+        else if (!("student".equals(roleType) || "company".equals(roleType)))
+        {
+            msg = "请选择注册身份（学生或企业）";
+        }
         else if (!userService.checkUserNameUnique(sysUser))
         {
             msg = "保存用户'" + username + "'失败，注册账号已存在";
@@ -93,10 +98,10 @@ public class SysRegisterService
             }
             else
             {
-                // 为新注册用户分配普通角色（角色ID=2）
+                // 根据身份类型分配角色：student→3, company→4
                 SysUserRole sysUserRole = new SysUserRole();
                 sysUserRole.setUserId(sysUser.getUserId());
-                sysUserRole.setRoleId(2L);
+                sysUserRole.setRoleId("company".equals(roleType) ? 4L : 3L);
                 List<SysUserRole> list = new ArrayList<>();
                 list.add(sysUserRole);
                 userRoleMapper.batchUserRole(list);

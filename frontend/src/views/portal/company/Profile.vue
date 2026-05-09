@@ -109,7 +109,7 @@
 </template>
 
 <script setup>
-import { getCompany, updateCompany, listCompany } from '@/api/crems/company'
+import { getCompany, updateCompany, listCompany } from '@/api/portal'
 
 const { proxy } = getCurrentInstance()
 

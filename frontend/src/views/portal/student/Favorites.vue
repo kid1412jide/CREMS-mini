@@ -37,7 +37,7 @@
 
 <script setup>
 import { StarFilled } from '@element-plus/icons-vue'
-import { listFavorite, delFavorite } from '@/api/crems/favorite'
+import { listFavorite, delFavorite } from '@/api/portal'
 import { parseTime } from '@/utils/ruoyi'
 
 const router = useRouter()

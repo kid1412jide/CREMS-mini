@@ -96,8 +96,7 @@
 </template>
 
 <script setup>
-import { listApplication, updateApplication } from '@/api/crems/application'
-import { addInterview } from '@/api/crems/interview'
+import { listApplication, updateApplication, addInterview } from '@/api/portal'
 import { parseTime } from '@/utils/ruoyi'
 
 const { proxy } = getCurrentInstance()

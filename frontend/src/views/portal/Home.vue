@@ -109,8 +109,7 @@
 
 <script setup>
 import { Search, Location } from '@element-plus/icons-vue'
-import { listJob } from '@/api/crems/job'
-import { getStatisticsOverview } from '@/api/crems/statistics'
+import { listJob, getStatisticsOverview } from '@/api/portal'
 import JobCard from '@/components/portal/JobCard.vue'
 
 const router = useRouter()

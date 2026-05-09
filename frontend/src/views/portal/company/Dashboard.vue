@@ -52,9 +52,7 @@
 
 <script setup>
 import { Briefcase, Document, Bell, Calendar, Plus } from '@element-plus/icons-vue'
-import { listJob } from '@/api/crems/job'
-import { listApplication } from '@/api/crems/application'
-import { listInterview } from '@/api/crems/interview'
+import { listJob, listApplication, listInterview } from '@/api/portal'
 import { parseTime } from '@/utils/ruoyi'
 import StatCard from '@/components/portal/StatCard.vue'
 
