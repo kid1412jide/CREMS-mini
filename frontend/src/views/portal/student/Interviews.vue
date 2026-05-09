@@ -56,7 +56,7 @@
 
 <script setup>
 import { Clock, User, Monitor, Location } from '@element-plus/icons-vue'
-import { listInterview } from '@/api/crems/interview'
+import { listInterview } from '@/api/portal'
 import { parseTime } from '@/utils/ruoyi'
 
 const loading = ref(false)

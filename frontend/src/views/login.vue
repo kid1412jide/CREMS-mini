@@ -128,6 +128,7 @@ function handleLogin() {
           }
           return acc
         }, {})
+        // 如果有明确的重定向地址，使用它；否则跳转到首页（由权限守卫根据角色重定向到对应门户）
         router.push({ path: redirect.value || "/", query: otherQueryParams })
       }).catch(() => {
         loading.value = false

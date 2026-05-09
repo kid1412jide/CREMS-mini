@@ -153,7 +153,7 @@
 </template>
 
 <script setup>
-import { getStudent, updateStudent, listStudent } from '@/api/crems/student'
+import { getStudent, updateStudent, listStudent } from '@/api/portal'
 import useUserStore from '@/store/modules/user'
 
 const userStore = useUserStore()

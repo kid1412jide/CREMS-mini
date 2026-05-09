@@ -137,10 +137,7 @@
 </template>
 
 <script setup>
-import { getJob } from '@/api/crems/job'
-import { getCompany } from '@/api/crems/company'
-import { addApplication, listApplication } from '@/api/crems/application'
-import { addFavorite, delFavoriteByJobAndStudent, listFavorite } from '@/api/crems/favorite'
+import { getJob, getCompany, addApplication, listApplication, addFavorite, delFavoriteByJobAndStudent, listFavorite } from '@/api/portal'
 import { parseTime } from '@/utils/ruoyi'
 
 const route = useRoute()

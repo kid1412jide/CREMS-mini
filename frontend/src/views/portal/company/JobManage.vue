@@ -133,7 +133,7 @@
 
 <script setup>
 import { Plus } from '@element-plus/icons-vue'
-import { listJob, getJob, addJob, updateJob, delJob } from '@/api/crems/job'
+import { listJob, getJob, addJob, updateJob, delJob } from '@/api/portal'
 
 const { proxy } = getCurrentInstance()
 
