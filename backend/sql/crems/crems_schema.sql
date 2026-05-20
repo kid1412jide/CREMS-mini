@@ -8,6 +8,7 @@
 drop table if exists crems_company;
 create table crems_company (
   company_id        bigint(20)      not null auto_increment    comment '企业ID',
+  user_id           bigint(20)      default null               comment '关联用户ID',
   company_name      varchar(100)    not null                   comment '企业名称',
   company_code      varchar(50)     not null                   comment '统一社会信用代码',
   company_type      varchar(20)     default null               comment '企业类型',
@@ -39,6 +40,7 @@ create index idx_company_status on crems_company(status);
 drop table if exists crems_student;
 create table crems_student (
   student_id        bigint(20)      not null auto_increment    comment '学生ID',
+  user_id           bigint(20)      default null               comment '关联用户ID',
   student_no        varchar(50)     not null                   comment '学号',
   student_name      varchar(50)     not null                   comment '姓名',
   gender            char(1)         default null               comment '性别（0男 1女）',

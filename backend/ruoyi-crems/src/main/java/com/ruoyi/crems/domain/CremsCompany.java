@@ -17,6 +17,9 @@ public class CremsCompany extends BaseEntity
     /** 企业ID */
     private Long companyId;
 
+    /** 关联用户ID */
+    private Long userId;
+
     /** 企业名称 */
     @Excel(name = "企业名称")
     private String companyName;
@@ -68,6 +71,9 @@ public class CremsCompany extends BaseEntity
 
     public void setCompanyId(Long companyId) { this.companyId = companyId; }
     public Long getCompanyId() { return companyId; }
+
+    public void setUserId(Long userId) { this.userId = userId; }
+    public Long getUserId() { return userId; }
 
     public void setCompanyName(String companyName) { this.companyName = companyName; }
     public String getCompanyName() { return companyName; }
