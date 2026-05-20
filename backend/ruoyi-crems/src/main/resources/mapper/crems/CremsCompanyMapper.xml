@@ -6,6 +6,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <resultMap type="CremsCompany" id="CremsCompanyResult">
         <result property="companyId"     column="company_id"     />
+        <result property="userId"        column="user_id"        />
         <result property="companyName"   column="company_name"   />
         <result property="companyCode"   column="company_code"   />
         <result property="companyType"   column="company_type"   />
@@ -27,7 +28,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectCompanyVo">
-        select company_id, company_name, company_code, company_type, industry, scale,
+        select company_id, user_id, company_name, company_code, company_type, industry, scale,
                address, website, description, logo_url, contact_person, contact_phone,
                contact_email, status, create_by, create_time, update_by, update_time, remark
         from crems_company
@@ -63,6 +64,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="insertCompany" parameterType="CremsCompany" useGeneratedKeys="true" keyProperty="companyId">
         insert into crems_company
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
             <if test="companyName != null and companyName != ''">company_name,</if>
             <if test="companyCode != null and companyCode != ''">company_code,</if>
             <if test="companyType != null">company_type,</if>
@@ -81,6 +83,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             create_time
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
             <if test="companyName != null and companyName != ''">#{companyName},</if>
             <if test="companyCode != null and companyCode != ''">#{companyCode},</if>
             <if test="companyType != null">#{companyType},</if>

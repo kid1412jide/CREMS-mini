@@ -89,12 +89,7 @@
           <template #header>
             <span>职位类型分布</span>
           </template>
-          <div v-loading="jobTypeLoading">
-            <el-table :data="jobTypeData" size="small">
-              <el-table-column prop="groupName" label="职位类型" />
-              <el-table-column prop="jobCount" label="职位数量" />
-            </el-table>
-          </div>
+          <div ref="jobTypeChart" v-loading="jobTypeLoading" style="height: 300px;"></div>
         </el-card>
       </el-col>
       <el-col :span="12">
@@ -102,22 +97,7 @@
           <template #header>
             <span>投递状态分布</span>
           </template>
-          <div v-loading="appStatusLoading">
-            <el-table :data="appStatusData" size="small">
-              <el-table-column prop="groupName" label="状态">
-                <template #default="scope">
-                  <span v-if="scope.row.groupName === '0'">待查看</span>
-                  <span v-else-if="scope.row.groupName === '1'">已查看</span>
-                  <span v-else-if="scope.row.groupName === '2'">初筛通过</span>
-                  <span v-else-if="scope.row.groupName === '3'">面试邀请</span>
-                  <span v-else-if="scope.row.groupName === '4'">已拒绝</span>
-                  <span v-else-if="scope.row.groupName === '5'">已录用</span>
-                  <span v-else>{{ scope.row.groupName }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column prop="applicationCount" label="投递数量" />
-            </el-table>
-          </div>
+          <div ref="appStatusChart" v-loading="appStatusLoading" style="height: 300px;"></div>
         </el-card>
       </el-col>
     </el-row>
@@ -128,12 +108,7 @@
           <template #header>
             <span>城市职位分布（TOP 10）</span>
           </template>
-          <div v-loading="jobCityLoading">
-            <el-table :data="jobCityData" size="small">
-              <el-table-column prop="groupName" label="城市" />
-              <el-table-column prop="jobCount" label="职位数量" />
-            </el-table>
-          </div>
+          <div ref="jobCityChart" v-loading="jobCityLoading" style="height: 300px;"></div>
         </el-card>
       </el-col>
       <el-col :span="12">
@@ -141,19 +116,7 @@
           <template #header>
             <span>面试结果分布</span>
           </template>
-          <div v-loading="interviewResultLoading">
-            <el-table :data="interviewResultData" size="small">
-              <el-table-column prop="groupName" label="结果">
-                <template #default="scope">
-                  <span v-if="scope.row.groupName === 'pass'">通过</span>
-                  <span v-else-if="scope.row.groupName === 'fail'">未通过</span>
-                  <span v-else-if="scope.row.groupName === 'pending'">待定</span>
-                  <span v-else>{{ scope.row.groupName }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column prop="interviewCount" label="面试数量" />
-            </el-table>
-          </div>
+          <div ref="interviewResultChart" v-loading="interviewResultLoading" style="height: 300px;"></div>
         </el-card>
       </el-col>
     </el-row>
@@ -162,6 +125,7 @@
 
 <script setup name="Statistics">
 import { getStatisticsOverview, getJobStatisticsByType, getJobStatisticsByCity, getApplicationStatisticsByStatus, getInterviewStatisticsByResult } from "@/api/crems/statistics"
+import * as echarts from 'echarts'
 
 const overview = ref({})
 const jobTypeData = ref([])
@@ -173,10 +137,120 @@ const jobCityLoading = ref(true)
 const appStatusLoading = ref(true)
 const interviewResultLoading = ref(true)
 
+// 图表引用
+const jobTypeChart = ref(null)
+const appStatusChart = ref(null)
+const jobCityChart = ref(null)
+const interviewResultChart = ref(null)
+
+// 图表实例
+let jobTypeChartInstance = null
+let appStatusChartInstance = null
+let jobCityChartInstance = null
+let interviewResultChartInstance = null
+
 function loadOverview() {
   getStatisticsOverview().then(res => {
     overview.value = res.data || {}
   })
+}
+
+function initJobTypeChart(data) {
+  if (!jobTypeChart.value) return
+  if (!jobTypeChartInstance) {
+    jobTypeChartInstance = echarts.init(jobTypeChart.value)
+  }
+  const option = {
+    tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+    legend: { orient: 'vertical', left: 'left' },
+    series: [{
+      name: '职位类型',
+      type: 'pie',
+      radius: '50%',
+      data: data.map(item => ({ name: item.groupName || '未知', value: item.jobCount })),
+      emphasis: {
+        itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0, 0, 0, 0.5)' }
+      }
+    }]
+  }
+  jobTypeChartInstance.setOption(option)
+}
+
+function initAppStatusChart(data) {
+  if (!appStatusChart.value) return
+  if (!appStatusChartInstance) {
+    appStatusChartInstance = echarts.init(appStatusChart.value)
+  }
+  const statusMap = { '0': '待查看', '1': '已查看', '2': '初筛通过', '3': '面试邀请', '4': '已拒绝', '5': '已录用' }
+  const colors = ['#909399', '#409eff', '#e6a23c', '#67c23a', '#f56c6c', '#00ced1']
+  const option = {
+    tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+    legend: { orient: 'vertical', left: 'left' },
+    series: [{
+      name: '投递状态',
+      type: 'pie',
+      radius: ['40%', '70%'],
+      avoidLabelOverlap: false,
+      itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
+      label: { show: false, position: 'center' },
+      emphasis: { label: { show: true, fontSize: 20, fontWeight: 'bold' } },
+      labelLine: { show: false },
+      data: data.map((item, index) => ({
+        name: statusMap[item.groupName] || item.groupName,
+        value: item.applicationCount,
+        itemStyle: { color: colors[index % colors.length] }
+      }))
+    }]
+  }
+  appStatusChartInstance.setOption(option)
+}
+
+function initJobCityChart(data) {
+  if (!jobCityChart.value) return
+  if (!jobCityChartInstance) {
+    jobCityChartInstance = echarts.init(jobCityChart.value)
+  }
+  const option = {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+    xAxis: { type: 'category', data: data.map(item => item.groupName), axisLabel: { rotate: 30 } },
+    yAxis: { type: 'value' },
+    series: [{
+      name: '职位数量',
+      type: 'bar',
+      data: data.map(item => item.jobCount),
+      itemStyle: {
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          { offset: 0, color: '#409eff' },
+          { offset: 1, color: '#79bbff' }
+        ])
+      },
+      barWidth: '40%'
+    }]
+  }
+  jobCityChartInstance.setOption(option)
+}
+
+function initInterviewResultChart(data) {
+  if (!interviewResultChart.value) return
+  if (!interviewResultChartInstance) {
+    interviewResultChartInstance = echarts.init(interviewResultChart.value)
+  }
+  const resultMap = { 'pass': '通过', 'fail': '未通过', 'pending': '待定' }
+  const option = {
+    tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+    legend: { orient: 'vertical', left: 'left' },
+    series: [{
+      name: '面试结果',
+      type: 'pie',
+      radius: '50%',
+      data: data.map(item => ({ name: resultMap[item.groupName] || item.groupName, value: item.interviewCount })),
+      emphasis: {
+        itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0, 0, 0, 0.5)' }
+      }
+    }]
+  }
+  interviewResultChartInstance.setOption(option)
 }
 
 function loadJobType() {
@@ -184,6 +258,7 @@ function loadJobType() {
   getJobStatisticsByType().then(res => {
     jobTypeData.value = res.data || []
     jobTypeLoading.value = false
+    initJobTypeChart(jobTypeData.value)
   })
 }
 
@@ -192,6 +267,7 @@ function loadJobCity() {
   getJobStatisticsByCity().then(res => {
     jobCityData.value = res.data || []
     jobCityLoading.value = false
+    initJobCityChart(jobCityData.value)
   })
 }
 
@@ -200,6 +276,7 @@ function loadAppStatus() {
   getApplicationStatisticsByStatus().then(res => {
     appStatusData.value = res.data || []
     appStatusLoading.value = false
+    initAppStatusChart(appStatusData.value)
   })
 }
 
@@ -208,7 +285,16 @@ function loadInterviewResult() {
   getInterviewStatisticsByResult().then(res => {
     interviewResultData.value = res.data || []
     interviewResultLoading.value = false
+    initInterviewResultChart(interviewResultData.value)
   })
+}
+
+// 窗口大小变化时重绘图表
+function handleResize() {
+  jobTypeChartInstance?.resize()
+  appStatusChartInstance?.resize()
+  jobCityChartInstance?.resize()
+  interviewResultChartInstance?.resize()
 }
 
 onMounted(() => {
@@ -217,6 +303,15 @@ onMounted(() => {
   loadJobCity()
   loadAppStatus()
   loadInterviewResult()
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+  jobTypeChartInstance?.dispose()
+  appStatusChartInstance?.dispose()
+  jobCityChartInstance?.dispose()
+  interviewResultChartInstance?.dispose()
 })
 </script>
 

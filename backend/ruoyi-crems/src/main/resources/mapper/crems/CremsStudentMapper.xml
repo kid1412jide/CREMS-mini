@@ -6,6 +6,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <resultMap type="CremsStudent" id="CremsStudentResult">
         <result property="studentId"        column="student_id"        />
+        <result property="userId"           column="user_id"           />
         <result property="studentNo"        column="student_no"        />
         <result property="studentName"      column="student_name"      />
         <result property="gender"           column="gender"            />
@@ -31,7 +32,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectStudentVo">
-        select student_id, student_no, student_name, gender, birth_date, phone, email,
+        select student_id, user_id, student_no, student_name, gender, birth_date, phone, email,
                id_card, school, major, education, grade, graduation_date, avatar_url,
                resume_url, self_introduction, skills, status, create_by, create_time,
                update_by, update_time, remark
@@ -71,6 +72,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="insertStudent" parameterType="CremsStudent" useGeneratedKeys="true" keyProperty="studentId">
         insert into crems_student
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
             <if test="studentNo != null and studentNo != ''">student_no,</if>
             <if test="studentName != null and studentName != ''">student_name,</if>
             <if test="gender != null">gender,</if>
@@ -93,6 +95,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             create_time
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
             <if test="studentNo != null and studentNo != ''">#{studentNo},</if>
             <if test="studentName != null and studentName != ''">#{studentName},</if>
             <if test="gender != null">#{gender},</if>

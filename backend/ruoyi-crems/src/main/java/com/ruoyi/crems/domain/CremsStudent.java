@@ -19,6 +19,9 @@ public class CremsStudent extends BaseEntity
     /** 学生ID */
     private Long studentId;
 
+    /** 关联用户ID */
+    private Long userId;
+
     /** 学号 */
     @Excel(name = "学号")
     private String studentNo;
@@ -85,6 +88,9 @@ public class CremsStudent extends BaseEntity
 
     public void setStudentId(Long studentId) { this.studentId = studentId; }
     public Long getStudentId() { return studentId; }
+
+    public void setUserId(Long userId) { this.userId = userId; }
+    public Long getUserId() { return userId; }
 
     public void setStudentNo(String studentNo) { this.studentNo = studentNo; }
     public String getStudentNo() { return studentNo; }

@@ -151,6 +151,18 @@
         <el-form-item label="自我介绍" prop="selfIntroduction">
           <el-input v-model="form.selfIntroduction" type="textarea" placeholder="请输入自我介绍" :rows="3" maxlength="500" show-word-limit />
         </el-form-item>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="头像" prop="avatarUrl">
+              <image-upload v-model="form.avatarUrl" :limit="1" :file-size="5" :file-type="['png', 'jpg', 'jpeg']" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="简历" prop="resumeUrl">
+              <file-upload v-model="form.resumeUrl" :limit="1" :file-size="10" :file-type="['doc', 'docx', 'pdf']" />
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -163,6 +175,10 @@
     <!-- 学生详情弹窗 -->
     <el-dialog title="学生详情" v-model="viewOpen" width="600px" append-to-body>
       <el-descriptions :column="2" border>
+        <el-descriptions-item label="头像" :span="2">
+          <el-image v-if="viewData.avatarUrl" :src="getAvatarUrl(viewData.avatarUrl)" style="width: 100px; height: 100px;" fit="cover" />
+          <span v-else>暂无头像</span>
+        </el-descriptions-item>
         <el-descriptions-item label="学号">{{ viewData.studentNo }}</el-descriptions-item>
         <el-descriptions-item label="姓名">{{ viewData.studentName }}</el-descriptions-item>
         <el-descriptions-item label="性别">{{ viewData.gender === '0' ? '男' : '女' }}</el-descriptions-item>
@@ -175,6 +191,10 @@
           <dict-tag :options="crems_education" :value="viewData.education" />
         </el-descriptions-item>
         <el-descriptions-item label="年级">{{ viewData.grade }}</el-descriptions-item>
+        <el-descriptions-item label="简历">
+          <el-link v-if="viewData.resumeUrl" type="primary" :href="getResumeUrl(viewData.resumeUrl)" target="_blank">查看简历</el-link>
+          <span v-else>暂无简历</span>
+        </el-descriptions-item>
         <el-descriptions-item label="技能" :span="2">{{ viewData.skills }}</el-descriptions-item>
         <el-descriptions-item label="自我介绍" :span="2">{{ viewData.selfIntroduction }}</el-descriptions-item>
       </el-descriptions>
@@ -390,6 +410,20 @@ function handleStatusChange(row) {
   }).catch(() => {
     row.status = row.status === "0" ? "1" : "0"
   })
+}
+
+/** 获取头像完整URL */
+function getAvatarUrl(url) {
+  if (!url) return ''
+  if (url.startsWith('http')) return url
+  return import.meta.env.VITE_APP_BASE_API + url
+}
+
+/** 获取简历完整URL */
+function getResumeUrl(url) {
+  if (!url) return ''
+  if (url.startsWith('http')) return url
+  return import.meta.env.VITE_APP_BASE_API + url
 }
 
 function reset() {
