@@ -102,7 +102,17 @@ public class CremsPortalController extends BaseController
     public AjaxResult addApplication(@RequestBody CremsApplication application)
     {
         application.setCreateBy(getUsername());
-        return toAjax(applicationService.insertApplication(application));
+        // 根据当前登录用户自动设置studentId
+        if (application.getStudentId() == null) {
+            Long userId = getUserId();
+            CremsStudent student = studentService.selectStudentByUserId(userId);
+            if (student == null) {
+                return error("未找到当前用户的学生信息，无法投递。用户ID: " + userId);
+            }
+            application.setStudentId(student.getStudentId());
+        }
+        int rows = applicationService.insertApplication(application);
+        return rows > 0 ? success() : error("投递失败，可能已经投递过该职位");
     }
 
     @PutMapping("/application")

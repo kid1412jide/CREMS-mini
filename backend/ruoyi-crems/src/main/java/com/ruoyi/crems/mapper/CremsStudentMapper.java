@@ -12,6 +12,8 @@ public interface CremsStudentMapper
 {
     public CremsStudent selectStudentById(Long studentId);
 
+    public CremsStudent selectStudentByUserId(Long userId);
+
     public List<CremsStudent> selectStudentList(CremsStudent student);
 
     public int insertStudent(CremsStudent student);

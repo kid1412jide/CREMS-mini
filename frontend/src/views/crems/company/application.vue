@@ -34,6 +34,8 @@
       <el-table-column label="投递ID" align="center" key="applicationId" prop="applicationId" width="80" />
       <el-table-column label="职位名称" align="center" key="jobTitle" prop="jobTitle" :show-overflow-tooltip="true" />
       <el-table-column label="学生姓名" align="center" key="studentName" prop="studentName" width="100" />
+      <el-table-column label="学校" align="center" key="school" prop="school" :show-overflow-tooltip="true" />
+      <el-table-column label="专业" align="center" key="major" prop="major" :show-overflow-tooltip="true" />
       <el-table-column label="投递时间" align="center" prop="applyTime" width="160">
         <template #default="scope">
           <span>{{ parseTime(scope.row.applyTime) }}</span>
@@ -49,12 +51,6 @@
           <el-tag type="success" v-else-if="scope.row.status === '5'">已录用</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="查看时间" align="center" prop="viewTime" width="160">
-        <template #default="scope">
-          <span>{{ parseTime(scope.row.viewTime) }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="企业反馈" align="center" key="feedback" prop="feedback" :show-overflow-tooltip="true" />
       <el-table-column label="操作" align="center" width="150" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="View" @click="handleView(scope.row)">详情</el-button>
@@ -70,6 +66,7 @@
       <el-form :model="form" :rules="rules" ref="formRef" label-width="100px">
         <el-form-item label="处理状态" prop="status">
           <el-select v-model="form.status" placeholder="请选择" style="width: 100%">
+            <el-option label="已查看" value="1" />
             <el-option label="初筛通过" value="2" />
             <el-option label="面试邀请" value="3" />
             <el-option label="已拒绝" value="4" />
@@ -89,11 +86,11 @@
     </el-dialog>
 
     <!-- 投递详情弹窗 -->
-    <el-dialog title="投递详情" v-model="viewOpen" width="600px" append-to-body>
+    <el-dialog title="投递详情" v-model="viewOpen" width="700px" append-to-body>
+      <el-divider content-position="left">投递信息</el-divider>
       <el-descriptions :column="2" border>
         <el-descriptions-item label="投递ID">{{ viewData.applicationId }}</el-descriptions-item>
         <el-descriptions-item label="职位名称">{{ viewData.jobTitle }}</el-descriptions-item>
-        <el-descriptions-item label="学生姓名">{{ viewData.studentName }}</el-descriptions-item>
         <el-descriptions-item label="投递时间">{{ parseTime(viewData.applyTime) }}</el-descriptions-item>
         <el-descriptions-item label="状态">
           <el-tag type="info" v-if="viewData.status === '0'">待查看</el-tag>
@@ -104,10 +101,49 @@
           <el-tag type="success" v-else-if="viewData.status === '5'">已录用</el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="查看时间">{{ parseTime(viewData.viewTime) }}</el-descriptions-item>
-        <el-descriptions-item label="简历">{{ viewData.resumeUrl }}</el-descriptions-item>
-        <el-descriptions-item label="求职信" :span="2">{{ viewData.coverLetter }}</el-descriptions-item>
         <el-descriptions-item label="企业反馈" :span="2">{{ viewData.feedback }}</el-descriptions-item>
       </el-descriptions>
+
+      <el-divider content-position="left">学生简历</el-divider>
+      <el-descriptions :column="2" border>
+        <el-descriptions-item label="姓名">{{ viewData.studentName }}</el-descriptions-item>
+        <el-descriptions-item label="学号">{{ viewData.studentNo }}</el-descriptions-item>
+        <el-descriptions-item label="性别">{{ viewData.gender === '0' ? '男' : viewData.gender === '1' ? '女' : '-' }}</el-descriptions-item>
+        <el-descriptions-item label="手机号">{{ viewData.phone }}</el-descriptions-item>
+        <el-descriptions-item label="邮箱">{{ viewData.email }}</el-descriptions-item>
+        <el-descriptions-item label="学校">{{ viewData.school }}</el-descriptions-item>
+        <el-descriptions-item label="专业">{{ viewData.major }}</el-descriptions-item>
+        <el-descriptions-item label="学历">{{ viewData.education }}</el-descriptions-item>
+        <el-descriptions-item label="年级">{{ viewData.grade }}</el-descriptions-item>
+        <el-descriptions-item label="毕业时间">{{ parseTime(viewData.graduationDate) }}</el-descriptions-item>
+        <el-descriptions-item label="技能标签" :span="2">
+          <template v-if="viewData.skills">
+            <el-tag v-for="skill in viewData.skills.split(',')" :key="skill" v-if="skill.trim()" style="margin-right: 5px">{{ skill.trim() }}</el-tag>
+          </template>
+          <span v-else>-</span>
+        </el-descriptions-item>
+        <el-descriptions-item label="自我介绍" :span="2">{{ viewData.selfIntroduction || '-' }}</el-descriptions-item>
+      </el-descriptions>
+
+      <el-divider content-position="left">投递简历</el-divider>
+      <el-descriptions :column="1" border>
+        <el-descriptions-item label="简历文件">
+          <template v-if="viewData.resumeUrl">
+            <el-button type="primary" link @click="downloadResume(viewData.resumeUrl)">
+              <el-icon><Download /></el-icon> 下载简历
+            </el-button>
+            <span style="margin-left: 10px; color: #909399; font-size: 12px;">
+              (投递时上传)
+            </span>
+          </template>
+          <span v-else>未上传简历</span>
+        </el-descriptions-item>
+      </el-descriptions>
+
+      <el-divider content-position="left">求职信</el-divider>
+      <div style="padding: 10px; background: #f5f7fa; border-radius: 4px; min-height: 60px;">
+        {{ viewData.coverLetter || '未填写求职信' }}
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -128,10 +164,10 @@ const columns = ref({
   applicationId: { visible: true, label: '投递ID' },
   jobTitle: { visible: true, label: '职位名称' },
   studentName: { visible: true, label: '学生姓名' },
+  school: { visible: true, label: '学校' },
+  major: { visible: true, label: '专业' },
   applyTime: { visible: true, label: '投递时间' },
-  status: { visible: true, label: '状态' },
-  viewTime: { visible: true, label: '查看时间' },
-  feedback: { visible: true, label: '企业反馈' }
+  status: { visible: true, label: '状态' }
 })
 
 const data = reactive({
@@ -172,6 +208,23 @@ function resetQuery() {
 function handleView(row) {
   viewData.value = row
   viewOpen.value = true
+  // 待查看状态自动标记为已查看
+  if (row.status === '0') {
+    updateApplication({
+      applicationId: row.applicationId,
+      status: '1',
+      viewTime: new Date()
+    }).then(() => {
+      getList()
+    })
+  }
+}
+
+// 下载简历
+function downloadResume(url) {
+  if (url) {
+    window.open(url)
+  }
 }
 
 function handleUpdateStatus(row) {

@@ -41,6 +41,10 @@
             <span class="feedback-text">{{ app.feedback }}</span>
           </div>
         </div>
+        <div class="app-card__footer">
+          <span></span>
+          <el-button type="primary" link @click="handleView(app)">查看详情</el-button>
+        </div>
       </div>
     </div>
 
@@ -54,6 +58,28 @@
     <div style="margin-top: 24px; display: flex; justify-content: center" v-if="total > 0">
       <pagination :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
     </div>
+
+    <!-- 投递详情弹窗 -->
+    <el-dialog title="投递详情" v-model="viewOpen" width="600px" append-to-body>
+      <el-descriptions :column="2" border>
+        <el-descriptions-item label="投递ID">{{ viewData.applicationId }}</el-descriptions-item>
+        <el-descriptions-item label="职位名称">{{ viewData.jobTitle }}</el-descriptions-item>
+        <el-descriptions-item label="企业名称">{{ viewData.companyName }}</el-descriptions-item>
+        <el-descriptions-item label="投递时间">{{ parseTime(viewData.applyTime) }}</el-descriptions-item>
+        <el-descriptions-item label="状态">
+          <el-tag :type="getStatusType(viewData.status)">{{ getStatusLabel(viewData.status) }}</el-tag>
+        </el-descriptions-item>
+        <el-descriptions-item label="查看时间">{{ parseTime(viewData.viewTime) || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="求职信" :span="2">{{ viewData.coverLetter || '未填写' }}</el-descriptions-item>
+        <el-descriptions-item label="企业反馈" :span="2">{{ viewData.feedback || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="投递简历" :span="2">
+          <el-button v-if="viewData.resumeUrl" type="primary" link @click="downloadResume(viewData.resumeUrl)">
+            下载简历
+          </el-button>
+          <span v-else>未上传</span>
+        </el-descriptions-item>
+      </el-descriptions>
+    </el-dialog>
   </div>
 </template>
 
@@ -64,6 +90,8 @@ import { parseTime } from '@/utils/ruoyi'
 const loading = ref(false)
 const appList = ref([])
 const total = ref(0)
+const viewOpen = ref(false)
+const viewData = ref({})
 
 const queryParams = reactive({
   pageNum: 1,
@@ -95,6 +123,17 @@ function getList() {
 function handleQuery() {
   queryParams.pageNum = 1
   getList()
+}
+
+function handleView(app) {
+  viewData.value = app
+  viewOpen.value = true
+}
+
+function downloadResume(url) {
+  if (url) {
+    window.open(url)
+  }
 }
 
 onMounted(() => getList())
@@ -162,6 +201,15 @@ onMounted(() => getList())
         font-weight: 500;
       }
     }
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1px solid #f5f5f5;
+    margin-top: 10px;
   }
 }
 </style>

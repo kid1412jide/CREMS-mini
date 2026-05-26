@@ -42,6 +42,43 @@ public class CremsApplication extends BaseEntity
     @Excel(name = "学生姓名")
     private String studentName;
 
+    /** 学号（关联查询） */
+    private String studentNo;
+
+    /** 性别（关联查询） */
+    private String gender;
+
+    /** 手机号（关联查询） */
+    private String phone;
+
+    /** 邮箱（关联查询） */
+    private String email;
+
+    /** 学校（关联查询） */
+    private String school;
+
+    /** 专业（关联查询） */
+    private String major;
+
+    /** 学历（关联查询） */
+    private String education;
+
+    /** 年级（关联查询） */
+    private String grade;
+
+    /** 毕业时间（关联查询） */
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private Date graduationDate;
+
+    /** 技能标签（关联查询） */
+    private String skills;
+
+    /** 自我介绍（关联查询） */
+    private String selfIntroduction;
+
+    /** 学生简历附件（关联查询） */
+    private String studentResumeUrl;
+
     /** 简历附件 */
     private String resumeUrl;
 
@@ -84,6 +121,42 @@ public class CremsApplication extends BaseEntity
 
     public void setStudentName(String studentName) { this.studentName = studentName; }
     public String getStudentName() { return studentName; }
+
+    public void setStudentNo(String studentNo) { this.studentNo = studentNo; }
+    public String getStudentNo() { return studentNo; }
+
+    public void setGender(String gender) { this.gender = gender; }
+    public String getGender() { return gender; }
+
+    public void setPhone(String phone) { this.phone = phone; }
+    public String getPhone() { return phone; }
+
+    public void setEmail(String email) { this.email = email; }
+    public String getEmail() { return email; }
+
+    public void setSchool(String school) { this.school = school; }
+    public String getSchool() { return school; }
+
+    public void setMajor(String major) { this.major = major; }
+    public String getMajor() { return major; }
+
+    public void setEducation(String education) { this.education = education; }
+    public String getEducation() { return education; }
+
+    public void setGrade(String grade) { this.grade = grade; }
+    public String getGrade() { return grade; }
+
+    public void setGraduationDate(Date graduationDate) { this.graduationDate = graduationDate; }
+    public Date getGraduationDate() { return graduationDate; }
+
+    public void setSkills(String skills) { this.skills = skills; }
+    public String getSkills() { return skills; }
+
+    public void setSelfIntroduction(String selfIntroduction) { this.selfIntroduction = selfIntroduction; }
+    public String getSelfIntroduction() { return selfIntroduction; }
+
+    public void setStudentResumeUrl(String studentResumeUrl) { this.studentResumeUrl = studentResumeUrl; }
+    public String getStudentResumeUrl() { return studentResumeUrl; }
 
     public void setResumeUrl(String resumeUrl) { this.resumeUrl = resumeUrl; }
     public String getResumeUrl() { return resumeUrl; }

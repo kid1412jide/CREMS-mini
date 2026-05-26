@@ -44,6 +44,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where student_id = #{studentId}
     </select>
 
+    <select id="selectStudentByUserId" parameterType="Long" resultMap="CremsStudentResult">
+        <include refid="selectStudentVo"/>
+        where user_id = #{userId}
+    </select>
+
     <select id="selectStudentList" parameterType="CremsStudent" resultMap="CremsStudentResult">
         <include refid="selectStudentVo"/>
         <where>

@@ -36,6 +36,7 @@
         <div class="app-card__footer">
           <span class="apply-time">投递于 {{ parseTime(app.applyTime) }}</span>
           <div class="action-btns">
+            <el-button type="primary" size="small" plain @click="handleView(app)">查看详情</el-button>
             <el-button v-if="app.status === '0'" type="primary" size="small" @click="handleStatus(app, '1')">标记已查看</el-button>
             <el-button v-if="app.status === '0' || app.status === '1'" type="success" size="small" @click="handleStatus(app, '2')">初筛通过</el-button>
             <el-button v-if="app.status === '2'" type="primary" size="small" @click="handleInvite(app)">邀请面试</el-button>
@@ -53,6 +54,61 @@
     <div style="margin-top: 24px; display: flex; justify-content: center" v-if="total > 0">
       <pagination :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
     </div>
+
+    <!-- Detail dialog -->
+    <el-dialog title="投递详情" v-model="viewOpen" width="700px" destroy-on-close>
+      <el-divider content-position="left">投递信息</el-divider>
+      <el-descriptions :column="2" border>
+        <el-descriptions-item label="投递ID">{{ viewData.applicationId }}</el-descriptions-item>
+        <el-descriptions-item label="职位名称">{{ viewData.jobTitle }}</el-descriptions-item>
+        <el-descriptions-item label="投递时间">{{ parseTime(viewData.applyTime) }}</el-descriptions-item>
+        <el-descriptions-item label="状态">
+          <el-tag :type="getStatusType(viewData.status)">{{ getStatusLabel(viewData.status) }}</el-tag>
+        </el-descriptions-item>
+        <el-descriptions-item label="查看时间">{{ parseTime(viewData.viewTime) || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="企业反馈" :span="2">{{ viewData.feedback || '-' }}</el-descriptions-item>
+      </el-descriptions>
+
+      <el-divider content-position="left">学生简历</el-divider>
+      <el-descriptions :column="2" border>
+        <el-descriptions-item label="姓名">{{ viewData.studentName }}</el-descriptions-item>
+        <el-descriptions-item label="学号">{{ viewData.studentNo || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="性别">{{ viewData.gender === '0' ? '男' : viewData.gender === '1' ? '女' : '-' }}</el-descriptions-item>
+        <el-descriptions-item label="手机号">{{ viewData.phone || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="邮箱">{{ viewData.email || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="学校">{{ viewData.school || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="专业">{{ viewData.major || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="学历">{{ viewData.education || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="年级">{{ viewData.grade || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="毕业时间">{{ parseTime(viewData.graduationDate) || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="技能标签" :span="2">
+          <template v-if="viewData.skills">
+            <template v-for="skill in viewData.skills.split(',')" :key="skill">
+              <el-tag v-if="skill.trim()" style="margin-right: 5px">{{ skill.trim() }}</el-tag>
+            </template>
+          </template>
+          <span v-else>-</span>
+        </el-descriptions-item>
+        <el-descriptions-item label="自我介绍" :span="2">{{ viewData.selfIntroduction || '-' }}</el-descriptions-item>
+      </el-descriptions>
+
+      <el-divider content-position="left">投递简历</el-divider>
+      <el-descriptions :column="1" border>
+        <el-descriptions-item label="简历文件">
+          <template v-if="viewData.resumeUrl">
+            <el-button type="primary" link @click="downloadResume(viewData.resumeUrl)">
+              下载简历
+            </el-button>
+          </template>
+          <span v-else>未上传简历</span>
+        </el-descriptions-item>
+      </el-descriptions>
+
+      <el-divider content-position="left">求职信</el-divider>
+      <div style="padding: 10px; background: #f5f7fa; border-radius: 4px; min-height: 60px;">
+        {{ viewData.coverLetter || '未填写求职信' }}
+      </div>
+    </el-dialog>
 
     <!-- Invite interview dialog -->
     <el-dialog title="邀请面试" v-model="inviteOpen" width="500px" append-to-body>
@@ -104,6 +160,8 @@ const { proxy } = getCurrentInstance()
 const loading = ref(false)
 const appList = ref([])
 const total = ref(0)
+const viewOpen = ref(false)
+const viewData = ref({})
 const inviteOpen = ref(false)
 const inviteLoading = ref(false)
 const inviteRef = ref(null)
@@ -158,6 +216,23 @@ async function handleStatus(app, status) {
     getList()
   } catch (e) {
     proxy.$modal.msgError('操作失败')
+  }
+}
+
+function handleView(app) {
+  viewData.value = { ...app }
+  viewOpen.value = true
+  // 待查看状态自动标记为已查看
+  if (app.status === '0') {
+    updateApplication({ applicationId: app.applicationId, status: '1' }).then(() => {
+      getList()
+    }).catch(() => {})
+  }
+}
+
+function downloadResume(url) {
+  if (url) {
+    window.open(url)
   }
 }
 
