@@ -25,6 +25,12 @@ public class CremsStudentServiceImpl implements ICremsStudentService
     }
 
     @Override
+    public CremsStudent selectStudentByUserId(Long userId)
+    {
+        return studentMapper.selectStudentByUserId(userId);
+    }
+
+    @Override
     public List<CremsStudent> selectStudentList(CremsStudent student)
     {
         return studentMapper.selectStudentList(student);

@@ -121,8 +121,33 @@
     <!-- Apply dialog -->
     <el-dialog title="投递简历" v-model="applyOpen" width="500px" append-to-body>
       <el-form :model="applyForm" ref="applyRef" label-width="80px">
-        <el-form-item label="简历链接">
-          <el-input v-model="applyForm.resumeUrl" placeholder="请输入简历链接或附件地址" />
+        <el-form-item label="上传简历">
+          <el-upload
+            ref="uploadRef"
+            class="resume-upload"
+            :limit="1"
+            accept=".pdf,.doc,.docx"
+            :headers="uploadHeaders"
+            :action="uploadUrl"
+            :on-success="handleUploadSuccess"
+            :on-error="handleUploadError"
+            :on-exceed="handleUploadExceed"
+            :before-upload="beforeUpload"
+            :auto-upload="true"
+            :show-file-list="true"
+            drag
+          >
+            <el-icon class="el-icon--upload"><Upload /></el-icon>
+            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+            <template #tip>
+              <div class="el-upload__tip">支持 PDF、Word 格式，文件大小不超过 10MB</div>
+            </template>
+          </el-upload>
+          <div v-if="applyForm.resumeUrl" style="margin-top: 8px;">
+            <el-tag type="success" closable @close="clearResume">
+              {{ uploadedFileName || '已上传简历' }}
+            </el-tag>
+          </div>
         </el-form-item>
         <el-form-item label="求职信">
           <el-input v-model="applyForm.coverLetter" type="textarea" :rows="4" placeholder="简单介绍自己，表达对该职位的兴趣（选填）" maxlength="500" show-word-limit />
@@ -139,6 +164,7 @@
 <script setup>
 import { getJob, getCompany, addApplication, listApplication, addFavorite, delFavoriteByJobAndStudent, listFavorite } from '@/api/portal'
 import { parseTime } from '@/utils/ruoyi'
+import { getToken } from '@/utils/auth'
 
 const route = useRoute()
 const router = useRouter()
@@ -154,6 +180,12 @@ const isFavorited = ref(false)
 const applyOpen = ref(false)
 const applyLoading = ref(false)
 const applyForm = ref({ resumeUrl: '', coverLetter: '' })
+const uploadRef = ref(null)
+const uploadedFileName = ref('')
+
+// 上传相关
+const uploadUrl = import.meta.env.VITE_APP_BASE_API + '/common/upload'
+const uploadHeaders = { Authorization: 'Bearer ' + getToken() }
 
 const jobTypeMap = { full_time: '全职', internship: '实习', part_time: '兼职' }
 const eduMap = { junior_college: '专科', bachelor: '本科', master: '硕士', doctor: '博士' }
@@ -193,7 +225,48 @@ async function loadData() {
 
 function handleApply() {
   applyForm.value = { resumeUrl: '', coverLetter: '' }
+  uploadedFileName.value = ''
   applyOpen.value = true
+}
+
+// 上传前校验
+function beforeUpload(file) {
+  const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+  if (!allowedTypes.includes(file.type)) {
+    proxy.$modal.msgError('只支持 PDF 和 Word 格式的文件')
+    return false
+  }
+  if (file.size / 1024 / 1024 > 10) {
+    proxy.$modal.msgError('文件大小不能超过 10MB')
+    return false
+  }
+  return true
+}
+
+function handleUploadSuccess(response, file) {
+  if (response.code === 200) {
+    applyForm.value.resumeUrl = response.url
+    uploadedFileName.value = response.originalFilename || file.name
+    proxy.$modal.msgSuccess('上传成功')
+  } else {
+    proxy.$modal.msgError(response.msg || '上传失败')
+  }
+}
+
+function handleUploadError() {
+  proxy.$modal.msgError('上传失败，请重试')
+}
+
+function handleUploadExceed() {
+  proxy.$modal.msgWarning('只能上传一个简历文件，请先删除已上传的文件')
+}
+
+function clearResume() {
+  applyForm.value.resumeUrl = ''
+  uploadedFileName.value = ''
+  if (uploadRef.value) {
+    uploadRef.value.clearFiles()
+  }
 }
 
 async function submitApply() {
@@ -208,7 +281,8 @@ async function submitApply() {
     hasApplied.value = true
     applyOpen.value = false
   } catch (e) {
-    proxy.$modal.msgError('投递失败，可能已经投递过该职位')
+    const msg = e?.response?.data?.msg || e?.message || '投递失败，可能已经投递过该职位'
+    proxy.$modal.msgError(msg)
   } finally {
     applyLoading.value = false
   }
@@ -421,6 +495,18 @@ watch(jobId, () => { if (jobId.value) loadData() }, { immediate: true })
     color: #f56c6c;
     margin-top: 2px;
   }
+}
+
+.resume-upload {
+  width: 100%;
+}
+
+.resume-upload :deep(.el-upload) {
+  width: 100%;
+}
+
+.resume-upload :deep(.el-upload-dragger) {
+  width: 100%;
 }
 
 @media (max-width: 1024px) {

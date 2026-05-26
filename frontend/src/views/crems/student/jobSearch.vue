@@ -102,7 +102,32 @@
     <el-dialog title="投递简历" v-model="applyOpen" width="500px" append-to-body>
       <el-form :model="applyForm" :rules="applyRules" ref="applyRef" label-width="100px">
         <el-form-item label="上传简历" prop="resumeUrl">
-          <el-input v-model="applyForm.resumeUrl" placeholder="请输入简历链接或上传简历" />
+          <el-upload
+            ref="uploadRef"
+            class="upload-demo"
+            :limit="1"
+            accept=".pdf,.doc,.docx"
+            :headers="uploadHeaders"
+            :action="uploadUrl"
+            :on-success="handleUploadSuccess"
+            :on-error="handleUploadError"
+            :on-exceed="handleUploadExceed"
+            :before-upload="beforeUpload"
+            :auto-upload="true"
+            :show-file-list="true"
+            drag
+          >
+            <el-icon class="el-icon--upload"><Upload /></el-icon>
+            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+            <template #tip>
+              <div class="el-upload__tip">支持 PDF、Word 格式，文件大小不超过 10MB</div>
+            </template>
+          </el-upload>
+          <div v-if="applyForm.resumeUrl" style="margin-top: 8px;">
+            <el-tag type="success" closable @close="clearResume">
+              {{ uploadedFileName || '已上传简历' }}
+            </el-tag>
+          </div>
         </el-form-item>
         <el-form-item label="求职信" prop="coverLetter">
           <el-input v-model="applyForm.coverLetter" type="textarea" placeholder="请输入求职信（选填）" :rows="4" maxlength="500" show-word-limit />
@@ -122,6 +147,7 @@
 import { listJob, getJob } from "@/api/crems/job"
 import { addApplication } from "@/api/crems/application"
 import { addFavorite, delFavoriteByJobAndStudent } from "@/api/crems/favorite"
+import { getToken } from "@/utils/auth"
 
 const { proxy } = getCurrentInstance()
 const router = useRouter()
@@ -133,6 +159,12 @@ const viewOpen = ref(false)
 const applyOpen = ref(false)
 const viewData = ref({})
 const applyForm = ref({})
+const uploadRef = ref(null)
+const uploadedFileName = ref('')
+
+// 上传相关
+const uploadUrl = import.meta.env.VITE_APP_BASE_API + '/common/upload'
+const uploadHeaders = { Authorization: 'Bearer ' + getToken() }
 
 const columns = ref({
   jobTitle: { visible: true, label: '职位名称' },
@@ -190,7 +222,59 @@ function handleApply(job) {
     resumeUrl: '',
     coverLetter: ''
   }
+  uploadedFileName.value = ''
   applyOpen.value = true
+}
+
+// 上传前校验
+function beforeUpload(file) {
+  const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+  if (!allowedTypes.includes(file.type)) {
+    proxy.$modal.msgError('只支持 PDF 和 Word 格式的文件')
+    return false
+  }
+  if (file.size / 1024 / 1024 > 10) {
+    proxy.$modal.msgError('文件大小不能超过 10MB')
+    return false
+  }
+  return true
+}
+
+// 上传成功回调
+function handleUploadSuccess(response, file) {
+  if (response.code === 200) {
+    applyForm.value.resumeUrl = response.url
+    uploadedFileName.value = response.originalFilename || file.name
+    proxy.$modal.msgSuccess('上传成功')
+  } else {
+    proxy.$modal.msgError(response.msg || '上传失败')
+  }
+}
+
+// 上传失败回调
+function handleUploadError() {
+  proxy.$modal.msgError('上传失败，请重试')
+}
+
+// 超出限制回调
+function handleUploadExceed() {
+  proxy.$modal.msgWarning('只能上传一个简历文件，请先删除已上传的文件')
+}
+
+// 清除已上传简历
+function clearResume() {
+  applyForm.value.resumeUrl = ''
+  uploadedFileName.value = ''
+  if (uploadRef.value) {
+    uploadRef.value.clearFiles()
+  }
+}
+
+// 下载简历
+function downloadResume() {
+  if (applyForm.value.resumeUrl) {
+    window.open(applyForm.value.resumeUrl)
+  }
 }
 
 function submitApply() {

@@ -68,7 +68,10 @@
           <el-tag type="danger" v-else-if="viewData.status === '4'">已拒绝</el-tag>
           <el-tag type="success" v-else-if="viewData.status === '5'">已录用</el-tag>
         </el-descriptions-item>
-        <el-descriptions-item label="简历">{{ viewData.resumeUrl }}</el-descriptions-item>
+        <el-descriptions-item label="简历">
+          <el-button v-if="viewData.resumeUrl" type="primary" link @click="downloadResume(viewData.resumeUrl)">下载简历</el-button>
+          <span v-else>未上传</span>
+        </el-descriptions-item>
         <el-descriptions-item label="查看时间">{{ parseTime(viewData.viewTime) }}</el-descriptions-item>
         <el-descriptions-item label="求职信" :span="2">{{ viewData.coverLetter }}</el-descriptions-item>
         <el-descriptions-item label="企业反馈" :span="2">{{ viewData.feedback }}</el-descriptions-item>
@@ -130,6 +133,13 @@ function resetQuery() {
 function handleView(row) {
   viewData.value = row
   viewOpen.value = true
+}
+
+// 下载简历
+function downloadResume(url) {
+  if (url) {
+    window.open(url)
+  }
 }
 
 onMounted(() => {

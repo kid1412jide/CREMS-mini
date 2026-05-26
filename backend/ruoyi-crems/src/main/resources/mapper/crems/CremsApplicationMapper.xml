@@ -12,6 +12,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="jobTitle"      column="job_title"      />
         <result property="companyName"   column="company_name"   />
         <result property="studentName"   column="student_name"   />
+        <result property="studentNo"     column="student_no"     />
+        <result property="gender"        column="gender"         />
+        <result property="phone"         column="phone"          />
+        <result property="email"         column="email"          />
+        <result property="school"        column="school"         />
+        <result property="major"         column="major"          />
+        <result property="education"     column="education"      />
+        <result property="grade"         column="grade"          />
+        <result property="graduationDate" column="graduation_date" />
+        <result property="skills"        column="skills"         />
+        <result property="selfIntroduction" column="self_introduction" />
+        <result property="studentResumeUrl" column="student_resume_url" />
         <result property="resumeUrl"     column="resume_url"     />
         <result property="coverLetter"   column="cover_letter"   />
         <result property="applyTime"     column="apply_time"     />
@@ -28,6 +40,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <sql id="selectApplicationVo">
         select a.application_id, a.job_id, a.student_id, a.company_id,
                j.job_title, c.company_name, s.student_name,
+               s.student_no, s.gender, s.phone, s.email,
+               s.school, s.major, s.education, s.grade, s.graduation_date,
+               s.skills, s.self_introduction, s.resume_url as student_resume_url,
                a.resume_url, a.cover_letter, a.apply_time, a.status,
                a.view_time, a.feedback, a.create_by, a.create_time,
                a.update_by, a.update_time, a.remark
