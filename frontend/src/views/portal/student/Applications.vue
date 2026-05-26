@@ -17,7 +17,7 @@
 
     <!-- Application list -->
     <div class="app-list" v-loading="loading">
-      <div v-for="app in appList" :key="app.applicationId" class="app-card">
+      <div v-for="(app, index) in appList" :key="app.applicationId" class="app-card" v-anime-stagger="index * 60">
         <div class="app-card__header">
           <div class="app-card__job">
             <div class="job-title">{{ app.jobTitle }}</div>
@@ -60,25 +60,27 @@
     </div>
 
     <!-- 投递详情弹窗 -->
-    <el-dialog title="投递详情" v-model="viewOpen" width="600px" append-to-body>
-      <el-descriptions :column="2" border>
-        <el-descriptions-item label="投递ID">{{ viewData.applicationId }}</el-descriptions-item>
-        <el-descriptions-item label="职位名称">{{ viewData.jobTitle }}</el-descriptions-item>
-        <el-descriptions-item label="企业名称">{{ viewData.companyName }}</el-descriptions-item>
-        <el-descriptions-item label="投递时间">{{ parseTime(viewData.applyTime) }}</el-descriptions-item>
-        <el-descriptions-item label="状态">
-          <el-tag :type="getStatusType(viewData.status)">{{ getStatusLabel(viewData.status) }}</el-tag>
-        </el-descriptions-item>
-        <el-descriptions-item label="查看时间">{{ parseTime(viewData.viewTime) || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="求职信" :span="2">{{ viewData.coverLetter || '未填写' }}</el-descriptions-item>
-        <el-descriptions-item label="企业反馈" :span="2">{{ viewData.feedback || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="投递简历" :span="2">
-          <el-button v-if="viewData.resumeUrl" type="primary" link @click="downloadResume(viewData.resumeUrl)">
-            下载简历
-          </el-button>
-          <span v-else>未上传</span>
-        </el-descriptions-item>
-      </el-descriptions>
+    <el-dialog title="投递详情" v-model="viewOpen" width="600px" destroy-on-close>
+      <div style="max-height: 65vh; overflow-y: auto; padding-right: 8px;">
+        <el-descriptions :column="2" border>
+          <el-descriptions-item label="投递ID">{{ viewData.applicationId }}</el-descriptions-item>
+          <el-descriptions-item label="职位名称">{{ viewData.jobTitle }}</el-descriptions-item>
+          <el-descriptions-item label="企业名称">{{ viewData.companyName }}</el-descriptions-item>
+          <el-descriptions-item label="投递时间">{{ parseTime(viewData.applyTime) }}</el-descriptions-item>
+          <el-descriptions-item label="状态">
+            <el-tag :type="getStatusType(viewData.status)">{{ getStatusLabel(viewData.status) }}</el-tag>
+          </el-descriptions-item>
+          <el-descriptions-item label="查看时间">{{ parseTime(viewData.viewTime) || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="求职信" :span="2">{{ viewData.coverLetter || '未填写' }}</el-descriptions-item>
+          <el-descriptions-item label="企业反馈" :span="2">{{ viewData.feedback || '-' }}</el-descriptions-item>
+          <el-descriptions-item label="投递简历" :span="2">
+            <el-button v-if="viewData.resumeUrl" type="primary" link @click="downloadResume(viewData.resumeUrl)">
+              下载简历
+            </el-button>
+            <span v-else>未上传</span>
+          </el-descriptions-item>
+        </el-descriptions>
+      </div>
     </el-dialog>
   </div>
 </template>

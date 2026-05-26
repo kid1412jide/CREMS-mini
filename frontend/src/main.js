@@ -13,6 +13,7 @@ import App from './App'
 import store from './store'
 import router from './router'
 import directive from './directive' // directive
+import { vAnimeButton, vAnimeCard, vAnimeStagger } from '@/directive/anime'
 
 // 注册指令
 import plugins from './plugins' // plugins
@@ -73,6 +74,11 @@ app.use(elementIcons)
 app.component('svg-icon', SvgIcon)
 
 directive(app)
+
+// 动画指令
+app.directive('anime-button', vAnimeButton)
+app.directive('anime-card', vAnimeCard)
+app.directive('anime-stagger', vAnimeStagger)
 
 // 使用element-plus 并且设置全局的大小
 app.use(ElementPlus, {

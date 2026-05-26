@@ -51,6 +51,7 @@
         <div class="detail-card apply-card">
           <el-button
             v-if="!hasApplied"
+            v-anime-button
             type="primary"
             size="large"
             class="apply-btn"
@@ -68,6 +69,7 @@
             已投递
           </el-button>
           <el-button
+            v-anime-button
             :type="isFavorited ? 'warning' : 'default'"
             size="large"
             class="fav-btn"

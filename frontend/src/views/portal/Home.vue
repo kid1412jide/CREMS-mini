@@ -32,7 +32,7 @@
                 <el-icon><Location /></el-icon>
               </template>
             </el-input>
-            <el-button type="primary" size="large" @click="handleSearch" class="search-btn">
+            <el-button v-anime-button type="primary" size="large" @click="handleSearch" class="search-btn">
               搜索职位
             </el-button>
           </div>
@@ -44,7 +44,7 @@
     <!-- Stats Section -->
     <section class="stats-section" v-if="stats">
       <div class="stats-grid">
-        <div class="stat-item" v-for="s in statsItems" :key="s.label">
+        <div class="stat-item" v-for="(s, index) in statsItems" :key="s.label" v-anime-stagger="index * 80">
           <div class="stat-item__value">{{ s.value }}</div>
           <div class="stat-item__label">{{ s.label }}</div>
         </div>
