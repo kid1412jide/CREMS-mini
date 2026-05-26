@@ -32,7 +32,7 @@
         <el-option label="硕士" value="master" />
         <el-option label="博士" value="doctor" />
       </el-select>
-      <el-button type="primary" size="large" @click="handleQuery" :icon="Search">搜索</el-button>
+      <el-button v-anime-button type="primary" size="large" @click="handleQuery" :icon="Search">搜索</el-button>
     </div>
 
     <!-- Results -->

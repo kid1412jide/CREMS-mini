@@ -18,7 +18,7 @@
 
     <!-- Application list -->
     <div class="app-list" v-loading="loading">
-      <div v-for="app in appList" :key="app.applicationId" class="app-card">
+      <div v-for="(app, index) in appList" :key="app.applicationId" class="app-card" v-anime-stagger="index * 60">
         <div class="app-card__header">
           <div class="app-card__info">
             <div class="student-name">{{ app.studentName }}</div>
@@ -36,12 +36,12 @@
         <div class="app-card__footer">
           <span class="apply-time">投递于 {{ parseTime(app.applyTime) }}</span>
           <div class="action-btns">
-            <el-button type="primary" size="small" plain @click="handleView(app)">查看详情</el-button>
-            <el-button v-if="app.status === '0'" type="primary" size="small" @click="handleStatus(app, '1')">标记已查看</el-button>
-            <el-button v-if="app.status === '0' || app.status === '1'" type="success" size="small" @click="handleStatus(app, '2')">初筛通过</el-button>
-            <el-button v-if="app.status === '2'" type="primary" size="small" @click="handleInvite(app)">邀请面试</el-button>
-            <el-button v-if="app.status === '3'" type="success" size="small" @click="handleStatus(app, '5')">录用</el-button>
-            <el-button v-if="app.status !== '4' && app.status !== '5'" type="danger" size="small" plain @click="handleStatus(app, '4')">拒绝</el-button>
+            <el-button v-anime-button type="primary" size="small" plain @click="handleView(app)">查看详情</el-button>
+            <el-button v-anime-button v-if="app.status === '0'" type="primary" size="small" @click="handleStatus(app, '1')">标记已查看</el-button>
+            <el-button v-anime-button v-if="app.status === '0' || app.status === '1'" type="success" size="small" @click="handleStatus(app, '2')">初筛通过</el-button>
+            <el-button v-anime-button v-if="app.status === '2'" type="primary" size="small" @click="handleInvite(app)">邀请面试</el-button>
+            <el-button v-anime-button v-if="app.status === '3'" type="success" size="small" @click="handleStatus(app, '5')">录用</el-button>
+            <el-button v-anime-button v-if="app.status !== '4' && app.status !== '5'" type="danger" size="small" plain @click="handleStatus(app, '4')">拒绝</el-button>
           </div>
         </div>
       </div>
@@ -57,6 +57,7 @@
 
     <!-- Detail dialog -->
     <el-dialog title="投递详情" v-model="viewOpen" width="700px" destroy-on-close>
+      <div style="max-height: 65vh; overflow-y: auto; padding-right: 8px;">
       <el-divider content-position="left">投递信息</el-divider>
       <el-descriptions :column="2" border>
         <el-descriptions-item label="投递ID">{{ viewData.applicationId }}</el-descriptions-item>
@@ -107,6 +108,7 @@
       <el-divider content-position="left">求职信</el-divider>
       <div style="padding: 10px; background: #f5f7fa; border-radius: 4px; min-height: 60px;">
         {{ viewData.coverLetter || '未填写求职信' }}
+      </div>
       </div>
     </el-dialog>
 

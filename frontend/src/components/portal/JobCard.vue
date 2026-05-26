@@ -1,5 +1,5 @@
 <template>
-  <div class="job-card" @click="$emit('click', job)">
+  <div class="job-card" @click="$emit('click', job)" v-anime-card>
     <div class="job-card__header">
       <div class="job-card__title">{{ job.jobTitle }}</div>
       <div class="job-card__salary">

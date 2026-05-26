@@ -3,8 +3,13 @@
     <PortalHeader />
     <main class="portal-main">
       <router-view v-slot="{ Component }">
-        <transition name="portal-fade" mode="out-in">
-          <component :is="Component" />
+        <transition
+          @before-enter="onBeforeEnter"
+          @enter="onEnter"
+          @leave="onLeave"
+          mode="out-in"
+        >
+          <component :is="Component" :key="$route.path" />
         </transition>
       </router-view>
     </main>
@@ -15,6 +20,31 @@
 <script setup>
 import PortalHeader from './PortalHeader.vue'
 import PortalFooter from './PortalFooter.vue'
+import { animate } from 'animejs'
+
+function onBeforeEnter(el) {
+  el.style.opacity = 0
+}
+
+function onEnter(el, done) {
+  animate(el, {
+    opacity: [0, 1],
+    translateY: [12, 0],
+    duration: 320,
+    ease: 'out(2)',
+    onComplete: done
+  })
+}
+
+function onLeave(el, done) {
+  animate(el, {
+    opacity: [1, 0],
+    translateY: [0, -8],
+    duration: 200,
+    ease: 'in(2)',
+    onComplete: done
+  })
+}
 </script>
 
 <style lang="scss">
@@ -33,16 +63,6 @@ import PortalFooter from './PortalFooter.vue'
   max-width: 1280px;
   margin: 0 auto;
   padding: 24px 24px 48px;
-}
-
-.portal-fade-enter-active,
-.portal-fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.portal-fade-enter-from,
-.portal-fade-leave-to {
-  opacity: 0;
 }
 
 @media (max-width: 768px) {
