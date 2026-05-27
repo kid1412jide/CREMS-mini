@@ -25,6 +25,12 @@ public class CremsCompanyServiceImpl implements ICremsCompanyService
     }
 
     @Override
+    public CremsCompany selectCompanyByUserId(Long userId)
+    {
+        return companyMapper.selectCompanyByUserId(userId);
+    }
+
+    @Override
     public List<CremsCompany> selectCompanyList(CremsCompany company)
     {
         return companyMapper.selectCompanyList(company);

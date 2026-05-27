@@ -153,7 +153,7 @@
 </template>
 
 <script setup>
-import { getStudent, updateStudent, listStudent } from '@/api/portal'
+import { getStudent, getCurrentStudent, updateStudent, listStudent } from '@/api/portal'
 import useUserStore from '@/store/modules/user'
 
 const userStore = useUserStore()
@@ -213,10 +213,10 @@ function removeSkill(skill) {
 
 async function loadProfile() {
   try {
-    // Try to find student by current user
-    const res = await listStudent({ pageSize: 1, pageNum: 1 })
-    if (res.rows && res.rows.length > 0) {
-      const student = res.rows[0]
+    // 使用专门的接口按当前用户ID查询学生信息
+    const res = await getCurrentStudent()
+    if (res.data) {
+      const student = res.data
       studentId.value = student.studentId
       Object.keys(form).forEach(key => {
         if (student[key] !== undefined && student[key] !== null) {
@@ -224,7 +224,21 @@ async function loadProfile() {
         }
       })
     }
-  } catch (e) { /* ignore */ }
+  } catch (e) {
+    // 如果获取失败，尝试列表接口
+    try {
+      const res = await listStudent({ pageSize: 1, pageNum: 1 })
+      if (res.rows && res.rows.length > 0) {
+        const student = res.rows[0]
+        studentId.value = student.studentId
+        Object.keys(form).forEach(key => {
+          if (student[key] !== undefined && student[key] !== null) {
+            form[key] = student[key]
+          }
+        })
+      }
+    } catch (e2) { /* ignore */ }
+  }
 }
 
 async function submitForm() {

@@ -12,6 +12,8 @@ public interface ICremsCompanyService
 {
     public CremsCompany selectCompanyById(Long companyId);
 
+    public CremsCompany selectCompanyByUserId(Long userId);
+
     public List<CremsCompany> selectCompanyList(CremsCompany company);
 
     public int insertCompany(CremsCompany company);

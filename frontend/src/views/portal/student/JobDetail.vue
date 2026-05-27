@@ -293,7 +293,7 @@ async function submitApply() {
 async function toggleFavorite() {
   try {
     if (isFavorited.value) {
-      await delFavoriteByJobAndStudent(jobId.value, 0)
+      await delFavoriteByJobAndStudent(jobId.value)
       isFavorited.value = false
       proxy.$modal.msgSuccess('已取消收藏')
     } else {

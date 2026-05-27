@@ -21,6 +21,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         left join crems_company c on j.company_id = c.company_id
     </sql>
 
+    <select id="selectFavoriteById" parameterType="Long" resultMap="CremsFavoriteResult">
+        <include refid="selectFavoriteVo"/>
+        where f.favorite_id = #{favoriteId}
+    </select>
+
     <select id="selectFavoriteList" parameterType="CremsFavorite" resultMap="CremsFavoriteResult">
         <include refid="selectFavoriteVo"/>
         <where>

@@ -72,7 +72,12 @@ public class CremsFavoriteController extends BaseController
     @DeleteMapping("/{favoriteIds}")
     public AjaxResult remove(@PathVariable Long[] favoriteIds)
     {
-        return toAjax(favoriteService.deleteFavoriteById(favoriteIds[0]));
+        // 批量删除所有收藏记录
+        int count = 0;
+        for (Long favoriteId : favoriteIds) {
+            count += favoriteService.deleteFavoriteById(favoriteId);
+        }
+        return count > 0 ? success() : error("删除失败");
     }
 
     /**
