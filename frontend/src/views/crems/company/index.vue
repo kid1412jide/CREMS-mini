@@ -270,9 +270,10 @@ const { queryParams, form, rules } = toRefs(data)
 function getList() {
   loading.value = true
   listCompany(queryParams.value).then(res => {
-    loading.value = false
     companyList.value = res.rows
     total.value = res.total
+  }).finally(() => {
+    loading.value = false
   })
 }
 

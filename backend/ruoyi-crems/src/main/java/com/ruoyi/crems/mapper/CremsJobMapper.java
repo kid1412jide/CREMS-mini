@@ -18,6 +18,12 @@ public interface CremsJobMapper
 
     public int updateJob(CremsJob job);
 
+    /** 浏览量+1 */
+    public int incrementViewCount(Long jobId);
+
+    /** 投递数+1 */
+    public int incrementApplyCount(Long jobId);
+
     public int deleteJobById(Long jobId);
 
     public int deleteJobByIds(Long[] jobIds);

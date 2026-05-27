@@ -1,6 +1,7 @@
 package com.ruoyi.crems.mapper;
 
 import java.util.List;
+import java.util.Map;
 import com.ruoyi.crems.domain.CremsJobStatistics;
 import com.ruoyi.crems.domain.CremsApplicationStatistics;
 import com.ruoyi.crems.domain.CremsInterviewStatistics;
@@ -32,6 +33,9 @@ public interface CremsStatisticsMapper
 
     /** 查询面试总数 */
     public Long selectInterviewCount();
+
+    /** 一次性查询所有统计数据 */
+    public Map<String, Long> selectOverviewCounts();
 
     /** 按职位类型统计 */
     public List<CremsJobStatistics> selectJobCountByType();

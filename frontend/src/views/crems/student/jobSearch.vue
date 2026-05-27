@@ -188,17 +188,23 @@ const data = reactive({
     educationRequired: undefined,
     status: '1'
   },
-  applyRules: {}
+  applyRules: {
+    resumeUrl: [{ required: true, message: "请先上传简历", trigger: "change" }]
+  }
 })
+
+const { queryParams } = toRefs(data)
+const applyRef = ref(null)
 
 const { queryParams } = toRefs(data)
 
 function getList() {
   loading.value = true
   listJob(queryParams.value).then(res => {
-    loading.value = false
     jobList.value = res.rows || []
     total.value = res.total
+  }).finally(() => {
+    loading.value = false
   })
 }
 
@@ -281,11 +287,17 @@ function downloadResume() {
 }
 
 function submitApply() {
-  addApplication(applyForm.value).then(() => {
-    proxy.$modal.msgSuccess("投递成功")
-    applyOpen.value = false
-    getList()
-  })
+  if (applyRef.value) {
+    applyRef.value.validate(valid => {
+      if (valid) {
+        addApplication(applyForm.value).then(() => {
+          proxy.$modal.msgSuccess("投递成功")
+          applyOpen.value = false
+          getList()
+        })
+      }
+    })
+  }
 }
 
 function handleFavorite(job) {

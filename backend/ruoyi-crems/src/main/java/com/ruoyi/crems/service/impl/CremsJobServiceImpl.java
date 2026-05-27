@@ -43,6 +43,18 @@ public class CremsJobServiceImpl implements ICremsJobService
     }
 
     @Override
+    public int incrementViewCount(Long jobId)
+    {
+        return jobMapper.incrementViewCount(jobId);
+    }
+
+    @Override
+    public int incrementApplyCount(Long jobId)
+    {
+        return jobMapper.incrementApplyCount(jobId);
+    }
+
+    @Override
     public int deleteJobByIds(Long[] jobIds)
     {
         return jobMapper.deleteJobByIds(jobIds);

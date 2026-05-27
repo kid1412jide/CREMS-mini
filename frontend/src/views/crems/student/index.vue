@@ -297,9 +297,10 @@ const { queryParams, form, rules } = toRefs(data)
 function getList() {
   loading.value = true
   listStudent(queryParams.value).then(res => {
-    loading.value = false
     studentList.value = res.rows
     total.value = res.total
+  }).finally(() => {
+    loading.value = false
   })
 }
 

@@ -90,6 +90,8 @@ public class CremsPortalController extends BaseController
     @GetMapping("/job/{jobId}")
     public AjaxResult getJob(@PathVariable("jobId") Long jobId)
     {
+        // 浏览量+1
+        jobService.incrementViewCount(jobId);
         return success(jobService.selectJobById(jobId));
     }
 
@@ -158,8 +160,19 @@ public class CremsPortalController extends BaseController
         // 学生只能以自己的身份投递
         Long studentId = getCurrentStudentId();
         application.setStudentId(studentId);
+        // 获取职位信息以设置companyId
+        CremsJob job = jobService.selectJobById(application.getJobId());
+        if (job == null) {
+            return error("职位不存在");
+        }
+        application.setCompanyId(job.getCompanyId());
         int rows = applicationService.insertApplication(application);
-        return rows > 0 ? success() : error("投递失败，可能已经投递过该职位");
+        if (rows > 0) {
+            // 投递成功后，职位投递数+1
+            jobService.incrementApplyCount(application.getJobId());
+            return success();
+        }
+        return error("投递失败，可能已经投递过该职位");
     }
 
     @PutMapping("/application")

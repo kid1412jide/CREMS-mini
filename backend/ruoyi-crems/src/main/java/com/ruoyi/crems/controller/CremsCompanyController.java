@@ -68,7 +68,10 @@ public class CremsCompanyController extends BaseController
     public AjaxResult importData(MultipartFile file, boolean updateSupport) throws Exception
     {
         ExcelUtil<CremsCompany> util = new ExcelUtil<CremsCompany>(CremsCompany.class);
-        List<CremsCompany> list = util.importExcel(file.getInputStream());
+        List<CremsCompany> list;
+        try (java.io.InputStream is = file.getInputStream()) {
+            list = util.importExcel(is);
+        }
         String operName = getUsername();
         int successNum = 0;
         int failureNum = 0;
@@ -105,6 +108,7 @@ public class CremsCompanyController extends BaseController
     /**
      * 导入模板下载
      */
+    @PreAuthorize("@ss.hasPermi('crems:company:import')")
     @PostMapping("/importTemplate")
     public void importTemplate(jakarta.servlet.http.HttpServletResponse response)
     {
