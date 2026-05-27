@@ -1,6 +1,7 @@
 package com.ruoyi.crems.service.impl;
 
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.crems.domain.CremsStatisticsOverview;
@@ -25,13 +26,15 @@ public class CremsStatisticsServiceImpl implements ICremsStatisticsService
     public CremsStatisticsOverview selectOverview()
     {
         CremsStatisticsOverview overview = new CremsStatisticsOverview();
-        overview.setCompanyCount(statisticsMapper.selectCompanyCount());
-        overview.setCertifiedCompanyCount(statisticsMapper.selectCertifiedCompanyCount());
-        overview.setStudentCount(statisticsMapper.selectStudentCount());
-        overview.setJobCount(statisticsMapper.selectJobCount());
-        overview.setPublishedJobCount(statisticsMapper.selectPublishedJobCount());
-        overview.setApplicationCount(statisticsMapper.selectApplicationCount());
-        overview.setInterviewCount(statisticsMapper.selectInterviewCount());
+        // 优化：使用单条SQL查询所有统计数据，减少数据库往返
+        Map<String, Long> counts = statisticsMapper.selectOverviewCounts();
+        overview.setCompanyCount(counts.get("companyCount"));
+        overview.setCertifiedCompanyCount(counts.get("certifiedCompanyCount"));
+        overview.setStudentCount(counts.get("studentCount"));
+        overview.setJobCount(counts.get("jobCount"));
+        overview.setPublishedJobCount(counts.get("publishedJobCount"));
+        overview.setApplicationCount(counts.get("applicationCount"));
+        overview.setInterviewCount(counts.get("interviewCount"));
         return overview;
     }
 

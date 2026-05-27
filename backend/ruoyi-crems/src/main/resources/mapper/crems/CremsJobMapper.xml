@@ -147,14 +147,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="welfare != null">welfare = #{welfare},</if>
             <if test="publishDate != null">publish_date = #{publishDate},</if>
             <if test="deadline != null">deadline = #{deadline},</if>
-            <if test="viewCount != null">view_count = #{viewCount},</if>
-            <if test="applyCount != null">apply_count = #{applyCount},</if>
             <if test="status != null">status = #{status},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>
             <if test="remark != null">remark = #{remark},</if>
             update_time = sysdate()
         </trim>
         where job_id = #{jobId}
+    </update>
+
+    <!-- 浏览量+1 -->
+    <update id="incrementViewCount">
+        update crems_job set view_count = view_count + 1 where job_id = #{jobId}
+    </update>
+
+    <!-- 投递数+1 -->
+    <update id="incrementApplyCount">
+        update crems_job set apply_count = apply_count + 1 where job_id = #{jobId}
     </update>
 
     <delete id="deleteJobById" parameterType="Long">

@@ -32,6 +32,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select count(*) from crems_interview
     </select>
 
+    <!-- 优化：一次性查询所有统计数据 -->
+    <select id="selectOverviewCounts" resultType="java.util.HashMap">
+        SELECT
+            (SELECT COUNT(*) FROM crems_company) AS companyCount,
+            (SELECT COUNT(*) FROM crems_company WHERE status = '1') AS certifiedCompanyCount,
+            (SELECT COUNT(*) FROM crems_student) AS studentCount,
+            (SELECT COUNT(*) FROM crems_job) AS jobCount,
+            (SELECT COUNT(*) FROM crems_job WHERE status = '1') AS publishedJobCount,
+            (SELECT COUNT(*) FROM crems_application) AS applicationCount,
+            (SELECT COUNT(*) FROM crems_interview) AS interviewCount
+    </select>
+
     <select id="selectJobCountByType" resultType="CremsJobStatistics">
         select job_type as groupName, count(*) as jobCount
         from crems_job

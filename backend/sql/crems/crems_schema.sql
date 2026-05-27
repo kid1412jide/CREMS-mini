@@ -31,6 +31,7 @@ create table crems_company (
 ) engine=innodb auto_increment=100 comment = '企业信息表';
 
 create unique index uk_company_code on crems_company(company_code);
+create unique index uk_company_user on crems_company(user_id);
 create index idx_company_name on crems_company(company_name);
 create index idx_company_status on crems_company(status);
 
@@ -67,6 +68,7 @@ create table crems_student (
 ) engine=innodb auto_increment=100 comment = '学生信息表';
 
 create unique index uk_student_no on crems_student(student_no);
+create unique index uk_student_user on crems_student(user_id);
 create index idx_student_name on crems_student(student_name);
 create index idx_student_major on crems_student(major);
 
