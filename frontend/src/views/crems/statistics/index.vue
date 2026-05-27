@@ -125,7 +125,13 @@
 
 <script setup name="Statistics">
 import { getStatisticsOverview, getJobStatisticsByType, getJobStatisticsByCity, getApplicationStatisticsByStatus, getInterviewStatisticsByResult } from "@/api/crems/statistics"
-import * as echarts from 'echarts'
+import * as echarts from 'echarts/core'
+import { PieChart, BarChart } from 'echarts/charts'
+import { TooltipComponent, LegendComponent, GridComponent } from 'echarts/components'
+import { CanvasRenderer } from 'echarts/renderers'
+import { GraphicComponent } from 'echarts/components'
+
+echarts.use([PieChart, BarChart, TooltipComponent, LegendComponent, GridComponent, CanvasRenderer, GraphicComponent])
 
 const overview = ref({})
 const jobTypeData = ref([])
@@ -149,9 +155,14 @@ let appStatusChartInstance = null
 let jobCityChartInstance = null
 let interviewResultChartInstance = null
 
+const overviewLoading = ref(true)
+
 function loadOverview() {
+  overviewLoading.value = true
   getStatisticsOverview().then(res => {
     overview.value = res.data || {}
+  }).finally(() => {
+    overviewLoading.value = false
   })
 }
 
@@ -257,8 +268,9 @@ function loadJobType() {
   jobTypeLoading.value = true
   getJobStatisticsByType().then(res => {
     jobTypeData.value = res.data || []
-    jobTypeLoading.value = false
     initJobTypeChart(jobTypeData.value)
+  }).finally(() => {
+    jobTypeLoading.value = false
   })
 }
 
@@ -266,8 +278,9 @@ function loadJobCity() {
   jobCityLoading.value = true
   getJobStatisticsByCity().then(res => {
     jobCityData.value = res.data || []
-    jobCityLoading.value = false
     initJobCityChart(jobCityData.value)
+  }).finally(() => {
+    jobCityLoading.value = false
   })
 }
 
@@ -275,8 +288,9 @@ function loadAppStatus() {
   appStatusLoading.value = true
   getApplicationStatisticsByStatus().then(res => {
     appStatusData.value = res.data || []
-    appStatusLoading.value = false
     initAppStatusChart(appStatusData.value)
+  }).finally(() => {
+    appStatusLoading.value = false
   })
 }
 
@@ -284,8 +298,9 @@ function loadInterviewResult() {
   interviewResultLoading.value = true
   getInterviewStatisticsByResult().then(res => {
     interviewResultData.value = res.data || []
-    interviewResultLoading.value = false
     initInterviewResultChart(interviewResultData.value)
+  }).finally(() => {
+    interviewResultLoading.value = false
   })
 }
 

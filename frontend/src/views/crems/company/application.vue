@@ -30,7 +30,7 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns" />
     </el-row>
 
-    <el-table v-loading="loading" :data="applicationList">
+    <el-table v-loading="loading" :data="applicationList" stripe empty-text="暂无投递数据">
       <el-table-column label="投递ID" align="center" key="applicationId" prop="applicationId" width="80" />
       <el-table-column label="职位名称" align="center" key="jobTitle" prop="jobTitle" :show-overflow-tooltip="true" />
       <el-table-column label="学生姓名" align="center" key="studentName" prop="studentName" width="100" />
@@ -118,7 +118,9 @@
         <el-descriptions-item label="毕业时间">{{ parseTime(viewData.graduationDate) }}</el-descriptions-item>
         <el-descriptions-item label="技能标签" :span="2">
           <template v-if="viewData.skills">
-            <el-tag v-for="skill in viewData.skills.split(',')" :key="skill" v-if="skill.trim()" style="margin-right: 5px">{{ skill.trim() }}</el-tag>
+            <template v-for="skill in viewData.skills.split(',')" :key="skill">
+              <el-tag v-if="skill.trim()" style="margin-right: 5px">{{ skill.trim() }}</el-tag>
+            </template>
           </template>
           <span v-else>-</span>
         </el-descriptions-item>
@@ -189,9 +191,10 @@ const { queryParams, form, rules } = toRefs(data)
 function getList() {
   loading.value = true
   listApplication(queryParams.value).then(res => {
-    loading.value = false
     applicationList.value = res.rows
     total.value = res.total
+  }).finally(() => {
+    loading.value = false
   })
 }
 

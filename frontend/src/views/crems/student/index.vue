@@ -44,7 +44,7 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns" />
     </el-row>
 
-    <el-table v-loading="loading" :data="studentList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="studentList" @selection-change="handleSelectionChange" stripe empty-text="暂无学生数据">
       <el-table-column type="selection" width="50" align="center" />
       <el-table-column label="学生ID" align="center" key="studentId" prop="studentId" width="80" />
       <el-table-column label="学号" align="center" key="studentNo" prop="studentNo" width="120" />

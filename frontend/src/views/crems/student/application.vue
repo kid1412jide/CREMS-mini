@@ -24,7 +24,7 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns" />
     </el-row>
 
-    <el-table v-loading="loading" :data="applicationList">
+    <el-table v-loading="loading" :data="applicationList" stripe empty-text="暂无投递数据">
       <el-table-column label="投递ID" align="center" key="applicationId" prop="applicationId" width="80" />
       <el-table-column label="职位名称" align="center" key="jobTitle" prop="jobTitle" :show-overflow-tooltip="true" />
       <el-table-column label="企业名称" align="center" key="companyName" prop="companyName" :show-overflow-tooltip="true" />
@@ -114,9 +114,10 @@ const { queryParams } = toRefs(data)
 function getList() {
   loading.value = true
   listApplication(queryParams.value).then(res => {
-    loading.value = false
     applicationList.value = res.rows
     total.value = res.total
+  }).finally(() => {
+    loading.value = false
   })
 }
 

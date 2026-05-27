@@ -14,7 +14,7 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns" />
     </el-row>
 
-    <el-table v-loading="loading" :data="favoriteList">
+    <el-table v-loading="loading" :data="favoriteList" stripe empty-text="暂无收藏数据">
       <el-table-column label="收藏ID" align="center" key="favoriteId" prop="favoriteId" width="80" />
       <el-table-column label="职位名称" align="center" key="jobTitle" prop="jobTitle" :show-overflow-tooltip="true" />
       <el-table-column label="企业名称" align="center" key="companyName" prop="companyName" :show-overflow-tooltip="true" />
@@ -64,9 +64,10 @@ const { queryParams, form } = toRefs(data)
 function getList() {
   loading.value = true
   listFavorite(queryParams.value).then(res => {
-    loading.value = false
     favoriteList.value = res.rows
     total.value = res.total
+  }).finally(() => {
+    loading.value = false
   })
 }
 

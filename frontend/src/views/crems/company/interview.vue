@@ -35,7 +35,7 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns" />
     </el-row>
 
-    <el-table v-loading="loading" :data="interviewList">
+    <el-table v-loading="loading" :data="interviewList" stripe empty-text="暂无面试数据">
       <el-table-column label="面试ID" align="center" key="interviewId" prop="interviewId" width="80" />
       <el-table-column label="学生姓名" align="center" key="studentName" prop="studentName" width="100" />
       <el-table-column label="职位名称" align="center" key="jobTitle" prop="jobTitle" :show-overflow-tooltip="true" />
@@ -232,7 +232,11 @@ const data = reactive({
     interviewType: undefined,
     status: undefined
   },
-  rules: {}
+  rules: {
+    interviewType: [{ required: true, message: "请选择面试类型", trigger: "change" }],
+    interviewMethod: [{ required: true, message: "请选择面试方式", trigger: "change" }],
+    interviewTime: [{ required: true, message: "请选择面试时间", trigger: "change" }]
+  }
 })
 
 const { queryParams, form, rules } = toRefs(data)
@@ -240,9 +244,10 @@ const { queryParams, form, rules } = toRefs(data)
 function getList() {
   loading.value = true
   listInterview(queryParams.value).then(res => {
-    loading.value = false
     interviewList.value = res.rows
     total.value = res.total
+  }).finally(() => {
+    loading.value = false
   })
 }
 
@@ -295,7 +300,10 @@ function submitForm() {
 }
 
 function handleDelete(row) {
-  proxy.$modal.confirm('是否确认删除面试ID为"' + row.interviewId + '"的数据项？').then(() => {
+  const deleteMsg = row.studentName && row.jobTitle
+    ? '是否确认删除"' + row.studentName + '"的"' + row.jobTitle + '"面试？'
+    : '是否确认删除该面试记录？'
+  proxy.$modal.confirm(deleteMsg).then(() => {
     return delInterview(row.interviewId)
   }).then(() => {
     getList()

@@ -22,7 +22,7 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns" />
     </el-row>
 
-    <el-table v-loading="loading" :data="interviewList">
+    <el-table v-loading="loading" :data="interviewList" stripe empty-text="暂无面试数据">
       <el-table-column label="面试ID" align="center" key="interviewId" prop="interviewId" width="80" />
       <el-table-column label="职位名称" align="center" key="jobTitle" prop="jobTitle" :show-overflow-tooltip="true" />
       <el-table-column label="企业名称" align="center" key="companyName" prop="companyName" :show-overflow-tooltip="true" />
@@ -140,9 +140,10 @@ const { queryParams } = toRefs(data)
 function getList() {
   loading.value = true
   listInterview(queryParams.value).then(res => {
-    loading.value = false
     interviewList.value = res.rows
     total.value = res.total
+  }).finally(() => {
+    loading.value = false
   })
 }
 
