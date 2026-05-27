@@ -39,7 +39,7 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns" />
     </el-row>
 
-    <el-table v-loading="loading" :data="companyList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="companyList" @selection-change="handleSelectionChange" stripe empty-text="暂无企业数据">
       <el-table-column type="selection" width="50" align="center" />
       <el-table-column label="企业ID" align="center" key="companyId" prop="companyId" v-if="columns.companyId.visible" width="80" />
       <el-table-column label="企业名称" align="center" key="companyName" prop="companyName" :show-overflow-tooltip="true" />

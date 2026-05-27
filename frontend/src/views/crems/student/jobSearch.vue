@@ -29,7 +29,7 @@
     </el-form>
 
     <el-row :gutter="20" v-loading="loading">
-      <el-col v-for="job in jobList" :key="job.jobId" :span="8" style="margin-bottom: 20px;">
+      <el-col v-for="job in jobList" :key="job.jobId" :xs="24" :sm="12" :md="8" :lg="8" style="margin-bottom: 20px;">
         <el-card shadow="hover" class="job-card">
           <template #header>
             <div class="job-header">
@@ -69,7 +69,7 @@
       </el-col>
     </el-row>
 
-    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
+    <el-empty v-if="!loading && jobList.length === 0" description="暂无符合条件的职位" />
 
     <!-- 职位详情弹窗 -->
     <el-dialog title="职位详情" v-model="viewOpen" width="650px" append-to-body>

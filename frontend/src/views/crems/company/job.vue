@@ -36,7 +36,7 @@
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns" />
     </el-row>
 
-    <el-table v-loading="loading" :data="jobList">
+    <el-table v-loading="loading" :data="jobList" stripe empty-text="暂无职位数据">
       <el-table-column label="职位ID" align="center" key="jobId" prop="jobId" width="80" />
       <el-table-column label="职位名称" align="center" key="jobTitle" prop="jobTitle" :show-overflow-tooltip="true" />
       <el-table-column label="所属企业" align="center" key="companyName" prop="companyName" width="180" />
