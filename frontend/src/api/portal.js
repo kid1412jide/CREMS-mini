@@ -117,9 +117,9 @@ export function delFavorite(favoriteId) {
   })
 }
 
-export function delFavoriteByJobAndStudent(jobId, studentId) {
+export function delFavoriteByJobAndStudent(jobId) {
   return request({
-    url: '/portal/api/favorite/job/' + jobId + '/student/' + studentId,
+    url: '/portal/api/favorite/job/' + jobId,
     method: 'delete'
   })
 }
@@ -137,6 +137,13 @@ export function listStudent(query) {
 export function getStudent(studentId) {
   return request({
     url: '/portal/api/student/' + studentId,
+    method: 'get'
+  })
+}
+
+export function getCurrentStudent() {
+  return request({
+    url: '/portal/api/student/current',
     method: 'get'
   })
 }
@@ -162,6 +169,13 @@ export function listCompany(query) {
 export function getCompany(companyId) {
   return request({
     url: '/portal/api/company/' + companyId,
+    method: 'get'
+  })
+}
+
+export function getCurrentCompany() {
+  return request({
+    url: '/portal/api/company/current',
     method: 'get'
   })
 }

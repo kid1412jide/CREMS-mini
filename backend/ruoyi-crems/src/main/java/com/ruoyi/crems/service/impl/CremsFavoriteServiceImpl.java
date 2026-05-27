@@ -25,6 +25,12 @@ public class CremsFavoriteServiceImpl implements ICremsFavoriteService
     }
 
     @Override
+    public CremsFavorite selectFavoriteById(Long favoriteId)
+    {
+        return favoriteMapper.selectFavoriteById(favoriteId);
+    }
+
+    @Override
     public int insertFavorite(CremsFavorite favorite)
     {
         return favoriteMapper.insertFavorite(favorite);

@@ -379,7 +379,9 @@ const handleFileSuccess = (response, file, fileList) => {
   upload.open = false
   upload.isUploading = false
   proxy.$refs["uploadRef"].clearFiles()
-  proxy.$alert("<div style='overflow: auto;overflow-x: hidden;max-height: 70vh;padding: 10px 20px 0;'>" + response.msg + "</div>", "导入结果", { dangerouslyUseHTMLString: true })
+  // 对 response.msg 进行 HTML 转义，防止 XSS 攻击
+  const escapedMsg = response.msg ? response.msg.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;') : ''
+  proxy.$alert("<div style='overflow: auto;overflow-x: hidden;max-height: 70vh;padding: 10px 20px 0;'>" + escapedMsg + "</div>", "导入结果", { dangerouslyUseHTMLString: true })
   getList()
 }
 

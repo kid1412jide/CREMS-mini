@@ -119,7 +119,7 @@ async function loadFavorites() {
 async function toggleFavorite(job) {
   try {
     if (favoritedSet.value.has(job.jobId)) {
-      await delFavoriteByJobAndStudent(job.jobId, 0)
+      await delFavoriteByJobAndStudent(job.jobId)
       favoritedSet.value.delete(job.jobId)
       proxy.$modal.msgSuccess('已取消收藏')
     } else {

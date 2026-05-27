@@ -148,9 +148,11 @@ import { listJob, getJob } from "@/api/crems/job"
 import { addApplication } from "@/api/crems/application"
 import { addFavorite, delFavoriteByJobAndStudent } from "@/api/crems/favorite"
 import { getToken } from "@/utils/auth"
+import useUserStore from "@/store/modules/user"
 
 const { proxy } = getCurrentInstance()
 const router = useRouter()
+const userStore = useUserStore()
 const loading = ref(true)
 const showSearch = ref(true)
 const jobList = ref([])
@@ -161,6 +163,7 @@ const viewData = ref({})
 const applyForm = ref({})
 const uploadRef = ref(null)
 const uploadedFileName = ref('')
+const currentStudentId = ref(null)
 
 // 上传相关
 const uploadUrl = import.meta.env.VITE_APP_BASE_API + '/common/upload'
@@ -286,21 +289,41 @@ function submitApply() {
 }
 
 function handleFavorite(job) {
+  if (!currentStudentId.value) {
+    proxy.$modal.msgWarning("请先完善学生信息")
+    return
+  }
   if (job.isFavorited) {
-    delFavoriteByJobAndStudent(job.jobId, job.studentId || 1).then(() => {
+    delFavoriteByJobAndStudent(job.jobId).then(() => {
       proxy.$modal.msgSuccess("已取消收藏")
       getList()
     })
   } else {
-    addFavorite({ jobId: job.jobId, studentId: job.studentId || 1 }).then(() => {
+    addFavorite({ jobId: job.jobId, studentId: currentStudentId.value }).then(() => {
       proxy.$modal.msgSuccess("收藏成功")
       getList()
     })
   }
 }
 
+// 获取当前登录学生的studentId
+async function loadCurrentStudentId() {
+  try {
+    const res = await fetch('/portal/api/student/list?pageSize=1&pageNum=1', {
+      headers: { Authorization: 'Bearer ' + getToken() }
+    })
+    const data = await res.json()
+    if (data.rows && data.rows.length > 0) {
+      currentStudentId.value = data.rows[0].studentId
+    }
+  } catch (e) {
+    console.error('获取学生信息失败', e)
+  }
+}
+
 onMounted(() => {
   getList()
+  loadCurrentStudentId()
 })
 </script>
 
