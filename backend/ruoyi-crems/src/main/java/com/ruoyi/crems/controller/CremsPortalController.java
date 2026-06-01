@@ -282,9 +282,14 @@ public class CremsPortalController extends BaseController
     public TableDataInfo studentList(CremsStudent student)
     {
         startPage();
-        // 学生只能查看自己的信息
-        Long studentId = getCurrentStudentId();
-        student.setStudentId(studentId);
+        // 根据当前用户角色过滤数据
+        Long userId = getUserId();
+        CremsStudent currentStudent = studentService.selectStudentByUserId(userId);
+        if (currentStudent != null) {
+            // 学生用户只能查看自己的信息
+            student.setStudentId(currentStudent.getStudentId());
+        }
+        // 企业用户不过滤，可以查看所有学生（用于筛选投递候选人等场景）
         List<CremsStudent> list = studentService.selectStudentList(student);
         return getDataTable(list);
     }
@@ -328,9 +333,14 @@ public class CremsPortalController extends BaseController
     public TableDataInfo companyList(CremsCompany company)
     {
         startPage();
-        // 企业只能查看自己的信息
-        Long companyId = getCurrentCompanyId();
-        company.setCompanyId(companyId);
+        // 根据当前用户角色过滤数据
+        Long userId = getUserId();
+        CremsCompany currentCompany = companyService.selectCompanyByUserId(userId);
+        if (currentCompany != null) {
+            // 企业用户只能查看自己的信息
+            company.setCompanyId(currentCompany.getCompanyId());
+        }
+        // 学生用户不过滤，可以查看所有企业（用于选择投递目标等场景）
         List<CremsCompany> list = companyService.selectCompanyList(company);
         return getDataTable(list);
     }
@@ -350,11 +360,7 @@ public class CremsPortalController extends BaseController
     @GetMapping("/company/{companyId}")
     public AjaxResult getCompany(@PathVariable("companyId") Long companyId)
     {
-        // 企业只能查看自己的信息
-        Long currentCompanyId = getCurrentCompanyId();
-        if (!currentCompanyId.equals(companyId)) {
-            return error("无权查看其他企业信息");
-        }
+        // 公开接口：任何登录用户都可以查看企业基本信息
         return success(companyService.selectCompanyById(companyId));
     }
 
