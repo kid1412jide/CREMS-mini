@@ -48,7 +48,7 @@ function onLeave(el, done) {
 </script>
 
 <style lang="scss">
-@import '@/assets/styles/portal.scss';
+@use '../../assets/styles/portal.scss' as *;
 
 .portal-wrapper {
   display: flex;
