@@ -1,9 +1,9 @@
 <template>
    <div class="app-container">
-      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
+      <el-form :model="quecremsParams" ref="queryRef" :inline="true" v-show="showSearch">
          <el-form-item label="任务名称" prop="jobName">
             <el-input
-               v-model="queryParams.jobName"
+               v-model="quecremsParams.jobName"
                placeholder="请输入任务名称"
                clearable
                style="width: 200px"
@@ -11,7 +11,7 @@
             />
          </el-form-item>
          <el-form-item label="任务组名" prop="jobGroup">
-            <el-select v-model="queryParams.jobGroup" placeholder="请选择任务组名" clearable style="width: 200px">
+            <el-select v-model="quecremsParams.jobGroup" placeholder="请选择任务组名" clearable style="width: 200px">
                <el-option
                   v-for="dict in sys_job_group"
                   :key="dict.value"
@@ -21,7 +21,7 @@
             </el-select>
          </el-form-item>
          <el-form-item label="任务状态" prop="status">
-            <el-select v-model="queryParams.status" placeholder="请选择任务状态" clearable style="width: 200px">
+            <el-select v-model="quecremsParams.status" placeholder="请选择任务状态" clearable style="width: 200px">
                <el-option
                   v-for="dict in sys_job_status"
                   :key="dict.value"
@@ -133,8 +133,8 @@
       <pagination
          v-show="total > 0"
          :total="total"
-         v-model:page="queryParams.pageNum"
-         v-model:limit="queryParams.pageSize"
+         v-model:page="quecremsParams.pageNum"
+         v-model:limit="quecremsParams.pageSize"
          @pagination="getList"
       />
 
@@ -167,8 +167,8 @@
                            <el-tooltip placement="top">
                               <template #content>
                                  <div>
-                                    Bean调用示例：ryTask.ryParams('ry')
-                                    <br />Class类调用示例：com.ruoyi.quartz.task.RyTask.ryParams('ry')
+                                    Bean调用示例：cremsTask.cremsParams('crems')
+                                    <br />Class类调用示例：com.crems.quartz.task.CremsTask.cremsParams('crems')
                                     <br />参数说明：支持字符串，布尔类型，长整型，浮点型，整型
                                  </div>
                               </template>
@@ -262,7 +262,7 @@ const expression = ref("")
 
 const data = reactive({
   form: {},
-  queryParams: {
+  quecremsParams: {
     pageNum: 1,
     pageSize: 10,
     jobName: undefined,
@@ -276,12 +276,12 @@ const data = reactive({
   }
 })
 
-const { queryParams, form, rules } = toRefs(data)
+const { quecremsParams, form, rules } = toRefs(data)
 
 /** 查询定时任务列表 */
 function getList() {
   loading.value = true
-  listJob(queryParams.value).then(response => {
+  listJob(quecremsParams.value).then(response => {
     jobList.value = response.rows
     total.value = response.total
     loading.value = false
@@ -311,7 +311,7 @@ function reset() {
 
 /** 搜索按钮操作 */
 function handleQuery() {
-  queryParams.value.pageNum = 1
+  quecremsParams.value.pageNum = 1
   getList()
 }
 
@@ -427,7 +427,7 @@ function handleDelete(row) {
 /** 导出按钮操作 */
 function handleExport() {
   proxy.download("monitor/job/export", {
-    ...queryParams.value,
+    ...quecremsParams.value,
   }, `job_${new Date().getTime()}.xlsx`)
 }
 

@@ -1,9 +1,9 @@
 <template>
    <div class="app-container">
-      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+      <el-form :model="quecremsParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
          <el-form-item label="参数名称" prop="configName">
             <el-input
-               v-model="queryParams.configName"
+               v-model="quecremsParams.configName"
                placeholder="请输入参数名称"
                clearable
                style="width: 240px"
@@ -12,7 +12,7 @@
          </el-form-item>
          <el-form-item label="参数键名" prop="configKey">
             <el-input
-               v-model="queryParams.configKey"
+               v-model="quecremsParams.configKey"
                placeholder="请输入参数键名"
                clearable
                style="width: 240px"
@@ -20,7 +20,7 @@
             />
          </el-form-item>
          <el-form-item label="系统内置" prop="configType">
-            <el-select v-model="queryParams.configType" placeholder="系统内置" clearable style="width: 240px">
+            <el-select v-model="quecremsParams.configType" placeholder="系统内置" clearable style="width: 240px">
                <el-option
                   v-for="dict in sys_yes_no"
                   :key="dict.value"
@@ -124,8 +124,8 @@
       <pagination
          v-show="total > 0"
          :total="total"
-         v-model:page="queryParams.pageNum"
-         v-model:limit="queryParams.pageSize"
+         v-model:page="quecremsParams.pageNum"
+         v-model:limit="quecremsParams.pageSize"
          @pagination="getList"
       />
 
@@ -183,7 +183,7 @@ const dateRange = ref([])
 
 const data = reactive({
   form: {},
-  queryParams: {
+  quecremsParams: {
     pageNum: 1,
     pageSize: 10,
     configName: undefined,
@@ -197,12 +197,12 @@ const data = reactive({
   }
 })
 
-const { queryParams, form, rules } = toRefs(data)
+const { quecremsParams, form, rules } = toRefs(data)
 
 /** 查询参数列表 */
 function getList() {
   loading.value = true
-  listConfig(proxy.addDateRange(queryParams.value, dateRange.value)).then(response => {
+  listConfig(proxy.addDateRange(quecremsParams.value, dateRange.value)).then(response => {
     configList.value = response.rows
     total.value = response.total
     loading.value = false
@@ -230,7 +230,7 @@ function reset() {
 
 /** 搜索按钮操作 */
 function handleQuery() {
-  queryParams.value.pageNum = 1
+  quecremsParams.value.pageNum = 1
   getList()
 }
 
@@ -301,7 +301,7 @@ function handleDelete(row) {
 /** 导出按钮操作 */
 function handleExport() {
   proxy.download("system/config/export", {
-    ...queryParams.value
+    ...quecremsParams.value
   }, `config_${new Date().getTime()}.xlsx`)
 }
 

@@ -4,16 +4,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	
-    <groupId>com.ruoyi</groupId>
-    <artifactId>ruoyi</artifactId>
-    <version>3.9.2</version>
+    <groupId>com.crems</groupId>
+    <artifactId>crems</artifactId>
+    <version>1.1</version>
 
-    <name>ruoyi</name>
-    <url>http://www.ruoyi.vip</url>
-    <description>若依管理系统</description>
+    <name>crems</name>
+    <url>http://www.crems.vip</url>
+    <description>CREMS管理系统</description>
     
     <properties>
-        <ruoyi.version>3.9.2</ruoyi.version>
+        <crems.version>1.1</crems.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>17</java.version>
@@ -138,57 +138,57 @@
 
             <!-- 定时任务-->
             <dependency>
-                <groupId>com.ruoyi</groupId>
-                <artifactId>ruoyi-quartz</artifactId>
-                <version>${ruoyi.version}</version>
+                <groupId>com.crems</groupId>
+                <artifactId>crems-quartz</artifactId>
+                <version>${crems.version}</version>
             </dependency>
 
             <!-- 代码生成-->
             <dependency>
-                <groupId>com.ruoyi</groupId>
-                <artifactId>ruoyi-generator</artifactId>
-                <version>${ruoyi.version}</version>
+                <groupId>com.crems</groupId>
+                <artifactId>crems-generator</artifactId>
+                <version>${crems.version}</version>
             </dependency>
 
             <!-- 核心模块-->
             <dependency>
-                <groupId>com.ruoyi</groupId>
-                <artifactId>ruoyi-framework</artifactId>
-                <version>${ruoyi.version}</version>
+                <groupId>com.crems</groupId>
+                <artifactId>crems-framework</artifactId>
+                <version>${crems.version}</version>
             </dependency>
 
             <!-- 系统模块-->
             <dependency>
-                <groupId>com.ruoyi</groupId>
-                <artifactId>ruoyi-system</artifactId>
-                <version>${ruoyi.version}</version>
+                <groupId>com.crems</groupId>
+                <artifactId>crems-system</artifactId>
+                <version>${crems.version}</version>
             </dependency>
 
             <!-- 通用工具-->
             <dependency>
-                <groupId>com.ruoyi</groupId>
-                <artifactId>ruoyi-common</artifactId>
-                <version>${ruoyi.version}</version>
+                <groupId>com.crems</groupId>
+                <artifactId>crems-common</artifactId>
+                <version>${crems.version}</version>
             </dependency>
 
             <!-- 招聘系统业务模块-->
             <dependency>
-                <groupId>com.ruoyi</groupId>
-                <artifactId>ruoyi-crems</artifactId>
-                <version>${ruoyi.version}</version>
+                <groupId>com.crems</groupId>
+                <artifactId>crems-crems</artifactId>
+                <version>${crems.version}</version>
             </dependency>
 
         </dependencies>
     </dependencyManagement>
 
     <modules>
-        <module>ruoyi-admin</module>
-        <module>ruoyi-framework</module>
-        <module>ruoyi-system</module>
-        <module>ruoyi-quartz</module>
-        <module>ruoyi-generator</module>
-        <module>ruoyi-common</module>
-        <module>ruoyi-crems</module>
+        <module>crems-admin</module>
+        <module>crems-framework</module>
+        <module>crems-system</module>
+        <module>crems-quartz</module>
+        <module>crems-generator</module>
+        <module>crems-common</module>
+        <module>crems-crems</module>
     </modules>
     <packaging>pom</packaging>
 

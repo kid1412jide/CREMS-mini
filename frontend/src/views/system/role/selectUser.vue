@@ -1,10 +1,10 @@
 <template>
    <!-- 授权用户 -->
    <el-dialog title="选择用户" v-model="visible" width="800px" top="5vh" append-to-body>
-      <el-form :model="queryParams" ref="queryRef" :inline="true">
+      <el-form :model="quecremsParams" ref="queryRef" :inline="true">
          <el-form-item label="用户名称" prop="userName">
             <el-input
-               v-model="queryParams.userName"
+               v-model="quecremsParams.userName"
                placeholder="请输入用户名称"
                clearable
                style="width: 180px"
@@ -13,7 +13,7 @@
          </el-form-item>
          <el-form-item label="手机号码" prop="phonenumber">
             <el-input
-               v-model="queryParams.phonenumber"
+               v-model="quecremsParams.phonenumber"
                placeholder="请输入手机号码"
                clearable
                style="width: 180px"
@@ -46,8 +46,8 @@
          <pagination
             v-show="total > 0"
             :total="total"
-            v-model:page="queryParams.pageNum"
-            v-model:limit="queryParams.pageSize"
+            v-model:page="quecremsParams.pageNum"
+            v-model:limit="quecremsParams.pageSize"
             @pagination="getList"
          />
       </el-row>
@@ -77,7 +77,7 @@ const visible = ref(false)
 const total = ref(0)
 const userIds = ref([])
 
-const queryParams = reactive({
+const quecremsParams = reactive({
   pageNum: 1,
   pageSize: 10,
   roleId: undefined,
@@ -87,7 +87,7 @@ const queryParams = reactive({
 
 // 显示弹框
 function show() {
-  queryParams.roleId = props.roleId
+  quecremsParams.roleId = props.roleId
   getList()
   visible.value = true
 }
@@ -104,7 +104,7 @@ function handleSelectionChange(selection) {
 
 // 查询表数据
 function getList() {
-  unallocatedUserList(queryParams).then(res => {
+  unallocatedUserList(quecremsParams).then(res => {
     userList.value = res.rows
     total.value = res.total
   })
@@ -112,7 +112,7 @@ function getList() {
 
 /** 搜索按钮操作 */
 function handleQuery() {
-  queryParams.pageNum = 1
+  quecremsParams.pageNum = 1
   getList()
 }
 
@@ -125,7 +125,7 @@ function resetQuery() {
 const emit = defineEmits(["ok"])
 /** 选择授权用户操作 */
 function handleSelectUser() {
-  const roleId = queryParams.roleId
+  const roleId = quecremsParams.roleId
   const uIds = userIds.value.join(",")
   if (uIds == "") {
     proxy.$modal.msgError("请选择要分配的用户")

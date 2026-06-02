@@ -87,7 +87,7 @@
 <script setup>
 import { Document, Calendar, StarFilled, Trophy } from '@element-plus/icons-vue'
 import { listApplication, listInterview, listFavorite, listJob } from '@/api/portal'
-import { parseTime } from '@/utils/ruoyi'
+import { parseTime } from '@/utils/crems'
 import useUserStore from '@/store/modules/user'
 import StatCard from '@/components/portal/StatCard.vue'
 import JobCard from '@/components/portal/JobCard.vue'

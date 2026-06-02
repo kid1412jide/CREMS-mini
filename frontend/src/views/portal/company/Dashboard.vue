@@ -53,7 +53,7 @@
 <script setup>
 import { Briefcase, Document, Bell, Calendar, Plus } from '@element-plus/icons-vue'
 import { listJob, listApplication, listInterview } from '@/api/portal'
-import { parseTime } from '@/utils/ruoyi'
+import { parseTime } from '@/utils/crems'
 import StatCard from '@/components/portal/StatCard.vue'
 
 const router = useRouter()

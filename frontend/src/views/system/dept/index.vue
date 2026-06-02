@@ -1,9 +1,9 @@
 <template>
    <div class="app-container">
-      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
+      <el-form :model="quecremsParams" ref="queryRef" :inline="true" v-show="showSearch">
          <el-form-item label="部门名称" prop="deptName">
             <el-input
-               v-model="queryParams.deptName"
+               v-model="quecremsParams.deptName"
                placeholder="请输入部门名称"
                clearable
                style="width: 200px"
@@ -11,7 +11,7 @@
             />
          </el-form-item>
          <el-form-item label="状态" prop="status">
-            <el-select v-model="queryParams.status" placeholder="部门状态" clearable style="width: 200px">
+            <el-select v-model="quecremsParams.status" placeholder="部门状态" clearable style="width: 200px">
                <el-option
                   v-for="dict in sys_normal_disable"
                   :key="dict.value"
@@ -171,7 +171,7 @@ const originalOrders = ref({})
 
 const data = reactive({
   form: {},
-  queryParams: {
+  quecremsParams: {
     deptName: undefined,
     status: undefined
   },
@@ -184,12 +184,12 @@ const data = reactive({
   },
 })
 
-const { queryParams, form, rules } = toRefs(data)
+const { quecremsParams, form, rules } = toRefs(data)
 
 /** 查询部门列表 */
 function getList() {
   loading.value = true
-  listDept(queryParams.value).then(response => {
+  listDept(quecremsParams.value).then(response => {
     deptList.value = proxy.handleTree(response.data, "deptId")
     recordOriginalOrders(deptList.value)
     loading.value = false

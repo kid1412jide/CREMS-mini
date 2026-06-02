@@ -5,7 +5,7 @@
     <!-- Search Bar -->
     <div class="search-bar">
       <el-input
-        v-model="queryParams.jobTitle"
+        v-model="quecremsParams.jobTitle"
         placeholder="搜索职位名称..."
         size="large"
         clearable
@@ -14,19 +14,19 @@
         <template #prefix><el-icon><Search /></el-icon></template>
       </el-input>
       <el-input
-        v-model="queryParams.workCity"
+        v-model="quecremsParams.workCity"
         placeholder="城市"
         size="large"
         clearable
         style="width: 140px"
         @keyup.enter="handleQuery"
       />
-      <el-select v-model="queryParams.jobType" placeholder="职位类型" size="large" clearable style="width: 130px">
+      <el-select v-model="quecremsParams.jobType" placeholder="职位类型" size="large" clearable style="width: 130px">
         <el-option label="全职" value="full_time" />
         <el-option label="实习" value="internship" />
         <el-option label="兼职" value="part_time" />
       </el-select>
-      <el-select v-model="queryParams.educationRequired" placeholder="学历要求" size="large" clearable style="width: 130px">
+      <el-select v-model="quecremsParams.educationRequired" placeholder="学历要求" size="large" clearable style="width: 130px">
         <el-option label="专科" value="junior_college" />
         <el-option label="本科" value="bachelor" />
         <el-option label="硕士" value="master" />
@@ -58,8 +58,8 @@
     <div style="margin-top: 24px; display: flex; justify-content: center" v-if="total > 0">
       <pagination
         :total="total"
-        v-model:page="queryParams.pageNum"
-        v-model:limit="queryParams.pageSize"
+        v-model:page="quecremsParams.pageNum"
+        v-model:limit="quecremsParams.pageSize"
         @pagination="getList"
       />
     </div>
@@ -82,7 +82,7 @@ const jobList = ref([])
 const total = ref(0)
 const favoritedSet = ref(new Set())
 
-const queryParams = reactive({
+const quecremsParams = reactive({
   pageNum: 1,
   pageSize: 12,
   jobTitle: route.query.jobTitle || undefined,
@@ -94,14 +94,14 @@ const queryParams = reactive({
 
 function getList() {
   loading.value = true
-  listJob(queryParams).then(res => {
+  listJob(quecremsParams).then(res => {
     jobList.value = res.rows || []
     total.value = res.total || 0
   }).finally(() => { loading.value = false })
 }
 
 function handleQuery() {
-  queryParams.pageNum = 1
+  quecremsParams.pageNum = 1
   getList()
 }
 

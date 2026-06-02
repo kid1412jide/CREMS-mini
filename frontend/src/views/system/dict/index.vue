@@ -1,9 +1,9 @@
 <template>
    <div class="app-container">
-      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+      <el-form :model="quecremsParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
          <el-form-item label="字典名称" prop="dictName">
             <el-input
-               v-model="queryParams.dictName"
+               v-model="quecremsParams.dictName"
                placeholder="请输入字典名称"
                clearable
                style="width: 240px"
@@ -12,7 +12,7 @@
          </el-form-item>
          <el-form-item label="字典类型" prop="dictType">
             <el-input
-               v-model="queryParams.dictType"
+               v-model="quecremsParams.dictType"
                placeholder="请输入字典类型"
                clearable
                style="width: 240px"
@@ -21,7 +21,7 @@
          </el-form-item>
          <el-form-item label="状态" prop="status">
             <el-select
-               v-model="queryParams.status"
+               v-model="quecremsParams.status"
                placeholder="字典状态"
                clearable
                style="width: 240px"
@@ -133,8 +133,8 @@
       <pagination
          v-show="total > 0"
          :total="total"
-         v-model:page="queryParams.pageNum"
-         v-model:limit="queryParams.pageSize"
+         v-model:page="quecremsParams.pageNum"
+         v-model:limit="quecremsParams.pageSize"
          @pagination="getList"
       />
 
@@ -203,7 +203,7 @@ const drawerRow = ref({})
 
 const data = reactive({
   form: {},
-  queryParams: {
+  quecremsParams: {
     pageNum: 1,
     pageSize: 10,
     dictName: undefined,
@@ -216,12 +216,12 @@ const data = reactive({
   },
 })
 
-const { queryParams, form, rules } = toRefs(data)
+const { quecremsParams, form, rules } = toRefs(data)
 
 /** 查询字典类型列表 */
 function getList() {
   loading.value = true
-  listType(proxy.addDateRange(queryParams.value, dateRange.value)).then(response => {
+  listType(proxy.addDateRange(quecremsParams.value, dateRange.value)).then(response => {
     typeList.value = response.rows
     total.value = response.total
     loading.value = false
@@ -248,7 +248,7 @@ function reset() {
 
 /** 搜索按钮操作 */
 function handleQuery() {
-  queryParams.value.pageNum = 1
+  quecremsParams.value.pageNum = 1
   getList()
 }
 
@@ -330,7 +330,7 @@ function handleDelete(row) {
 /** 导出按钮操作 */
 function handleExport() {
   proxy.download("system/dict/type/export", {
-    ...queryParams.value
+    ...quecremsParams.value
   }, `dict_${new Date().getTime()}.xlsx`)
 }
 

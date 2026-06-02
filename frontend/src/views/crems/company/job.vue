@@ -1,19 +1,19 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+    <el-form :model="quecremsParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="职位名称" prop="jobTitle">
-        <el-input v-model="queryParams.jobTitle" placeholder="请输入职位名称" clearable style="width: 200px" @keyup.enter="handleQuery" />
+        <el-input v-model="quecremsParams.jobTitle" placeholder="请输入职位名称" clearable style="width: 200px" @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="职位类型" prop="jobType">
-        <el-select v-model="queryParams.jobType" placeholder="请选择" clearable style="width: 150px">
+        <el-select v-model="quecremsParams.jobType" placeholder="请选择" clearable style="width: 150px">
           <el-option v-for="dict in crems_job_type" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
       </el-form-item>
       <el-form-item label="工作城市" prop="workCity">
-        <el-input v-model="queryParams.workCity" placeholder="请输入工作城市" clearable style="width: 150px" @keyup.enter="handleQuery" />
+        <el-input v-model="quecremsParams.workCity" placeholder="请输入工作城市" clearable style="width: 150px" @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="状态" prop="status">
-        <el-select v-model="queryParams.status" placeholder="请选择" clearable style="width: 150px">
+        <el-select v-model="quecremsParams.status" placeholder="请选择" clearable style="width: 150px">
           <el-option v-for="dict in crems_job_status" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
       </el-form-item>
@@ -72,7 +72,7 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
+    <pagination v-show="total > 0" :total="total" v-model:page="quecremsParams.pageNum" v-model:limit="quecremsParams.pageSize" @pagination="getList" />
 
     <!-- 添加或修改职位对话框 -->
     <el-dialog :title="title" v-model="open" width="800px" append-to-body>
@@ -252,7 +252,7 @@ const upload = reactive({
 
 const data = reactive({
   form: {},
-  queryParams: {
+  quecremsParams: {
     pageNum: 1,
     pageSize: 10,
     jobTitle: undefined,
@@ -265,11 +265,11 @@ const data = reactive({
   }
 })
 
-const { queryParams, form, rules } = toRefs(data)
+const { quecremsParams, form, rules } = toRefs(data)
 
 function getList() {
   loading.value = true
-  listJob(queryParams.value).then(res => {
+  listJob(quecremsParams.value).then(res => {
     jobList.value = res.rows
     total.value = res.total
   }).finally(() => {
@@ -278,7 +278,7 @@ function getList() {
 }
 
 function handleQuery() {
-  queryParams.value.pageNum = 1
+  quecremsParams.value.pageNum = 1
   getList()
 }
 
@@ -335,7 +335,7 @@ function handleDelete(row) {
 }
 
 function handleExport() {
-  proxy.download("crems/job/export", { ...queryParams.value }, `job_${new Date().getTime()}.xlsx`)
+  proxy.download("crems/job/export", { ...quecremsParams.value }, `job_${new Date().getTime()}.xlsx`)
 }
 
 /** 导入按钮操作 */

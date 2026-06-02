@@ -1,9 +1,9 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
+    <el-form :model="quecremsParams" ref="queryRef" :inline="true" v-show="showSearch">
       <el-form-item label="表名称" prop="tableName">
         <el-input
-          v-model="queryParams.tableName"
+          v-model="quecremsParams.tableName"
           placeholder="请输入表名称"
           clearable
           style="width: 200px"
@@ -12,7 +12,7 @@
       </el-form-item>
       <el-form-item label="表描述" prop="tableComment">
         <el-input
-          v-model="queryParams.tableComment"
+          v-model="quecremsParams.tableComment"
           placeholder="请输入表描述"
           clearable
           style="width: 200px"
@@ -91,7 +91,7 @@
       <el-table-column type="selection" align="center" width="55"></el-table-column>
       <el-table-column label="序号" type="index" width="50" align="center">
         <template #default="scope">
-          <span>{{(queryParams.pageNum - 1) * queryParams.pageSize + scope.$index + 1}}</span>
+          <span>{{(quecremsParams.pageNum - 1) * quecremsParams.pageSize + scope.$index + 1}}</span>
         </template>
       </el-table-column>
       <el-table-column label="表名称" align="center" prop="tableName" :show-overflow-tooltip="true" />
@@ -122,8 +122,8 @@
     <pagination
       v-show="total>0"
       :total="total"
-      v-model:page="queryParams.pageNum"
-      v-model:limit="queryParams.pageSize"
+      v-model:page="quecremsParams.pageNum"
+      v-model:limit="quecremsParams.pageSize"
       @pagination="getList"
     />
     <!-- 预览界面 -->
@@ -167,7 +167,7 @@ const uniqueId = ref("")
 const defaultSort = ref({ prop: "createTime", order: "descending" })
 
 const data = reactive({
-  queryParams: {
+  quecremsParams: {
     pageNum: 1,
     pageSize: 10,
     tableName: undefined,
@@ -183,13 +183,13 @@ const data = reactive({
   }
 })
 
-const { queryParams, preview } = toRefs(data)
+const { quecremsParams, preview } = toRefs(data)
 
 onActivated(() => {
   const time = route.query.t
   if (time != null && time != uniqueId.value) {
     uniqueId.value = time
-    queryParams.value.pageNum = Number(route.query.pageNum)
+    quecremsParams.value.pageNum = Number(route.query.pageNum)
     dateRange.value = []
     proxy.resetForm("queryForm")
     getList()
@@ -199,7 +199,7 @@ onActivated(() => {
 /** 查询表集合 */
 function getList() {
   loading.value = true
-  listTable(proxy.addDateRange(queryParams.value, dateRange.value)).then(response => {
+  listTable(proxy.addDateRange(quecremsParams.value, dateRange.value)).then(response => {
     tableList.value = response.rows
     total.value = response.total
     loading.value = false
@@ -208,7 +208,7 @@ function getList() {
 
 /** 搜索按钮操作 */
 function handleQuery() {
-  queryParams.value.pageNum = 1
+  quecremsParams.value.pageNum = 1
   getList()
 }
 
@@ -224,7 +224,7 @@ function handleGenTable(row) {
       proxy.$modal.msgSuccess("成功生成到自定义路径：" + row.genPath)
     })
   } else {
-    const zipName = Array.isArray(tbNames) ? "ruoyi.zip" : tbNames + ".zip"
+    const zipName = Array.isArray(tbNames) ? "crems.zip" : tbNames + ".zip"
     proxy.$download.zip("/tool/gen/batchGenCode?tables=" + tbNames, zipName)
   }
 }
@@ -253,7 +253,7 @@ function openCreateTable() {
 function resetQuery() {
   dateRange.value = []
   proxy.resetForm("queryRef")
-  queryParams.value.pageNum = 1
+  quecremsParams.value.pageNum = 1
   proxy.$refs["genRef"].sort(defaultSort.value.prop, defaultSort.value.order)
 }
 
@@ -281,8 +281,8 @@ function handleSelectionChange(selection) {
 
 /** 排序触发事件 */
 function handleSortChange(column, prop, order) {
-  queryParams.value.orderByColumn = column.prop
-  queryParams.value.isAsc = column.order
+  quecremsParams.value.orderByColumn = column.prop
+  quecremsParams.value.isAsc = column.order
   getList()
 }
 
@@ -290,7 +290,7 @@ function handleSortChange(column, prop, order) {
 function handleEditTable(row) {
   const tableId = row.tableId || ids.value[0]
   const tableName = row.tableName || tableNames.value[0]
-  const params = { pageNum: queryParams.value.pageNum }
+  const params = { pageNum: quecremsParams.value.pageNum }
   proxy.$tab.openPage("修改[" + tableName + "]生成配置", '/tool/gen-edit/index/' + tableId, params)
 }
 

@@ -1,20 +1,20 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+    <el-form :model="quecremsParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="学号" prop="studentNo">
-        <el-input v-model="queryParams.studentNo" placeholder="请输入学号" clearable style="width: 150px" @keyup.enter="handleQuery" />
+        <el-input v-model="quecremsParams.studentNo" placeholder="请输入学号" clearable style="width: 150px" @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="姓名" prop="studentName">
-        <el-input v-model="queryParams.studentName" placeholder="请输入姓名" clearable style="width: 150px" @keyup.enter="handleQuery" />
+        <el-input v-model="quecremsParams.studentName" placeholder="请输入姓名" clearable style="width: 150px" @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="学校" prop="school">
-        <el-input v-model="queryParams.school" placeholder="请输入学校" clearable style="width: 150px" @keyup.enter="handleQuery" />
+        <el-input v-model="quecremsParams.school" placeholder="请输入学校" clearable style="width: 150px" @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="专业" prop="major">
-        <el-input v-model="queryParams.major" placeholder="请输入专业" clearable style="width: 150px" @keyup.enter="handleQuery" />
+        <el-input v-model="quecremsParams.major" placeholder="请输入专业" clearable style="width: 150px" @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="状态" prop="status">
-        <el-select v-model="queryParams.status" placeholder="请选择" clearable style="width: 120px">
+        <el-select v-model="quecremsParams.status" placeholder="请选择" clearable style="width: 120px">
           <el-option label="正常" value="0" />
           <el-option label="停用" value="1" />
         </el-select>
@@ -75,7 +75,7 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
+    <pagination v-show="total > 0" :total="total" v-model:page="quecremsParams.pageNum" v-model:limit="quecremsParams.pageSize" @pagination="getList" />
 
     <!-- 添加或修改学生对话框 -->
     <el-dialog :title="title" v-model="open" width="700px" append-to-body>
@@ -277,7 +277,7 @@ const upload = reactive({
 
 const data = reactive({
   form: {},
-  queryParams: {
+  quecremsParams: {
     pageNum: 1,
     pageSize: 10,
     studentNo: undefined,
@@ -292,11 +292,11 @@ const data = reactive({
   }
 })
 
-const { queryParams, form, rules } = toRefs(data)
+const { quecremsParams, form, rules } = toRefs(data)
 
 function getList() {
   loading.value = true
-  listStudent(queryParams.value).then(res => {
+  listStudent(quecremsParams.value).then(res => {
     studentList.value = res.rows
     total.value = res.total
   }).finally(() => {
@@ -305,7 +305,7 @@ function getList() {
 }
 
 function handleQuery() {
-  queryParams.value.pageNum = 1
+  quecremsParams.value.pageNum = 1
   getList()
 }
 
@@ -369,7 +369,7 @@ function handleDelete(row) {
 }
 
 function handleExport() {
-  proxy.download("crems/student/export", { ...queryParams.value }, `student_${new Date().getTime()}.xlsx`)
+  proxy.download("crems/student/export", { ...quecremsParams.value }, `student_${new Date().getTime()}.xlsx`)
 }
 
 /** 导入按钮操作 */

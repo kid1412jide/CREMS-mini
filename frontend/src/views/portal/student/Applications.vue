@@ -4,7 +4,7 @@
 
     <!-- Status filter -->
     <div class="status-filter">
-      <el-radio-group v-model="queryParams.status" @change="handleQuery">
+      <el-radio-group v-model="quecremsParams.status" @change="handleQuery">
         <el-radio-button value="">全部</el-radio-button>
         <el-radio-button value="0">待查看</el-radio-button>
         <el-radio-button value="1">已查看</el-radio-button>
@@ -43,8 +43,32 @@
         </div>
         <div class="app-card__footer">
           <span></span>
-          <el-button type="primary" link @click="handleView(app)">查看详情</el-button>
+          <el-button type="primary" link @click="handleView(app)">
+            {{ expandedId === app.applicationId ? '收起详情' : '查看详情' }}
+          </el-button>
         </div>
+        <transition name="detail-expand">
+          <div v-if="expandedId === app.applicationId" class="app-detail">
+            <el-descriptions :column="2" border>
+              <el-descriptions-item label="投递ID">{{ viewData.applicationId }}</el-descriptions-item>
+              <el-descriptions-item label="职位名称">{{ viewData.jobTitle }}</el-descriptions-item>
+              <el-descriptions-item label="企业名称">{{ viewData.companyName }}</el-descriptions-item>
+              <el-descriptions-item label="投递时间">{{ parseTime(viewData.applyTime) }}</el-descriptions-item>
+              <el-descriptions-item label="状态">
+                <el-tag :type="getStatusType(viewData.status)">{{ getStatusLabel(viewData.status) }}</el-tag>
+              </el-descriptions-item>
+              <el-descriptions-item label="查看时间">{{ parseTime(viewData.viewTime) || '-' }}</el-descriptions-item>
+              <el-descriptions-item label="求职信" :span="2">{{ viewData.coverLetter || '未填写' }}</el-descriptions-item>
+              <el-descriptions-item label="企业反馈" :span="2">{{ viewData.feedback || '-' }}</el-descriptions-item>
+              <el-descriptions-item label="投递简历" :span="2">
+                <el-button v-if="viewData.resumeUrl" type="primary" link @click="downloadResume(viewData.resumeUrl)">
+                  下载简历
+                </el-button>
+                <span v-else>未上传</span>
+              </el-descriptions-item>
+            </el-descriptions>
+          </div>
+        </transition>
       </div>
     </div>
 
@@ -56,46 +80,22 @@
     </div>
 
     <div style="margin-top: 24px; display: flex; justify-content: center" v-if="total > 0">
-      <pagination :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
+      <pagination :total="total" v-model:page="quecremsParams.pageNum" v-model:limit="quecremsParams.pageSize" @pagination="getList" />
     </div>
-
-    <!-- 投递详情弹窗 -->
-    <el-dialog title="投递详情" v-model="viewOpen" width="600px" destroy-on-close>
-      <div style="max-height: 65vh; overflow-y: auto; padding-right: 8px;">
-        <el-descriptions :column="2" border>
-          <el-descriptions-item label="投递ID">{{ viewData.applicationId }}</el-descriptions-item>
-          <el-descriptions-item label="职位名称">{{ viewData.jobTitle }}</el-descriptions-item>
-          <el-descriptions-item label="企业名称">{{ viewData.companyName }}</el-descriptions-item>
-          <el-descriptions-item label="投递时间">{{ parseTime(viewData.applyTime) }}</el-descriptions-item>
-          <el-descriptions-item label="状态">
-            <el-tag :type="getStatusType(viewData.status)">{{ getStatusLabel(viewData.status) }}</el-tag>
-          </el-descriptions-item>
-          <el-descriptions-item label="查看时间">{{ parseTime(viewData.viewTime) || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="求职信" :span="2">{{ viewData.coverLetter || '未填写' }}</el-descriptions-item>
-          <el-descriptions-item label="企业反馈" :span="2">{{ viewData.feedback || '-' }}</el-descriptions-item>
-          <el-descriptions-item label="投递简历" :span="2">
-            <el-button v-if="viewData.resumeUrl" type="primary" link @click="downloadResume(viewData.resumeUrl)">
-              下载简历
-            </el-button>
-            <span v-else>未上传</span>
-          </el-descriptions-item>
-        </el-descriptions>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { listApplication } from '@/api/portal'
-import { parseTime } from '@/utils/ruoyi'
+import { parseTime } from '@/utils/crems'
 
 const loading = ref(false)
 const appList = ref([])
 const total = ref(0)
-const viewOpen = ref(false)
+const expandedId = ref(null)
 const viewData = ref({})
 
-const queryParams = reactive({
+const quecremsParams = reactive({
   pageNum: 1,
   pageSize: 10,
   status: ''
@@ -114,22 +114,29 @@ const getStatusType = (s) => statusMap[s]?.type || 'info'
 
 function getList() {
   loading.value = true
-  const params = { ...queryParams }
+  const params = { ...quecremsParams }
   if (params.status === '') delete params.status
   listApplication(params).then(res => {
     appList.value = res.rows || []
     total.value = res.total || 0
+    expandedId.value = null
+    viewData.value = {}
   }).finally(() => { loading.value = false })
 }
 
 function handleQuery() {
-  queryParams.pageNum = 1
+  quecremsParams.pageNum = 1
   getList()
 }
 
 function handleView(app) {
+  if (expandedId.value === app.applicationId) {
+    expandedId.value = null
+    viewData.value = {}
+    return
+  }
   viewData.value = app
-  viewOpen.value = true
+  expandedId.value = app.applicationId
 }
 
 function downloadResume(url) {
@@ -212,6 +219,38 @@ onMounted(() => getList())
     padding-top: 12px;
     border-top: 1px solid #f5f5f5;
     margin-top: 10px;
+  }
+}
+
+.app-detail {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed rgba(37, 99, 235, 0.2);
+  overflow: hidden;
+}
+
+.detail-expand-enter-active,
+.detail-expand-leave-active {
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.detail-expand-enter-from,
+.detail-expand-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+@media (max-width: 768px) {
+  .app-detail :deep(.el-descriptions__body .el-descriptions__table) {
+    display: block;
+  }
+
+  .app-detail :deep(.el-descriptions__body tbody),
+  .app-detail :deep(.el-descriptions__body tr),
+  .app-detail :deep(.el-descriptions__body th),
+  .app-detail :deep(.el-descriptions__body td) {
+    display: block;
+    width: 100% !important;
   }
 }
 </style>

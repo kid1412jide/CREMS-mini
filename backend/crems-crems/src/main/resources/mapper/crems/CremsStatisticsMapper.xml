@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.crems.crems.mapper.CremsStatisticsMapper">
+
+    <select id="selectCompanyCount" resultType="Long">
+        select count(*) from crems_company
+    </select>
+
+    <select id="selectCertifiedCompanyCount" resultType="Long">
+        select count(*) from crems_company where status = '1'
+    </select>
+
+    <select id="selectStudentCount" resultType="Long">
+        select count(*) from crems_student
+    </select>
+
+    <select id="selectJobCount" resultType="Long">
+        select count(*) from crems_job
+    </select>
+
+    <select id="selectPublishedJobCount" resultType="Long">
+        select count(*) from crems_job where status = '1'
+    </select>
+
+    <select id="selectApplicationCount" resultType="Long">
+        select count(*) from crems_application
+    </select>
+
+    <select id="selectInterviewCount" resultType="Long">
+        select count(*) from crems_interview
+    </select>
+
+    <!-- 优化：一次性查询所有统计数据 -->
+    <select id="selectOverviewCounts" resultType="java.util.HashMap">
+        SELECT
+            (SELECT COUNT(*) FROM crems_company) AS companyCount,
+            (SELECT COUNT(*) FROM crems_company WHERE status = '1') AS certifiedCompanyCount,
+            (SELECT COUNT(*) FROM crems_student) AS studentCount,
+            (SELECT COUNT(*) FROM crems_job) AS jobCount,
+            (SELECT COUNT(*) FROM crems_job WHERE status = '1') AS publishedJobCount,
+            (SELECT COUNT(*) FROM crems_application) AS applicationCount,
+            (SELECT COUNT(*) FROM crems_interview) AS interviewCount
+    </select>
+
+    <select id="selectJobCountByType" resultType="CremsJobStatistics">
+        select job_type as groupName, count(*) as jobCount
+        from crems_job
+        where job_type is not null and job_type != ''
+        group by job_type
+    </select>
+
+    <select id="selectJobCountByCity" resultType="CremsJobStatistics">
+        select work_city as groupName, count(*) as jobCount
+        from crems_job
+        where work_city is not null and work_city != ''
+        group by work_city
+        order by jobCount desc
+        limit 20
+    </select>
+
+    <select id="selectJobCountByIndustry" resultType="CremsJobStatistics">
+        select c.industry as groupName, count(j.job_id) as jobCount
+        from crems_job j
+        left join crems_company c on j.company_id = c.company_id
+        where c.industry is not null and c.industry != ''
+        group by c.industry
+    </select>
+
+    <select id="selectApplicationCountByStatus" resultType="CremsApplicationStatistics">
+        select status as groupName, count(*) as applicationCount
+        from crems_application
+        group by status
+    </select>
+
+    <select id="selectInterviewCountByType" resultType="CremsInterviewStatistics">
+        select interview_type as groupName, count(*) as interviewCount
+        from crems_interview
+        where interview_type is not null and interview_type != ''
+        group by interview_type
+    </select>
+
+    <select id="selectInterviewCountByResult" resultType="CremsInterviewStatistics">
+        select interview_result as groupName, count(*) as interviewCount
+        from crems_interview
+        where interview_result is not null and interview_result != ''
+        group by interview_result
+    </select>
+
+</mapper>

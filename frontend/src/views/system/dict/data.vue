@@ -1,8 +1,8 @@
 <template>
    <div class="app-container">
-      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
+      <el-form :model="quecremsParams" ref="queryRef" :inline="true" v-show="showSearch">
          <el-form-item label="字典名称" prop="dictType">
-            <el-select v-model="queryParams.dictType" style="width: 200px">
+            <el-select v-model="quecremsParams.dictType" style="width: 200px">
                <el-option
                   v-for="item in typeOptions"
                   :key="item.dictId"
@@ -13,7 +13,7 @@
          </el-form-item>
          <el-form-item label="字典标签" prop="dictLabel">
             <el-input
-               v-model="queryParams.dictLabel"
+               v-model="quecremsParams.dictLabel"
                placeholder="请输入字典标签"
                clearable
                style="width: 200px"
@@ -21,7 +21,7 @@
             />
          </el-form-item>
          <el-form-item label="状态" prop="status">
-            <el-select v-model="queryParams.status" placeholder="数据状态" clearable style="width: 200px">
+            <el-select v-model="quecremsParams.status" placeholder="数据状态" clearable style="width: 200px">
                <el-option
                   v-for="dict in sys_normal_disable"
                   :key="dict.value"
@@ -119,8 +119,8 @@
       <pagination
          v-show="total > 0"
          :total="total"
-         v-model:page="queryParams.pageNum"
-         v-model:limit="queryParams.pageSize"
+         v-model:page="quecremsParams.pageNum"
+         v-model:limit="quecremsParams.pageSize"
          @pagination="getList"
       />
 
@@ -207,7 +207,7 @@ const listClassOptions = ref([
 
 const data = reactive({
   form: {},
-  queryParams: {
+  quecremsParams: {
     pageNum: 1,
     pageSize: 10,
     dictType: undefined,
@@ -221,12 +221,12 @@ const data = reactive({
   }
 })
 
-const { queryParams, form, rules } = toRefs(data)
+const { quecremsParams, form, rules } = toRefs(data)
 
 /** 查询字典类型详细 */
 function getTypes(dictId) {
   getType(dictId).then(response => {
-    queryParams.value.dictType = response.data.dictType
+    quecremsParams.value.dictType = response.data.dictType
     defaultDictType.value = response.data.dictType
     getList()
   })
@@ -242,7 +242,7 @@ function getTypeList() {
 /** 查询字典数据列表 */
 function getList() {
   loading.value = true
-  listData(queryParams.value).then(response => {
+  listData(quecremsParams.value).then(response => {
     dataList.value = response.rows
     total.value = response.total
     loading.value = false
@@ -272,7 +272,7 @@ function reset() {
 
 /** 搜索按钮操作 */
 function handleQuery() {
-  queryParams.value.pageNum = 1
+  quecremsParams.value.pageNum = 1
   getList()
 }
 
@@ -285,7 +285,7 @@ function handleClose() {
 /** 重置按钮操作 */
 function resetQuery() {
   proxy.resetForm("queryRef")
-  queryParams.value.dictType = defaultDictType.value
+  quecremsParams.value.dictType = defaultDictType.value
   handleQuery()
 }
 
@@ -294,7 +294,7 @@ function handleAdd() {
   reset()
   open.value = true
   title.value = "添加字典数据"
-  form.value.dictType = queryParams.value.dictType
+  form.value.dictType = quecremsParams.value.dictType
 }
 
 /** 多选框选中数据 */
@@ -321,14 +321,14 @@ function submitForm() {
     if (valid) {
       if (form.value.dictCode != undefined) {
         updateData(form.value).then(response => {
-          useDictStore().removeDict(queryParams.value.dictType)
+          useDictStore().removeDict(quecremsParams.value.dictType)
           proxy.$modal.msgSuccess("修改成功")
           open.value = false
           getList()
         })
       } else {
         addData(form.value).then(response => {
-          useDictStore().removeDict(queryParams.value.dictType)
+          useDictStore().removeDict(quecremsParams.value.dictType)
           proxy.$modal.msgSuccess("新增成功")
           open.value = false
           getList()
@@ -346,14 +346,14 @@ function handleDelete(row) {
   }).then(() => {
     getList()
     proxy.$modal.msgSuccess("删除成功")
-    useDictStore().removeDict(queryParams.value.dictType)
+    useDictStore().removeDict(quecremsParams.value.dictType)
   }).catch(() => {})
 }
 
 /** 导出按钮操作 */
 function handleExport() {
   proxy.download("system/dict/data/export", {
-    ...queryParams.value
+    ...quecremsParams.value
   }, `dict_data_${new Date().getTime()}.xlsx`)
 }
 

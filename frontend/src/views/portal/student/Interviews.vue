@@ -49,7 +49,7 @@
     </div>
 
     <div style="margin-top: 24px; display: flex; justify-content: center" v-if="total > 0">
-      <pagination :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
+      <pagination :total="total" v-model:page="quecremsParams.pageNum" v-model:limit="quecremsParams.pageSize" @pagination="getList" />
     </div>
   </div>
 </template>
@@ -57,13 +57,13 @@
 <script setup>
 import { Clock, User, Monitor, Location } from '@element-plus/icons-vue'
 import { listInterview } from '@/api/portal'
-import { parseTime } from '@/utils/ruoyi'
+import { parseTime } from '@/utils/crems'
 
 const loading = ref(false)
 const interviewList = ref([])
 const total = ref(0)
 
-const queryParams = reactive({ pageNum: 1, pageSize: 10 })
+const quecremsParams = reactive({ pageNum: 1, pageSize: 10 })
 
 const statusMap = {
   '0': { label: '待确认', type: 'warning' },
@@ -81,7 +81,7 @@ const formatMethod = (m) => methodMap[m] || m
 
 function getList() {
   loading.value = true
-  listInterview(queryParams).then(res => {
+  listInterview(quecremsParams).then(res => {
     interviewList.value = res.rows || []
     total.value = res.total || 0
   }).finally(() => { loading.value = false })

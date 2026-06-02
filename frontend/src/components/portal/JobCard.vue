@@ -67,16 +67,17 @@ function formatTime(date) {
 <style lang="scss" scoped>
 .job-card {
   background: #fff;
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 20px;
-  border: 1px solid #f0f0f0;
+  border: 1px solid rgba(31, 41, 55, 0.08);
   cursor: pointer;
-  transition: all 0.25s ease;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 
   &:hover {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-    transform: translateY(-2px);
-    border-color: transparent;
+    box-shadow: 0 16px 34px rgba(15, 23, 42, 0.12);
+    transform: translateY(-4px);
+    border-color: rgba(37, 99, 235, 0.18);
   }
 
   &__header {
@@ -101,7 +102,7 @@ function formatTime(date) {
   &__salary {
     font-size: 15px;
     font-weight: 700;
-    color: #f56c6c;
+    color: #ef4444;
     white-space: nowrap;
     flex-shrink: 0;
   }
@@ -114,11 +115,12 @@ function formatTime(date) {
 
     .tag {
       padding: 2px 10px;
-      border-radius: 4px;
+      border-radius: 999px;
       font-size: 12px;
       font-weight: 500;
-      color: #606266;
-      background: #f5f7fa;
+      color: #475467;
+      background: #f3f6fb;
+      border: 1px solid rgba(31, 41, 55, 0.06);
     }
   }
 
@@ -133,9 +135,9 @@ function formatTime(date) {
     .company-icon {
       width: 32px;
       height: 32px;
-      border-radius: 6px;
-      background: linear-gradient(135deg, #e8f4fd, #d1e9ff);
-      color: #409eff;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #eef5ff, #d9f8f3);
+      color: #2563eb;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -166,7 +168,7 @@ function formatTime(date) {
 
     .publish-time {
       font-size: 12px;
-      color: #c0c4cc;
+      color: #98a2b3;
     }
   }
 }

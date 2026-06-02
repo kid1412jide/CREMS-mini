@@ -1,9 +1,9 @@
 <template>
    <div class="app-container">
-      <el-form :model="queryParams" ref="queryRef" v-show="showSearch" :inline="true" label-width="68px">
+      <el-form :model="quecremsParams" ref="queryRef" v-show="showSearch" :inline="true" label-width="68px">
          <el-form-item label="角色名称" prop="roleName">
             <el-input
-               v-model="queryParams.roleName"
+               v-model="quecremsParams.roleName"
                placeholder="请输入角色名称"
                clearable
                style="width: 240px"
@@ -12,7 +12,7 @@
          </el-form-item>
          <el-form-item label="权限字符" prop="roleKey">
             <el-input
-               v-model="queryParams.roleKey"
+               v-model="quecremsParams.roleKey"
                placeholder="请输入权限字符"
                clearable
                style="width: 240px"
@@ -21,7 +21,7 @@
          </el-form-item>
          <el-form-item label="状态" prop="status">
             <el-select
-               v-model="queryParams.status"
+               v-model="quecremsParams.status"
                placeholder="角色状态"
                clearable
                style="width: 240px"
@@ -134,8 +134,8 @@
       <pagination
          v-show="total > 0"
          :total="total"
-         v-model:page="queryParams.pageNum"
-         v-model:limit="queryParams.pageSize"
+         v-model:page="quecremsParams.pageNum"
+         v-model:limit="quecremsParams.pageSize"
          @pagination="getList"
       />
 
@@ -280,7 +280,7 @@ const dataScopeOptions = ref([
 
 const data = reactive({
   form: {},
-  queryParams: {
+  quecremsParams: {
     pageNum: 1,
     pageSize: 10,
     roleName: undefined,
@@ -294,12 +294,12 @@ const data = reactive({
   },
 })
 
-const { queryParams, form, rules } = toRefs(data)
+const { quecremsParams, form, rules } = toRefs(data)
 
 /** 查询角色列表 */
 function getList() {
   loading.value = true
-  listRole(proxy.addDateRange(queryParams.value, dateRange.value)).then(response => {
+  listRole(proxy.addDateRange(quecremsParams.value, dateRange.value)).then(response => {
     roleList.value = response.rows
     total.value = response.total
     loading.value = false
@@ -308,7 +308,7 @@ function getList() {
 
 /** 搜索按钮操作 */
 function handleQuery() {
-  queryParams.value.pageNum = 1
+  quecremsParams.value.pageNum = 1
   getList()
 }
 
@@ -333,7 +333,7 @@ function handleDelete(row) {
 /** 导出按钮操作 */
 function handleExport() {
   proxy.download("system/role/export", {
-    ...queryParams.value,
+    ...quecremsParams.value,
   }, `role_${new Date().getTime()}.xlsx`)
 }
 

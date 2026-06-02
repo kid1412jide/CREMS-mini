@@ -1,16 +1,16 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+    <el-form :model="quecremsParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="企业名称" prop="companyName">
-        <el-input v-model="queryParams.companyName" placeholder="请输入企业名称" clearable style="width: 200px" @keyup.enter="handleQuery" />
+        <el-input v-model="quecremsParams.companyName" placeholder="请输入企业名称" clearable style="width: 200px" @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="企业类型" prop="companyType">
-        <el-select v-model="queryParams.companyType" placeholder="请选择" clearable style="width: 150px">
+        <el-select v-model="quecremsParams.companyType" placeholder="请选择" clearable style="width: 150px">
           <el-option v-for="dict in crems_company_type" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
       </el-form-item>
       <el-form-item label="状态" prop="status">
-        <el-select v-model="queryParams.status" placeholder="请选择" clearable style="width: 150px">
+        <el-select v-model="quecremsParams.status" placeholder="请选择" clearable style="width: 150px">
           <el-option v-for="dict in crems_company_status" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
       </el-form-item>
@@ -72,7 +72,7 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
+    <pagination v-show="total > 0" :total="total" v-model:page="quecremsParams.pageNum" v-model:limit="quecremsParams.pageSize" @pagination="getList" />
 
     <!-- 添加或修改企业对话框 -->
     <el-dialog :title="title" v-model="open" width="700px" append-to-body>
@@ -251,7 +251,7 @@ const upload = reactive({
 
 const data = reactive({
   form: {},
-  queryParams: {
+  quecremsParams: {
     pageNum: 1,
     pageSize: 10,
     companyName: undefined,
@@ -264,12 +264,12 @@ const data = reactive({
   }
 })
 
-const { queryParams, form, rules } = toRefs(data)
+const { quecremsParams, form, rules } = toRefs(data)
 
 /** 查询企业列表 */
 function getList() {
   loading.value = true
-  listCompany(queryParams.value).then(res => {
+  listCompany(quecremsParams.value).then(res => {
     companyList.value = res.rows
     total.value = res.total
   }).finally(() => {
@@ -279,7 +279,7 @@ function getList() {
 
 /** 搜索按钮操作 */
 function handleQuery() {
-  queryParams.value.pageNum = 1
+  quecremsParams.value.pageNum = 1
   getList()
 }
 
@@ -351,7 +351,7 @@ function handleDelete(row) {
 
 /** 导出按钮操作 */
 function handleExport() {
-  proxy.download("crems/company/export", { ...queryParams.value }, `company_${new Date().getTime()}.xlsx`)
+  proxy.download("crems/company/export", { ...quecremsParams.value }, `company_${new Date().getTime()}.xlsx`)
 }
 
 /** 导入按钮操作 */

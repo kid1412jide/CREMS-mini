@@ -1,9 +1,9 @@
 <template>
    <div class="app-container">
-      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
+      <el-form :model="quecremsParams" ref="queryRef" :inline="true" v-show="showSearch">
          <el-form-item label="公告标题" prop="noticeTitle">
             <el-input
-               v-model="queryParams.noticeTitle"
+               v-model="quecremsParams.noticeTitle"
                placeholder="请输入公告标题"
                clearable
                style="width: 200px"
@@ -12,7 +12,7 @@
          </el-form-item>
          <el-form-item label="操作人员" prop="createBy">
             <el-input
-               v-model="queryParams.createBy"
+               v-model="quecremsParams.createBy"
                placeholder="请输入操作人员"
                clearable
                style="width: 200px"
@@ -20,7 +20,7 @@
             />
          </el-form-item>
          <el-form-item label="类型" prop="noticeType">
-            <el-select v-model="queryParams.noticeType" placeholder="公告类型" clearable style="width: 200px">
+            <el-select v-model="quecremsParams.noticeType" placeholder="公告类型" clearable style="width: 200px">
                <el-option
                   v-for="dict in sys_notice_type"
                   :key="dict.value"
@@ -104,8 +104,8 @@
       <pagination
          v-show="total > 0"
          :total="total"
-         v-model:page="queryParams.pageNum"
-         v-model:limit="queryParams.pageSize"
+         v-model:page="quecremsParams.pageNum"
+         v-model:limit="quecremsParams.pageSize"
          @pagination="getList"
       />
 
@@ -180,7 +180,7 @@ const title = ref("")
 
 const data = reactive({
   form: {},
-  queryParams: {
+  quecremsParams: {
     pageNum: 1,
     pageSize: 10,
     noticeTitle: undefined,
@@ -193,12 +193,12 @@ const data = reactive({
   },
 })
 
-const { queryParams, form, rules } = toRefs(data)
+const { quecremsParams, form, rules } = toRefs(data)
 
 /** 查询公告列表 */
 function getList() {
   loading.value = true
-  listNotice(queryParams.value).then(response => {
+  listNotice(quecremsParams.value).then(response => {
     noticeList.value = response.rows
     total.value = response.total
     loading.value = false
@@ -225,7 +225,7 @@ function reset() {
 
 /** 搜索按钮操作 */
 function handleQuery() {
-  queryParams.value.pageNum = 1
+  quecremsParams.value.pageNum = 1
   getList()
 }
 

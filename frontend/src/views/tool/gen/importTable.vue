@@ -1,10 +1,10 @@
 <template>
   <!-- 导入表 -->
   <el-dialog title="导入表" v-model="visible" width="800px" top="5vh" append-to-body>
-    <el-form :model="queryParams" ref="queryRef" :inline="true">
+    <el-form :model="quecremsParams" ref="queryRef" :inline="true">
       <el-form-item label="表名称" prop="tableName">
         <el-input
-          v-model="queryParams.tableName"
+          v-model="quecremsParams.tableName"
           placeholder="请输入表名称"
           clearable
           style="width: 180px"
@@ -13,7 +13,7 @@
       </el-form-item>
       <el-form-item label="表描述" prop="tableComment">
         <el-input
-          v-model="queryParams.tableComment"
+          v-model="quecremsParams.tableComment"
           placeholder="请输入表描述"
           clearable
           style="width: 180px"
@@ -36,8 +36,8 @@
       <pagination
         v-show="total>0"
         :total="total"
-        v-model:page="queryParams.pageNum"
-        v-model:limit="queryParams.pageSize"
+        v-model:page="quecremsParams.pageNum"
+        v-model:limit="quecremsParams.pageSize"
         @pagination="getList"
       />
     </el-row>
@@ -59,7 +59,7 @@ const tables = ref([])
 const dbTableList = ref([])
 const { proxy } = getCurrentInstance()
 
-const queryParams = reactive({
+const quecremsParams = reactive({
   pageNum: 1,
   pageSize: 10,
   tableName: undefined,
@@ -86,7 +86,7 @@ function handleSelectionChange(selection) {
 
 /** 查询表数据 */
 function getList() {
-  listDbTable(queryParams).then(res => {
+  listDbTable(quecremsParams).then(res => {
     dbTableList.value = res.rows
     total.value = res.total
   })
@@ -94,7 +94,7 @@ function getList() {
 
 /** 搜索按钮操作 */
 function handleQuery() {
-  queryParams.pageNum = 1
+  quecremsParams.pageNum = 1
   getList()
 }
 

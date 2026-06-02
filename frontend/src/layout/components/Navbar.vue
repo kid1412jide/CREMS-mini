@@ -177,8 +177,10 @@ async function toggleTheme(event) {
   height: 50px;
   overflow: hidden;
   position: relative;
-  background: var(--navbar-bg);
-  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  background: color-mix(in srgb, var(--navbar-bg, #fff) 90%, transparent);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  border-bottom: 1px solid rgba(31, 41, 55, 0.06);
+  backdrop-filter: blur(14px);
   display: flex;
   align-items: center;
   // padding: 0 8px;
@@ -196,7 +198,7 @@ async function toggleTheme(event) {
     margin-right: 8px;
 
     &:hover {
-      background: rgba(0, 0, 0, 0.025);
+      background: rgba(37, 99, 235, 0.06);
     }
   }
 
@@ -239,10 +241,12 @@ async function toggleTheme(event) {
 
       &.hover-effect {
         cursor: pointer;
-        transition: background 0.3s;
+        transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
 
         &:hover {
-          background: rgba(0, 0, 0, 0.025);
+          color: var(--el-color-primary);
+          background: rgba(37, 99, 235, 0.06);
+          transform: translateY(-1px);
         }
       }
 
@@ -275,13 +279,14 @@ async function toggleTheme(event) {
           height: 30px;
           margin-right: 8px;
           border-radius: 50%;
+          box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
         }
 
         .user-avatar-text {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          background: linear-gradient(135deg, #667eea, #764ba2);
+          background: linear-gradient(135deg, #2563eb, #14b8a6);
           color: #fff;
           font-size: 14px;
           font-weight: 600;

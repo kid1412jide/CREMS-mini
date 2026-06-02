@@ -1,21 +1,21 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+    <el-form :model="quecremsParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="职位名称" prop="jobTitle">
-        <el-input v-model="queryParams.jobTitle" placeholder="请输入职位名称" clearable style="width: 200px" @keyup.enter="handleQuery" />
+        <el-input v-model="quecremsParams.jobTitle" placeholder="请输入职位名称" clearable style="width: 200px" @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="工作城市" prop="workCity">
-        <el-input v-model="queryParams.workCity" placeholder="请输入工作城市" clearable style="width: 150px" @keyup.enter="handleQuery" />
+        <el-input v-model="quecremsParams.workCity" placeholder="请输入工作城市" clearable style="width: 150px" @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="职位类型" prop="jobType">
-        <el-select v-model="queryParams.jobType" placeholder="请选择" clearable style="width: 120px">
+        <el-select v-model="quecremsParams.jobType" placeholder="请选择" clearable style="width: 120px">
           <el-option label="全职" value="full_time" />
           <el-option label="实习" value="internship" />
           <el-option label="兼职" value="part_time" />
         </el-select>
       </el-form-item>
       <el-form-item label="学历要求" prop="educationRequired">
-        <el-select v-model="queryParams.educationRequired" placeholder="请选择" clearable style="width: 120px">
+        <el-select v-model="quecremsParams.educationRequired" placeholder="请选择" clearable style="width: 120px">
           <el-option label="专科" value="junior_college" />
           <el-option label="本科" value="bachelor" />
           <el-option label="硕士" value="master" />
@@ -179,7 +179,7 @@ const columns = ref({
 })
 
 const data = reactive({
-  queryParams: {
+  quecremsParams: {
     pageNum: 1,
     pageSize: 12,
     jobTitle: undefined,
@@ -193,14 +193,12 @@ const data = reactive({
   }
 })
 
-const { queryParams } = toRefs(data)
+const { quecremsParams } = toRefs(data)
 const applyRef = ref(null)
-
-const { queryParams } = toRefs(data)
 
 function getList() {
   loading.value = true
-  listJob(queryParams.value).then(res => {
+  listJob(quecremsParams.value).then(res => {
     jobList.value = res.rows || []
     total.value = res.total
   }).finally(() => {
@@ -209,7 +207,7 @@ function getList() {
 }
 
 function handleQuery() {
-  queryParams.value.pageNum = 1
+  quecremsParams.value.pageNum = 1
   getList()
 }
 

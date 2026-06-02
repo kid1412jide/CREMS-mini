@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+    <el-form :model="quecremsParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="职位名称" prop="jobTitle">
-        <el-input v-model="queryParams.jobTitle" placeholder="请输入职位名称" clearable style="width: 200px" @keyup.enter="handleQuery" />
+        <el-input v-model="quecremsParams.jobTitle" placeholder="请输入职位名称" clearable style="width: 200px" @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -30,7 +30,7 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
+    <pagination v-show="total > 0" :total="total" v-model:page="quecremsParams.pageNum" v-model:limit="quecremsParams.pageSize" @pagination="getList" />
   </div>
 </template>
 
@@ -52,18 +52,18 @@ const columns = ref({
 
 const data = reactive({
   form: {},
-  queryParams: {
+  quecremsParams: {
     pageNum: 1,
     pageSize: 10,
     jobTitle: undefined
   }
 })
 
-const { queryParams, form } = toRefs(data)
+const { quecremsParams, form } = toRefs(data)
 
 function getList() {
   loading.value = true
-  listFavorite(queryParams.value).then(res => {
+  listFavorite(quecremsParams.value).then(res => {
     favoriteList.value = res.rows
     total.value = res.total
   }).finally(() => {
@@ -72,7 +72,7 @@ function getList() {
 }
 
 function handleQuery() {
-  queryParams.value.pageNum = 1
+  quecremsParams.value.pageNum = 1
   getList()
 }
 

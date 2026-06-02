@@ -6,7 +6,7 @@
 -- ----------------------------
 -- 1. 创建测试用户（学生用户）
 -- ----------------------------
--- 密码为 admin123 的 RSA 加密后存储，这里使用若依默认密码
+-- 密码为 admin123 的 RSA 加密后存储，这里使用CREMS默认密码
 INSERT INTO sys_user (user_id, user_name, nick_name, email, phonenumber, sex, avatar, password, status, del_flag, create_by, create_time)
 VALUES
 (100, 'student01', '张三', 'zhangsan@example.com', '13800138001', '0', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', 'admin', sysdate()),
