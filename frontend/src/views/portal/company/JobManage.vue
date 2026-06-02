@@ -9,8 +9,8 @@
 
     <!-- Search -->
     <div class="search-bar">
-      <el-input v-model="queryParams.jobTitle" placeholder="职位名称" clearable @keyup.enter="handleQuery" style="width: 200px" />
-      <el-select v-model="queryParams.status" placeholder="状态" clearable style="width: 120px" @change="handleQuery">
+      <el-input v-model="quecremsParams.jobTitle" placeholder="职位名称" clearable @keyup.enter="handleQuery" style="width: 200px" />
+      <el-select v-model="quecremsParams.status" placeholder="状态" clearable style="width: 120px" @change="handleQuery">
         <el-option label="待审核" value="0" />
         <el-option label="已发布" value="1" />
         <el-option label="已下架" value="2" />
@@ -49,7 +49,7 @@
     </div>
 
     <div style="margin-top: 24px; display: flex; justify-content: center" v-if="total > 0">
-      <pagination :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
+      <pagination :total="total" v-model:page="quecremsParams.pageNum" v-model:limit="quecremsParams.pageSize" @pagination="getList" />
     </div>
 
     <!-- Add/Edit dialog -->
@@ -145,7 +145,7 @@ const dialogOpen = ref(false)
 const dialogTitle = ref('')
 const formRef = ref(null)
 
-const queryParams = reactive({ pageNum: 1, pageSize: 10, jobTitle: undefined, status: undefined })
+const quecremsParams = reactive({ pageNum: 1, pageSize: 10, jobTitle: undefined, status: undefined })
 
 const form = reactive({
   jobId: undefined,
@@ -180,20 +180,20 @@ const getStatusType = (s) => statusMap[s]?.type || 'info'
 
 function getList() {
   loading.value = true
-  listJob(queryParams).then(res => {
+  listJob(quecremsParams).then(res => {
     jobList.value = res.rows || []
     total.value = res.total || 0
   }).finally(() => { loading.value = false })
 }
 
 function handleQuery() {
-  queryParams.pageNum = 1
+  quecremsParams.pageNum = 1
   getList()
 }
 
 function resetQuery() {
-  queryParams.jobTitle = undefined
-  queryParams.status = undefined
+  quecremsParams.jobTitle = undefined
+  quecremsParams.status = undefined
   handleQuery()
 }
 

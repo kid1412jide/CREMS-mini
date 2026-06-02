@@ -1,9 +1,9 @@
 <template>
   <el-dialog v-model="visible" :title="`「${noticeTitle}」已读用户`" width="760px" top="6vh" append-to-body @close="handleClose">
-    <el-form ref="queryRef" :model="queryParams" size="small" :inline="true" style="margin-bottom: 4px;">
+    <el-form ref="queryRef" :model="quecremsParams" size="small" :inline="true" style="margin-bottom: 4px;">
       <el-form-item prop="searchValue">
         <el-input
-          v-model="queryParams.searchValue"
+          v-model="quecremsParams.searchValue"
           placeholder="登录名称 / 用户名称"
           clearable
           :prefix-icon="Search"
@@ -37,8 +37,8 @@
     <pagination
       v-show="total > 0"
       :total="total"
-      v-model:page="queryParams.pageNum"
-      v-model:limit="queryParams.pageSize"
+      v-model:page="quecremsParams.pageNum"
+      v-model:limit="quecremsParams.pageSize"
       @pagination="getList"
       style="padding: 6px 0px;"
     />
@@ -57,7 +57,7 @@ const noticeTitle = ref("")
 const total = ref(0)
 const userList = ref([])
 
-const queryParams = reactive({
+const quecremsParams = reactive({
   pageNum: 1,
   pageSize: 10,
   noticeId: undefined,
@@ -65,17 +65,17 @@ const queryParams = reactive({
 })
 
 function open(row) {
-  queryParams.noticeId = row.noticeId
+  quecremsParams.noticeId = row.noticeId
   noticeTitle.value = row.noticeTitle
-  queryParams.searchValue = undefined
-  queryParams.pageNum = 1
+  quecremsParams.searchValue = undefined
+  quecremsParams.pageNum = 1
   visible.value = true
   getList()
 }
 
 function getList() {
   loading.value = true
-  listNoticeReadUsers(queryParams).then(res => {
+  listNoticeReadUsers(quecremsParams).then(res => {
     userList.value = res.rows
     total.value = res.total
   }).finally(() => {
@@ -84,7 +84,7 @@ function getList() {
 }
 
 function handleQuery() {
-  queryParams.pageNum = 1
+  quecremsParams.pageNum = 1
   getList()
 }
 
@@ -96,7 +96,7 @@ function resetQuery() {
 function handleClose() {
   userList.value = []
   total.value = 0
-  queryParams.searchValue = undefined
+  quecremsParams.searchValue = undefined
 }
 
 defineExpose({

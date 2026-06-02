@@ -1,11 +1,11 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+    <el-form :model="quecremsParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="职位名称" prop="jobTitle">
-        <el-input v-model="queryParams.jobTitle" placeholder="请输入职位名称" clearable style="width: 200px" @keyup.enter="handleQuery" />
+        <el-input v-model="quecremsParams.jobTitle" placeholder="请输入职位名称" clearable style="width: 200px" @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="投递状态" prop="status">
-        <el-select v-model="queryParams.status" placeholder="请选择" clearable style="width: 150px">
+        <el-select v-model="quecremsParams.status" placeholder="请选择" clearable style="width: 150px">
           <el-option label="待查看" value="0" />
           <el-option label="已查看" value="1" />
           <el-option label="初筛通过" value="2" />
@@ -51,7 +51,7 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
+    <pagination v-show="total > 0" :total="total" v-model:page="quecremsParams.pageNum" v-model:limit="quecremsParams.pageSize" @pagination="getList" />
 
     <!-- 投递详情弹窗 -->
     <el-dialog title="投递详情" v-model="viewOpen" width="600px" append-to-body>
@@ -101,7 +101,7 @@ const columns = ref({
 })
 
 const data = reactive({
-  queryParams: {
+  quecremsParams: {
     pageNum: 1,
     pageSize: 10,
     jobTitle: undefined,
@@ -109,11 +109,11 @@ const data = reactive({
   }
 })
 
-const { queryParams } = toRefs(data)
+const { quecremsParams } = toRefs(data)
 
 function getList() {
   loading.value = true
-  listApplication(queryParams.value).then(res => {
+  listApplication(quecremsParams.value).then(res => {
     applicationList.value = res.rows
     total.value = res.total
   }).finally(() => {
@@ -122,7 +122,7 @@ function getList() {
 }
 
 function handleQuery() {
-  queryParams.value.pageNum = 1
+  quecremsParams.value.pageNum = 1
   getList()
 }
 

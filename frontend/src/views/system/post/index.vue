@@ -1,9 +1,9 @@
 <template>
    <div class="app-container">
-      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
+      <el-form :model="quecremsParams" ref="queryRef" :inline="true" v-show="showSearch">
          <el-form-item label="岗位编码" prop="postCode">
             <el-input
-               v-model="queryParams.postCode"
+               v-model="quecremsParams.postCode"
                placeholder="请输入岗位编码"
                clearable
                style="width: 200px"
@@ -12,7 +12,7 @@
          </el-form-item>
          <el-form-item label="岗位名称" prop="postName">
             <el-input
-               v-model="queryParams.postName"
+               v-model="quecremsParams.postName"
                placeholder="请输入岗位名称"
                clearable
                style="width: 200px"
@@ -20,7 +20,7 @@
             />
          </el-form-item>
          <el-form-item label="状态" prop="status">
-            <el-select v-model="queryParams.status" placeholder="岗位状态" clearable style="width: 200px">
+            <el-select v-model="quecremsParams.status" placeholder="岗位状态" clearable style="width: 200px">
                <el-option
                   v-for="dict in sys_normal_disable"
                   :key="dict.value"
@@ -104,8 +104,8 @@
       <pagination
          v-show="total > 0"
          :total="total"
-         v-model:page="queryParams.pageNum"
-         v-model:limit="queryParams.pageSize"
+         v-model:page="quecremsParams.pageNum"
+         v-model:limit="quecremsParams.pageSize"
          @pagination="getList"
       />
 
@@ -162,7 +162,7 @@ const title = ref("")
 
 const data = reactive({
   form: {},
-  queryParams: {
+  quecremsParams: {
     pageNum: 1,
     pageSize: 10,
     postCode: undefined,
@@ -176,12 +176,12 @@ const data = reactive({
   }
 })
 
-const { queryParams, form, rules } = toRefs(data)
+const { quecremsParams, form, rules } = toRefs(data)
 
 /** 查询岗位列表 */
 function getList() {
   loading.value = true
-  listPost(queryParams.value).then(response => {
+  listPost(quecremsParams.value).then(response => {
     postList.value = response.rows
     total.value = response.total
     loading.value = false
@@ -209,7 +209,7 @@ function reset() {
 
 /** 搜索按钮操作 */
 function handleQuery() {
-  queryParams.value.pageNum = 1
+  quecremsParams.value.pageNum = 1
   getList()
 }
 
@@ -279,7 +279,7 @@ function handleDelete(row) {
 /** 导出按钮操作 */
 function handleExport() {
   proxy.download("system/post/export", {
-    ...queryParams.value
+    ...quecremsParams.value
   }, `post_${new Date().getTime()}.xlsx`)
 }
 

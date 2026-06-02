@@ -1,9 +1,9 @@
 <template>
    <div class="app-container">
-      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+      <el-form :model="quecremsParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
          <el-form-item label="操作地址" prop="operIp">
             <el-input
-               v-model="queryParams.operIp"
+               v-model="quecremsParams.operIp"
                placeholder="请输入操作地址"
                clearable
                style="width: 240px;"
@@ -12,7 +12,7 @@
          </el-form-item>
          <el-form-item label="系统模块" prop="title">
             <el-input
-               v-model="queryParams.title"
+               v-model="quecremsParams.title"
                placeholder="请输入系统模块"
                clearable
                style="width: 240px;"
@@ -21,7 +21,7 @@
          </el-form-item>
          <el-form-item label="操作人员" prop="operName">
             <el-input
-               v-model="queryParams.operName"
+               v-model="quecremsParams.operName"
                placeholder="请输入操作人员"
                clearable
                style="width: 240px;"
@@ -30,7 +30,7 @@
          </el-form-item>
          <el-form-item label="类型" prop="businessType">
             <el-select
-               v-model="queryParams.businessType"
+               v-model="quecremsParams.businessType"
                placeholder="操作类型"
                clearable
                style="width: 240px"
@@ -45,7 +45,7 @@
          </el-form-item>
          <el-form-item label="状态" prop="status">
             <el-select
-               v-model="queryParams.status"
+               v-model="quecremsParams.status"
                placeholder="操作状态"
                clearable
                style="width: 240px"
@@ -143,8 +143,8 @@
       <pagination
          v-show="total > 0"
          :total="total"
-         v-model:page="queryParams.pageNum"
-         v-model:limit="queryParams.pageSize"
+         v-model:page="quecremsParams.pageNum"
+         v-model:limit="quecremsParams.pageSize"
          @pagination="getList"
       />
 
@@ -174,7 +174,7 @@ const defaultSort = ref({ prop: "operTime", order: "descending" })
 
 const data = reactive({
   form: {},
-  queryParams: {
+  quecremsParams: {
     pageNum: 1,
     pageSize: 10,
     operIp: undefined,
@@ -185,12 +185,12 @@ const data = reactive({
   }
 })
 
-const { queryParams, form } = toRefs(data)
+const { quecremsParams, form } = toRefs(data)
 
 /** 查询登录日志 */
 function getList() {
   loading.value = true
-  list(proxy.addDateRange(queryParams.value, dateRange.value)).then(response => {
+  list(proxy.addDateRange(quecremsParams.value, dateRange.value)).then(response => {
     operlogList.value = response.rows
     total.value = response.total
     loading.value = false
@@ -199,7 +199,7 @@ function getList() {
 
 /** 搜索按钮操作 */
 function handleQuery() {
-  queryParams.value.pageNum = 1
+  quecremsParams.value.pageNum = 1
   getList()
 }
 
@@ -207,7 +207,7 @@ function handleQuery() {
 function resetQuery() {
   dateRange.value = []
   proxy.resetForm("queryRef")
-  queryParams.value.pageNum = 1
+  quecremsParams.value.pageNum = 1
   proxy.$refs["operlogRef"].sort(defaultSort.value.prop, defaultSort.value.order)
 }
 
@@ -219,8 +219,8 @@ function handleSelectionChange(selection) {
 
 /** 排序触发事件 */
 function handleSortChange(column, prop, order) {
-  queryParams.value.orderByColumn = column.prop
-  queryParams.value.isAsc = column.order
+  quecremsParams.value.orderByColumn = column.prop
+  quecremsParams.value.isAsc = column.order
   getList()
 }
 
@@ -254,7 +254,7 @@ function handleClean() {
 /** 导出按钮操作 */
 function handleExport() {
   proxy.download("monitor/operlog/export",{
-    ...queryParams.value,
+    ...quecremsParams.value,
   }, `config_${new Date().getTime()}.xlsx`)
 }
 

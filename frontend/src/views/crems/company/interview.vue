@@ -1,18 +1,18 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="80px">
+    <el-form :model="quecremsParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="80px">
       <el-form-item label="学生姓名" prop="studentName">
-        <el-input v-model="queryParams.studentName" placeholder="请输入学生姓名" clearable style="width: 150px" @keyup.enter="handleQuery" />
+        <el-input v-model="quecremsParams.studentName" placeholder="请输入学生姓名" clearable style="width: 150px" @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="面试类型" prop="interviewType">
-        <el-select v-model="queryParams.interviewType" placeholder="请选择" clearable style="width: 120px">
+        <el-select v-model="quecremsParams.interviewType" placeholder="请选择" clearable style="width: 120px">
           <el-option label="初试" value="first" />
           <el-option label="复试" value="second" />
           <el-option label="终试" value="final" />
         </el-select>
       </el-form-item>
       <el-form-item label="面试状态" prop="status">
-        <el-select v-model="queryParams.status" placeholder="请选择" clearable style="width: 120px">
+        <el-select v-model="quecremsParams.status" placeholder="请选择" clearable style="width: 120px">
           <el-option label="待确认" value="0" />
           <el-option label="已确认" value="1" />
           <el-option label="已完成" value="2" />
@@ -86,7 +86,7 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
+    <pagination v-show="total > 0" :total="total" v-model:page="quecremsParams.pageNum" v-model:limit="quecremsParams.pageSize" @pagination="getList" />
 
     <!-- 添加或修改面试对话框 -->
     <el-dialog :title="title" v-model="open" width="600px" append-to-body>
@@ -225,7 +225,7 @@ const columns = ref({
 
 const data = reactive({
   form: {},
-  queryParams: {
+  quecremsParams: {
     pageNum: 1,
     pageSize: 10,
     studentName: undefined,
@@ -239,11 +239,11 @@ const data = reactive({
   }
 })
 
-const { queryParams, form, rules } = toRefs(data)
+const { quecremsParams, form, rules } = toRefs(data)
 
 function getList() {
   loading.value = true
-  listInterview(queryParams.value).then(res => {
+  listInterview(quecremsParams.value).then(res => {
     interviewList.value = res.rows
     total.value = res.total
   }).finally(() => {
@@ -252,7 +252,7 @@ function getList() {
 }
 
 function handleQuery() {
-  queryParams.value.pageNum = 1
+  quecremsParams.value.pageNum = 1
   getList()
 }
 
@@ -312,7 +312,7 @@ function handleDelete(row) {
 }
 
 function handleExport() {
-  proxy.download("crems/interview/export", { ...queryParams.value }, `interview_${new Date().getTime()}.xlsx`)
+  proxy.download("crems/interview/export", { ...quecremsParams.value }, `interview_${new Date().getTime()}.xlsx`)
 }
 
 function reset() {

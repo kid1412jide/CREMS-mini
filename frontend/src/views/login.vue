@@ -2,6 +2,7 @@
   <div class="login">
     <el-form ref="loginRef" :model="loginForm" :rules="loginRules" class="login-form">
       <h3 class="title">{{ title }}</h3>
+      <p class="login-subtitle">校园招聘与就业信息管理平台</p>
       <el-form-item prop="username">
         <el-input
           v-model="loginForm.username"
@@ -122,14 +123,14 @@ function handleLogin() {
       // 调用action的登录方法
       userStore.login(loginForm.value).then(() => {
         const query = route.query
-        const otherQueryParams = Object.keys(query).reduce((acc, cur) => {
+        const otherQuecremsParams = Object.keys(query).reduce((acc, cur) => {
           if (cur !== "redirect") {
             acc[cur] = query[cur]
           }
           return acc
         }, {})
         // 如果有明确的重定向地址，使用它；否则跳转到首页（由权限守卫根据角色重定向到对应门户）
-        router.push({ path: redirect.value || "/", query: otherQueryParams })
+        router.push({ path: redirect.value || "/", query: otherQuecremsParams })
       }).catch(() => {
         loading.value = false
         // 重新获取验证码
@@ -174,19 +175,61 @@ getCookie()
   height: 100%;
   background-image: url("../assets/images/login-background.jpg");
   background-size: cover;
+  background-position: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.login::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(115deg, rgba(12, 24, 48, 0.22), rgba(255, 255, 255, 0.08) 45%, rgba(37, 99, 235, 0.18)),
+    radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.06) 32%, transparent 55%);
+  z-index: 0;
+}
+
+.login::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.18) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.18) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent);
+  opacity: 0.18;
+  animation: login-grid-drift 18s linear infinite;
+  z-index: 0;
 }
 .title {
-  margin: 0px auto 30px auto;
+  margin: 0px auto 8px auto;
   text-align: center;
-  color: #707070;
+  color: #1f2937;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.login-subtitle {
+  margin: 0 0 26px;
+  text-align: center;
+  color: #667085;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .login-form {
-  border-radius: 6px;
-  background: #ffffff;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
   width: 400px;
-  padding: 25px 25px 5px 25px;
+  padding: 30px 30px 10px 30px;
   z-index: 1;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.18);
+  backdrop-filter: blur(18px);
+  animation: login-card-in 520ms cubic-bezier(0.22, 1, 0.36, 1);
   .el-input {
     height: 40px;
     input {
@@ -197,6 +240,21 @@ getCookie()
     height: 39px;
     width: 14px;
     margin-left: 0px;
+  }
+
+  :deep(.el-input__wrapper) {
+    border-radius: 8px;
+    background: rgba(248, 251, 255, 0.92);
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.08) inset;
+  }
+
+  :deep(.el-button--primary) {
+    height: 42px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #2563eb, #14b8a6);
+    box-shadow: 0 14px 26px rgba(37, 99, 235, 0.28);
+    font-weight: 700;
   }
 }
 .login-tip {
@@ -223,7 +281,9 @@ getCookie()
   color: #fff;
   font-family: Arial;
   font-size: 12px;
-  letter-spacing: 1px;
+  letter-spacing: 0;
+  text-shadow: 0 1px 6px rgba(15, 23, 42, 0.35);
+  z-index: 1;
 }
 .login-code-img {
   height: 40px;
@@ -233,8 +293,44 @@ getCookie()
 html.dark .login {
   background-image: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url("../assets/images/login-background.jpg");
   .login-form {
-    background: var(--el-bg-color-overlay) !important;
+    background: rgba(29, 30, 31, 0.86) !important;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .title {
+    color: #f8fafc;
+  }
+
+  .login-subtitle {
+    color: #cbd5e1;
+  }
+}
+
+@keyframes login-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes login-grid-drift {
+  from {
+    background-position: 0 0, 0 0;
+  }
+  to {
+    background-position: 56px 56px, 56px 56px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-form {
+    width: calc(100% - 32px);
+    padding: 26px 22px 8px;
   }
 }
 </style>

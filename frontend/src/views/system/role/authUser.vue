@@ -1,10 +1,10 @@
 
 <template>
    <div class="app-container">
-      <el-form :model="queryParams" ref="queryRef" v-show="showSearch" :inline="true">
+      <el-form :model="quecremsParams" ref="queryRef" v-show="showSearch" :inline="true">
          <el-form-item label="用户名称" prop="userName">
             <el-input
-               v-model="queryParams.userName"
+               v-model="quecremsParams.userName"
                placeholder="请输入用户名称"
                clearable
                style="width: 240px"
@@ -13,7 +13,7 @@
          </el-form-item>
          <el-form-item label="手机号码" prop="phonenumber">
             <el-input
-               v-model="queryParams.phonenumber"
+               v-model="quecremsParams.phonenumber"
                placeholder="请输入手机号码"
                clearable
                style="width: 240px"
@@ -83,11 +83,11 @@
       <pagination
          v-show="total > 0"
          :total="total"
-         v-model:page="queryParams.pageNum"
-         v-model:limit="queryParams.pageSize"
+         v-model:page="quecremsParams.pageNum"
+         v-model:limit="quecremsParams.pageSize"
          @pagination="getList"
       />
-      <select-user ref="selectRef" :roleId="queryParams.roleId" @ok="handleQuery" />
+      <select-user ref="selectRef" :roleId="quecremsParams.roleId" @ok="handleQuery" />
    </div>
 </template>
 
@@ -106,7 +106,7 @@ const multiple = ref(true)
 const total = ref(0)
 const userIds = ref([])
 
-const queryParams = reactive({
+const quecremsParams = reactive({
   pageNum: 1,
   pageSize: 10,
   roleId: route.params.roleId,
@@ -117,7 +117,7 @@ const queryParams = reactive({
 /** 查询授权用户列表 */
 function getList() {
   loading.value = true
-  allocatedUserList(queryParams).then(response => {
+  allocatedUserList(quecremsParams).then(response => {
     userList.value = response.rows
     total.value = response.total
     loading.value = false
@@ -132,7 +132,7 @@ function handleClose() {
 
 /** 搜索按钮操作 */
 function handleQuery() {
-  queryParams.pageNum = 1
+  quecremsParams.pageNum = 1
   getList()
 }
 
@@ -156,7 +156,7 @@ function openSelectUser() {
 /** 取消授权按钮操作 */
 function cancelAuthUser(row) {
   proxy.$modal.confirm('确认要取消该用户"' + row.userName + '"角色吗？').then(function () {
-    return authUserCancel({ userId: row.userId, roleId: queryParams.roleId })
+    return authUserCancel({ userId: row.userId, roleId: quecremsParams.roleId })
   }).then(() => {
     getList()
     proxy.$modal.msgSuccess("取消授权成功")
@@ -165,7 +165,7 @@ function cancelAuthUser(row) {
 
 /** 批量取消授权按钮操作 */
 function cancelAuthUserAll() {
-  const roleId = queryParams.roleId
+  const roleId = quecremsParams.roleId
   const uIds = userIds.value.join(",")
   proxy.$modal.confirm("是否取消选中用户授权数据项?").then(function () {
     return authUserCancelAll({ roleId: roleId, userIds: uIds })

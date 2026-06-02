@@ -4,8 +4,8 @@
 
     <!-- Filters -->
     <div class="search-bar">
-      <el-input v-model="queryParams.studentName" placeholder="学生姓名" clearable @keyup.enter="handleQuery" style="width: 160px" />
-      <el-select v-model="queryParams.status" placeholder="状态" clearable style="width: 130px" @change="handleQuery">
+      <el-input v-model="quecremsParams.studentName" placeholder="学生姓名" clearable @keyup.enter="handleQuery" style="width: 160px" />
+      <el-select v-model="quecremsParams.status" placeholder="状态" clearable style="width: 130px" @change="handleQuery">
         <el-option label="待查看" value="0" />
         <el-option label="已查看" value="1" />
         <el-option label="初筛通过" value="2" />
@@ -36,7 +36,9 @@
         <div class="app-card__footer">
           <span class="apply-time">投递于 {{ parseTime(app.applyTime) }}</span>
           <div class="action-btns">
-            <el-button v-anime-button type="primary" size="small" plain @click="handleView(app)">查看详情</el-button>
+            <el-button v-anime-button type="primary" size="small" plain @click="handleView(app)">
+              {{ expandedId === app.applicationId ? '收起详情' : '查看详情' }}
+            </el-button>
             <el-button v-anime-button v-if="app.status === '0'" type="primary" size="small" @click="handleStatus(app, '1')">标记已查看</el-button>
             <el-button v-anime-button v-if="app.status === '0' || app.status === '1'" type="success" size="small" @click="handleStatus(app, '2')">初筛通过</el-button>
             <el-button v-anime-button v-if="app.status === '2'" type="primary" size="small" @click="handleInvite(app)">邀请面试</el-button>
@@ -44,6 +46,61 @@
             <el-button v-anime-button v-if="app.status !== '4' && app.status !== '5'" type="danger" size="small" plain @click="handleStatus(app, '4')">拒绝</el-button>
           </div>
         </div>
+        <transition name="detail-expand">
+          <div v-if="expandedId === app.applicationId" class="app-detail">
+            <el-divider content-position="left">投递信息</el-divider>
+            <el-descriptions :column="2" border>
+              <el-descriptions-item label="投递ID">{{ viewData.applicationId }}</el-descriptions-item>
+              <el-descriptions-item label="职位名称">{{ viewData.jobTitle }}</el-descriptions-item>
+              <el-descriptions-item label="投递时间">{{ parseTime(viewData.applyTime) }}</el-descriptions-item>
+              <el-descriptions-item label="状态">
+                <el-tag :type="getStatusType(viewData.status)">{{ getStatusLabel(viewData.status) }}</el-tag>
+              </el-descriptions-item>
+              <el-descriptions-item label="查看时间">{{ parseTime(viewData.viewTime) || '-' }}</el-descriptions-item>
+              <el-descriptions-item label="企业反馈" :span="2">{{ viewData.feedback || '-' }}</el-descriptions-item>
+            </el-descriptions>
+
+            <el-divider content-position="left">学生简历</el-divider>
+            <el-descriptions :column="2" border>
+              <el-descriptions-item label="姓名">{{ viewData.studentName }}</el-descriptions-item>
+              <el-descriptions-item label="学号">{{ viewData.studentNo || '-' }}</el-descriptions-item>
+              <el-descriptions-item label="性别">{{ viewData.gender === '0' ? '男' : viewData.gender === '1' ? '女' : '-' }}</el-descriptions-item>
+              <el-descriptions-item label="手机号">{{ viewData.phone || '-' }}</el-descriptions-item>
+              <el-descriptions-item label="邮箱">{{ viewData.email || '-' }}</el-descriptions-item>
+              <el-descriptions-item label="学校">{{ viewData.school || '-' }}</el-descriptions-item>
+              <el-descriptions-item label="专业">{{ viewData.major || '-' }}</el-descriptions-item>
+              <el-descriptions-item label="学历">{{ viewData.education || '-' }}</el-descriptions-item>
+              <el-descriptions-item label="年级">{{ viewData.grade || '-' }}</el-descriptions-item>
+              <el-descriptions-item label="毕业时间">{{ parseTime(viewData.graduationDate) || '-' }}</el-descriptions-item>
+              <el-descriptions-item label="技能标签" :span="2">
+                <template v-if="viewData.skills">
+                  <template v-for="skill in viewData.skills.split(',')" :key="skill">
+                    <el-tag v-if="skill.trim()" style="margin-right: 5px">{{ skill.trim() }}</el-tag>
+                  </template>
+                </template>
+                <span v-else>-</span>
+              </el-descriptions-item>
+              <el-descriptions-item label="自我介绍" :span="2">{{ viewData.selfIntroduction || '-' }}</el-descriptions-item>
+            </el-descriptions>
+
+            <el-divider content-position="left">投递简历</el-divider>
+            <el-descriptions :column="1" border>
+              <el-descriptions-item label="简历文件">
+                <template v-if="viewData.resumeUrl">
+                  <el-button type="primary" link @click="downloadResume(viewData.resumeUrl)">
+                    下载简历
+                  </el-button>
+                </template>
+                <span v-else>未上传简历</span>
+              </el-descriptions-item>
+            </el-descriptions>
+
+            <el-divider content-position="left">求职信</el-divider>
+            <div class="cover-letter-detail">
+              {{ viewData.coverLetter || '未填写求职信' }}
+            </div>
+          </div>
+        </transition>
       </div>
     </div>
 
@@ -52,65 +109,8 @@
     </div>
 
     <div style="margin-top: 24px; display: flex; justify-content: center" v-if="total > 0">
-      <pagination :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
+      <pagination :total="total" v-model:page="quecremsParams.pageNum" v-model:limit="quecremsParams.pageSize" @pagination="getList" />
     </div>
-
-    <!-- Detail dialog -->
-    <el-dialog title="投递详情" v-model="viewOpen" width="700px" destroy-on-close>
-      <div style="max-height: 65vh; overflow-y: auto; padding-right: 8px;">
-      <el-divider content-position="left">投递信息</el-divider>
-      <el-descriptions :column="2" border>
-        <el-descriptions-item label="投递ID">{{ viewData.applicationId }}</el-descriptions-item>
-        <el-descriptions-item label="职位名称">{{ viewData.jobTitle }}</el-descriptions-item>
-        <el-descriptions-item label="投递时间">{{ parseTime(viewData.applyTime) }}</el-descriptions-item>
-        <el-descriptions-item label="状态">
-          <el-tag :type="getStatusType(viewData.status)">{{ getStatusLabel(viewData.status) }}</el-tag>
-        </el-descriptions-item>
-        <el-descriptions-item label="查看时间">{{ parseTime(viewData.viewTime) || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="企业反馈" :span="2">{{ viewData.feedback || '-' }}</el-descriptions-item>
-      </el-descriptions>
-
-      <el-divider content-position="left">学生简历</el-divider>
-      <el-descriptions :column="2" border>
-        <el-descriptions-item label="姓名">{{ viewData.studentName }}</el-descriptions-item>
-        <el-descriptions-item label="学号">{{ viewData.studentNo || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="性别">{{ viewData.gender === '0' ? '男' : viewData.gender === '1' ? '女' : '-' }}</el-descriptions-item>
-        <el-descriptions-item label="手机号">{{ viewData.phone || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="邮箱">{{ viewData.email || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="学校">{{ viewData.school || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="专业">{{ viewData.major || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="学历">{{ viewData.education || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="年级">{{ viewData.grade || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="毕业时间">{{ parseTime(viewData.graduationDate) || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="技能标签" :span="2">
-          <template v-if="viewData.skills">
-            <template v-for="skill in viewData.skills.split(',')" :key="skill">
-              <el-tag v-if="skill.trim()" style="margin-right: 5px">{{ skill.trim() }}</el-tag>
-            </template>
-          </template>
-          <span v-else>-</span>
-        </el-descriptions-item>
-        <el-descriptions-item label="自我介绍" :span="2">{{ viewData.selfIntroduction || '-' }}</el-descriptions-item>
-      </el-descriptions>
-
-      <el-divider content-position="left">投递简历</el-divider>
-      <el-descriptions :column="1" border>
-        <el-descriptions-item label="简历文件">
-          <template v-if="viewData.resumeUrl">
-            <el-button type="primary" link @click="downloadResume(viewData.resumeUrl)">
-              下载简历
-            </el-button>
-          </template>
-          <span v-else>未上传简历</span>
-        </el-descriptions-item>
-      </el-descriptions>
-
-      <el-divider content-position="left">求职信</el-divider>
-      <div style="padding: 10px; background: #f5f7fa; border-radius: 4px; min-height: 60px;">
-        {{ viewData.coverLetter || '未填写求职信' }}
-      </div>
-      </div>
-    </el-dialog>
 
     <!-- Invite interview dialog -->
     <el-dialog title="邀请面试" v-model="inviteOpen" width="500px" append-to-body>
@@ -155,21 +155,21 @@
 
 <script setup>
 import { listApplication, updateApplication, addInterview } from '@/api/portal'
-import { parseTime } from '@/utils/ruoyi'
+import { parseTime } from '@/utils/crems'
 
 const { proxy } = getCurrentInstance()
 
 const loading = ref(false)
 const appList = ref([])
 const total = ref(0)
-const viewOpen = ref(false)
+const expandedId = ref(null)
 const viewData = ref({})
 const inviteOpen = ref(false)
 const inviteLoading = ref(false)
 const inviteRef = ref(null)
 const currentApp = ref(null)
 
-const queryParams = reactive({ pageNum: 1, pageSize: 10, studentName: undefined, status: undefined })
+const quecremsParams = reactive({ pageNum: 1, pageSize: 10, studentName: undefined, status: undefined })
 
 const inviteForm = reactive({
   interviewType: 'first',
@@ -200,14 +200,16 @@ const getStatusType = (s) => statusMap[s]?.type || 'info'
 
 function getList() {
   loading.value = true
-  listApplication(queryParams).then(res => {
+  listApplication(quecremsParams).then(res => {
     appList.value = res.rows || []
     total.value = res.total || 0
+    expandedId.value = null
+    viewData.value = {}
   }).finally(() => { loading.value = false })
 }
 
 function handleQuery() {
-  queryParams.pageNum = 1
+  quecremsParams.pageNum = 1
   getList()
 }
 
@@ -222,12 +224,18 @@ async function handleStatus(app, status) {
 }
 
 function handleView(app) {
+  if (expandedId.value === app.applicationId) {
+    expandedId.value = null
+    viewData.value = {}
+    return
+  }
   viewData.value = { ...app }
-  viewOpen.value = true
+  expandedId.value = app.applicationId
   // 待查看状态自动标记为已查看
   if (app.status === '0') {
     updateApplication({ applicationId: app.applicationId, status: '1' }).then(() => {
-      getList()
+      app.status = '1'
+      viewData.value.status = '1'
     }).catch(() => {})
   }
 }
@@ -351,6 +359,47 @@ onMounted(() => getList())
       gap: 8px;
       flex-wrap: wrap;
     }
+  }
+}
+
+.app-detail {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed rgba(37, 99, 235, 0.2);
+  overflow: hidden;
+}
+
+.cover-letter-detail {
+  min-height: 60px;
+  padding: 12px;
+  background: #f5f7fa;
+  border-radius: 8px;
+  color: #606266;
+  line-height: 1.7;
+}
+
+.detail-expand-enter-active,
+.detail-expand-leave-active {
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.detail-expand-enter-from,
+.detail-expand-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+@media (max-width: 768px) {
+  .app-detail :deep(.el-descriptions__body .el-descriptions__table) {
+    display: block;
+  }
+
+  .app-detail :deep(.el-descriptions__body tbody),
+  .app-detail :deep(.el-descriptions__body tr),
+  .app-detail :deep(.el-descriptions__body th),
+  .app-detail :deep(.el-descriptions__body td) {
+    display: block;
+    width: 100% !important;
   }
 }
 </style>

@@ -131,12 +131,12 @@ const statsItems = computed(() => {
 })
 
 const categories = [
-  { label: '技术开发', icon: '>', color: '#409eff', type: '技术' },
-  { label: '产品运营', icon: '+', color: '#67c23a', type: '产品' },
-  { label: '设计创意', icon: '*', color: '#e6a23c', type: '设计' },
-  { label: '市场营销', icon: '#', color: '#f56c6c', type: '市场' },
-  { label: '人事行政', icon: '@', color: '#a855f7', type: '人事' },
-  { label: '财务法务', icon: '%', color: '#06b6d4', type: '财务' }
+  { label: '技术开发', icon: 'Dev', color: 'linear-gradient(135deg, #2563eb, #14b8a6)', type: '技术' },
+  { label: '产品运营', icon: 'Ops', color: 'linear-gradient(135deg, #16a34a, #65a30d)', type: '产品' },
+  { label: '设计创意', icon: 'UI', color: 'linear-gradient(135deg, #f59e0b, #ef4444)', type: '设计' },
+  { label: '市场营销', icon: 'Mkt', color: 'linear-gradient(135deg, #f43f5e, #ec4899)', type: '市场' },
+  { label: '人事行政', icon: 'HR', color: 'linear-gradient(135deg, #7c3aed, #2563eb)', type: '人事' },
+  { label: '财务法务', icon: 'Fin', color: 'linear-gradient(135deg, #0891b2, #0f766e)', type: '财务' }
 ]
 
 const steps = [
@@ -178,12 +178,15 @@ onMounted(async () => {
 <style lang="scss" scoped>
 .hero {
   position: relative;
-  border-radius: 16px;
-  padding: 56px 48px;
+  border-radius: 8px;
+  padding: 64px 52px;
   margin-bottom: 36px;
   overflow: hidden;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  background:
+    linear-gradient(120deg, rgba(12, 21, 45, 0.96) 0%, rgba(25, 55, 109, 0.92) 50%, rgba(20, 184, 166, 0.78) 100%),
+    url("../../assets/images/login-background.jpg") center / cover;
   color: #fff;
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.18);
 
   &__content {
     position: relative;
@@ -192,14 +195,14 @@ onMounted(async () => {
   }
 
   &__title {
-    font-size: 38px;
+    font-size: 42px;
     font-weight: 800;
     line-height: 1.3;
     margin: 0 0 12px;
-    letter-spacing: -0.5px;
+    letter-spacing: 0;
 
     .highlight {
-      background: linear-gradient(135deg, #409eff, #60a5fa);
+      background: linear-gradient(135deg, #93c5fd, #5eead4);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -208,7 +211,7 @@ onMounted(async () => {
 
   &__subtitle {
     font-size: 16px;
-    opacity: 0.75;
+    opacity: 0.86;
     margin: 0 0 28px;
     line-height: 1.6;
   }
@@ -217,27 +220,40 @@ onMounted(async () => {
     .search-box {
       display: flex;
       gap: 8px;
-      background: rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.16);
       padding: 8px;
-      border-radius: 12px;
-      backdrop-filter: blur(8px);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.18);
+    }
+
+    :deep(.el-input__wrapper) {
+      border-radius: 7px;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: none;
     }
 
     .search-btn {
       padding: 0 28px;
       font-weight: 600;
-      border-radius: 8px;
+      border-radius: 7px;
+      border: none;
+      background: linear-gradient(135deg, #2563eb, #14b8a6);
     }
   }
 
   &__bg {
     position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 45%;
-    background: radial-gradient(circle at 70% 50%, rgba(64, 158, 255, 0.15) 0%, transparent 60%);
+    inset: 0;
+    background:
+      linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.08) 55%, rgba(255, 255, 255, 0.16) 100%),
+      linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+    background-size: auto, 48px 48px, 48px 48px;
+    mask-image: linear-gradient(90deg, transparent 30%, #000 100%);
     z-index: 1;
+    animation: hero-grid-drift 22s linear infinite;
   }
 }
 
@@ -249,19 +265,31 @@ onMounted(async () => {
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
     background: #fff;
-    border-radius: 12px;
+    border-radius: 8px;
     padding: 28px 32px;
-    border: 1px solid #f0f0f0;
+    border: 1px solid rgba(31, 41, 55, 0.08);
+    box-shadow: var(--portal-shadow-sm);
   }
 
   .stat-item {
     text-align: center;
+    position: relative;
+
+    & + .stat-item::before {
+      content: "";
+      position: absolute;
+      left: -8px;
+      top: 12%;
+      width: 1px;
+      height: 76%;
+      background: linear-gradient(180deg, transparent, rgba(31, 41, 55, 0.12), transparent);
+    }
 
     &__value {
       font-size: 28px;
       font-weight: 800;
-      color: #1a1a2e;
-      letter-spacing: -0.5px;
+      color: #172033;
+      letter-spacing: 0;
     }
 
     &__label {
@@ -285,26 +313,29 @@ onMounted(async () => {
   gap: 10px;
   padding: 20px 12px;
   background: #fff;
-  border-radius: 10px;
-  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  border: 1px solid rgba(31, 41, 55, 0.08);
   cursor: pointer;
-  transition: all 0.25s;
+  box-shadow: var(--portal-shadow-sm);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-    transform: translateY(-2px);
+    box-shadow: var(--portal-shadow-md);
+    transform: translateY(-4px);
+    border-color: rgba(37, 99, 235, 0.16);
   }
 
   &__icon {
     width: 44px;
     height: 44px;
-    border-radius: 10px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #fff;
     font-weight: 700;
-    font-size: 18px;
+    font-size: 13px;
+    letter-spacing: 0;
   }
 
   &__label {
@@ -322,16 +353,23 @@ onMounted(async () => {
 
 .step-card {
   background: #fff;
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 28px 24px;
-  border: 1px solid #f0f0f0;
+  border: 1px solid rgba(31, 41, 55, 0.08);
   text-align: center;
+  box-shadow: var(--portal-shadow-sm);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--portal-shadow-md);
+  }
 
   &__number {
     width: 40px;
     height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #409eff, #2563eb);
+    border-radius: 8px;
+    background: linear-gradient(135deg, #2563eb, #14b8a6);
     color: #fff;
     font-weight: 800;
     font-size: 18px;
@@ -353,6 +391,15 @@ onMounted(async () => {
     color: #909399;
     margin: 0;
     line-height: 1.6;
+  }
+}
+
+@keyframes hero-grid-drift {
+  from {
+    background-position: 0 0, 0 0, 0 0;
+  }
+  to {
+    background-position: 0 0, 48px 48px, 48px 48px;
   }
 }
 

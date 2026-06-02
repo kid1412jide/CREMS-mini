@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.crems.crems.mapper.CremsApplicationMapper">
+
+    <resultMap type="CremsApplication" id="CremsApplicationResult">
+        <result property="applicationId" column="application_id" />
+        <result property="jobId"         column="job_id"         />
+        <result property="studentId"     column="student_id"     />
+        <result property="companyId"     column="company_id"     />
+        <result property="jobTitle"      column="job_title"      />
+        <result property="companyName"   column="company_name"   />
+        <result property="studentName"   column="student_name"   />
+        <result property="studentNo"     column="student_no"     />
+        <result property="gender"        column="gender"         />
+        <result property="phone"         column="phone"          />
+        <result property="email"         column="email"          />
+        <result property="school"        column="school"         />
+        <result property="major"         column="major"          />
+        <result property="education"     column="education"      />
+        <result property="grade"         column="grade"          />
+        <result property="graduationDate" column="graduation_date" />
+        <result property="skills"        column="skills"         />
+        <result property="selfIntroduction" column="self_introduction" />
+        <result property="studentResumeUrl" column="student_resume_url" />
+        <result property="resumeUrl"     column="resume_url"     />
+        <result property="coverLetter"   column="cover_letter"   />
+        <result property="applyTime"     column="apply_time"     />
+        <result property="status"        column="status"         />
+        <result property="viewTime"      column="view_time"      />
+        <result property="feedback"      column="feedback"       />
+        <result property="createBy"      column="create_by"      />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"      column="update_by"      />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"        column="remark"         />
+    </resultMap>
+
+    <sql id="selectApplicationVo">
+        select a.application_id, a.job_id, a.student_id, a.company_id,
+               j.job_title, c.company_name, s.student_name,
+               s.student_no, s.gender, s.phone, s.email,
+               s.school, s.major, s.education, s.grade, s.graduation_date,
+               s.skills, s.self_introduction, s.resume_url as student_resume_url,
+               a.resume_url, a.cover_letter, a.apply_time, a.status,
+               a.view_time, a.feedback, a.create_by, a.create_time,
+               a.update_by, a.update_time, a.remark
+        from crems_application a
+        left join crems_job j on a.job_id = j.job_id
+        left join crems_company c on a.company_id = c.company_id
+        left join crems_student s on a.student_id = s.student_id
+    </sql>
+
+    <select id="selectApplicationById" parameterType="Long" resultMap="CremsApplicationResult">
+        <include refid="selectApplicationVo"/>
+        where a.application_id = #{applicationId}
+    </select>
+
+    <select id="selectApplicationList" parameterType="CremsApplication" resultMap="CremsApplicationResult">
+        <include refid="selectApplicationVo"/>
+        <where>
+            <if test="jobId != null">
+                AND a.job_id = #{jobId}
+            </if>
+            <if test="studentId != null">
+                AND a.student_id = #{studentId}
+            </if>
+            <if test="companyId != null">
+                AND a.company_id = #{companyId}
+            </if>
+            <if test="status != null and status != ''">
+                AND a.status = #{status}
+            </if>
+            <if test="jobTitle != null and jobTitle != ''">
+                AND j.job_title like concat('%', #{jobTitle}, '%')
+            </if>
+            <if test="studentName != null and studentName != ''">
+                AND s.student_name like concat('%', #{studentName}, '%')
+            </if>
+        </where>
+        order by a.application_id desc
+    </select>
+
+    <insert id="insertApplication" parameterType="CremsApplication" useGeneratedKeys="true" keyProperty="applicationId">
+        insert into crems_application
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="jobId != null">job_id,</if>
+            <if test="studentId != null">student_id,</if>
+            <if test="companyId != null">company_id,</if>
+            <if test="resumeUrl != null">resume_url,</if>
+            <if test="coverLetter != null">cover_letter,</if>
+            <if test="status != null">status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="remark != null">remark,</if>
+            apply_time,
+            create_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="jobId != null">#{jobId},</if>
+            <if test="studentId != null">#{studentId},</if>
+            <if test="companyId != null">#{companyId},</if>
+            <if test="resumeUrl != null">#{resumeUrl},</if>
+            <if test="coverLetter != null">#{coverLetter},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="remark != null">#{remark},</if>
+            sysdate(),
+            sysdate()
+        </trim>
+    </insert>
+
+    <update id="updateApplication" parameterType="CremsApplication">
+        update crems_application
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="resumeUrl != null">resume_url = #{resumeUrl},</if>
+            <if test="coverLetter != null">cover_letter = #{coverLetter},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="viewTime != null">view_time = #{viewTime},</if>
+            <if test="feedback != null">feedback = #{feedback},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            update_time = sysdate()
+        </trim>
+        where application_id = #{applicationId}
+    </update>
+
+    <delete id="deleteApplicationById" parameterType="Long">
+        delete from crems_application where application_id = #{applicationId}
+    </delete>
+
+    <delete id="deleteApplicationByIds" parameterType="Long">
+        delete from crems_application where application_id in
+        <foreach item="applicationId" collection="array" open="(" separator="," close=")">
+            #{applicationId}
+        </foreach>
+    </delete>
+
+</mapper>

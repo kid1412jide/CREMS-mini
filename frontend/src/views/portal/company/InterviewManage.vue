@@ -4,8 +4,8 @@
 
     <!-- Filters -->
     <div class="search-bar">
-      <el-input v-model="queryParams.studentName" placeholder="学生姓名" clearable @keyup.enter="handleQuery" style="width: 160px" />
-      <el-select v-model="queryParams.status" placeholder="状态" clearable style="width: 130px" @change="handleQuery">
+      <el-input v-model="quecremsParams.studentName" placeholder="学生姓名" clearable @keyup.enter="handleQuery" style="width: 160px" />
+      <el-select v-model="quecremsParams.status" placeholder="状态" clearable style="width: 130px" @change="handleQuery">
         <el-option label="待确认" value="0" />
         <el-option label="已确认" value="1" />
         <el-option label="已完成" value="2" />
@@ -63,7 +63,7 @@
     </div>
 
     <div style="margin-top: 24px; display: flex; justify-content: center" v-if="total > 0">
-      <pagination :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
+      <pagination :total="total" v-model:page="quecremsParams.pageNum" v-model:limit="quecremsParams.pageSize" @pagination="getList" />
     </div>
 
     <!-- Edit dialog -->
@@ -113,7 +113,7 @@
 
 <script setup>
 import { listInterview, updateInterview } from '@/api/portal'
-import { parseTime } from '@/utils/ruoyi'
+import { parseTime } from '@/utils/crems'
 
 const { proxy } = getCurrentInstance()
 
@@ -124,7 +124,7 @@ const editOpen = ref(false)
 const editLoading = ref(false)
 const editRef = ref(null)
 
-const queryParams = reactive({ pageNum: 1, pageSize: 10, studentName: undefined, status: undefined })
+const quecremsParams = reactive({ pageNum: 1, pageSize: 10, studentName: undefined, status: undefined })
 
 const editForm = reactive({
   interviewId: undefined,
@@ -152,14 +152,14 @@ const formatMethod = (m) => methodMap[m] || m
 
 function getList() {
   loading.value = true
-  listInterview(queryParams).then(res => {
+  listInterview(quecremsParams).then(res => {
     interviewList.value = res.rows || []
     total.value = res.total || 0
   }).finally(() => { loading.value = false })
 }
 
 function handleQuery() {
-  queryParams.pageNum = 1
+  quecremsParams.pageNum = 1
   getList()
 }
 

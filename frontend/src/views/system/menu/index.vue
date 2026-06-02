@@ -1,9 +1,9 @@
 <template>
    <div class="app-container">
-      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
+      <el-form :model="quecremsParams" ref="queryRef" :inline="true" v-show="showSearch">
          <el-form-item label="菜单名称" prop="menuName">
             <el-input
-               v-model="queryParams.menuName"
+               v-model="quecremsParams.menuName"
                placeholder="请输入菜单名称"
                clearable
                style="width: 200px"
@@ -11,7 +11,7 @@
             />
          </el-form-item>
          <el-form-item label="状态" prop="status">
-            <el-select v-model="queryParams.status" placeholder="菜单状态" clearable style="width: 200px">
+            <el-select v-model="quecremsParams.status" placeholder="菜单状态" clearable style="width: 200px">
                <el-option
                   v-for="dict in sys_normal_disable"
                   :key="dict.value"
@@ -231,7 +231,7 @@
                      <el-input v-model="form.query" placeholder="请输入路由参数" maxlength="255" />
                      <template #label>
                         <span>
-                           <el-tooltip content='访问路由的默认传递参数，如：`{"id": 1, "name": "ry"}`' placement="top">
+                           <el-tooltip content='访问路由的默认传递参数，如：`{"id": 1, "name": "crems"}`' placement="top">
                               <el-icon><question-filled /></el-icon>
                            </el-tooltip>
                            路由参数
@@ -326,7 +326,7 @@ const originalOrders = ref({})
 
 const data = reactive({
   form: {},
-  queryParams: {
+  quecremsParams: {
     menuName: undefined,
     visible: undefined
   },
@@ -337,12 +337,12 @@ const data = reactive({
   },
 })
 
-const { queryParams, form, rules } = toRefs(data)
+const { quecremsParams, form, rules } = toRefs(data)
 
 /** 查询菜单列表 */
 function getList() {
   loading.value = true
-  listMenu(queryParams.value).then(response => {
+  listMenu(quecremsParams.value).then(response => {
     menuList.value = proxy.handleTree(response.data, "menuId")
     recordOriginalOrders(menuList.value)
     loading.value = false

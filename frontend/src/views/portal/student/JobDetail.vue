@@ -165,7 +165,7 @@
 
 <script setup>
 import { getJob, getCompany, addApplication, listApplication, addFavorite, delFavoriteByJobAndStudent, listFavorite } from '@/api/portal'
-import { parseTime } from '@/utils/ruoyi'
+import { parseTime } from '@/utils/crems'
 import { getToken } from '@/utils/auth'
 
 const route = useRoute()

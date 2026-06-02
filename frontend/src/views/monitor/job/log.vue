@@ -1,9 +1,9 @@
 <template>
    <div class="app-container">
-      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+      <el-form :model="quecremsParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
          <el-form-item label="任务名称" prop="jobName">
             <el-input
-               v-model="queryParams.jobName"
+               v-model="quecremsParams.jobName"
                placeholder="请输入任务名称"
                clearable
                style="width: 240px"
@@ -12,7 +12,7 @@
          </el-form-item>
          <el-form-item label="任务组名" prop="jobGroup">
             <el-select
-               v-model="queryParams.jobGroup"
+               v-model="quecremsParams.jobGroup"
                placeholder="请选择任务组名"
                clearable
                style="width: 240px"
@@ -27,7 +27,7 @@
          </el-form-item>
          <el-form-item label="执行状态" prop="status">
             <el-select
-               v-model="queryParams.status"
+               v-model="quecremsParams.status"
                placeholder="请选择执行状态"
                clearable
                style="width: 240px"
@@ -127,8 +127,8 @@
       <pagination
          v-show="total > 0"
          :total="total"
-         v-model:page="queryParams.pageNum"
-         v-model:limit="queryParams.pageSize"
+         v-model:page="quecremsParams.pageNum"
+         v-model:limit="quecremsParams.pageSize"
          @pagination="getList"
       />
 
@@ -157,7 +157,7 @@ const route = useRoute()
 
 const data = reactive({
   form: {},
-  queryParams: {
+  quecremsParams: {
     pageNum: 1,
     pageSize: 10,
     dictName: undefined,
@@ -166,12 +166,12 @@ const data = reactive({
   }
 })
 
-const { queryParams, form, rules } = toRefs(data)
+const { quecremsParams, form, rules } = toRefs(data)
 
 /** 查询调度日志列表 */
 function getList() {
   loading.value = true
-  listJobLog(proxy.addDateRange(queryParams.value, dateRange.value)).then(response => {
+  listJobLog(proxy.addDateRange(quecremsParams.value, dateRange.value)).then(response => {
     jobLogList.value = response.rows
     total.value = response.total
     loading.value = false
@@ -186,7 +186,7 @@ function handleClose() {
 
 /** 搜索按钮操作 */
 function handleQuery() {
-  queryParams.value.pageNum = 1
+  quecremsParams.value.pageNum = 1
   getList()
 }
 
@@ -232,7 +232,7 @@ function handleClean() {
 /** 导出按钮操作 */
 function handleExport() {
   proxy.download("monitor/jobLog/export", {
-    ...queryParams.value,
+    ...quecremsParams.value,
   }, `job_log_${new Date().getTime()}.xlsx`)
 }
 
@@ -240,8 +240,8 @@ function handleExport() {
   const jobId = route.params && route.params.jobId
   if (jobId !== undefined && jobId != 0) {
     getJob(jobId).then(response => {
-      queryParams.value.jobName = response.data.jobName
-      queryParams.value.jobGroup = response.data.jobGroup
+      quecremsParams.value.jobName = response.data.jobName
+      quecremsParams.value.jobGroup = response.data.jobGroup
       getList()
     })
   } else {

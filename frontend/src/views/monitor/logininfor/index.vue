@@ -1,9 +1,9 @@
 <template>
    <div class="app-container">
-      <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+      <el-form :model="quecremsParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
          <el-form-item label="登录地址" prop="ipaddr">
             <el-input
-               v-model="queryParams.ipaddr"
+               v-model="quecremsParams.ipaddr"
                placeholder="请输入登录地址"
                clearable
                style="width: 240px;"
@@ -12,7 +12,7 @@
          </el-form-item>
          <el-form-item label="用户名称" prop="userName">
             <el-input
-               v-model="queryParams.userName"
+               v-model="quecremsParams.userName"
                placeholder="请输入用户名称"
                clearable
                style="width: 240px;"
@@ -21,7 +21,7 @@
          </el-form-item>
          <el-form-item label="状态" prop="status">
             <el-select
-               v-model="queryParams.status"
+               v-model="quecremsParams.status"
                placeholder="登录状态"
                clearable
                style="width: 240px"
@@ -117,8 +117,8 @@
       <pagination
          v-show="total > 0"
          :total="total"
-         v-model:page="queryParams.pageNum"
-         v-model:limit="queryParams.pageSize"
+         v-model:page="quecremsParams.pageNum"
+         v-model:limit="quecremsParams.pageSize"
          @pagination="getList"
       />
    </div>
@@ -142,7 +142,7 @@ const dateRange = ref([])
 const defaultSort = ref({ prop: "loginTime", order: "descending" })
 
 // 查询参数
-const queryParams = ref({
+const quecremsParams = ref({
   pageNum: 1,
   pageSize: 10,
   ipaddr: undefined,
@@ -155,7 +155,7 @@ const queryParams = ref({
 /** 查询登录日志列表 */
 function getList() {
   loading.value = true
-  list(proxy.addDateRange(queryParams.value, dateRange.value)).then(response => {
+  list(proxy.addDateRange(quecremsParams.value, dateRange.value)).then(response => {
     logininforList.value = response.rows
     total.value = response.total
     loading.value = false
@@ -164,7 +164,7 @@ function getList() {
 
 /** 搜索按钮操作 */
 function handleQuery() {
-  queryParams.value.pageNum = 1
+  quecremsParams.value.pageNum = 1
   getList()
 }
 
@@ -172,7 +172,7 @@ function handleQuery() {
 function resetQuery() {
   dateRange.value = []
   proxy.resetForm("queryRef")
-  queryParams.value.pageNum = 1
+  quecremsParams.value.pageNum = 1
   proxy.$refs["logininforRef"].sort(defaultSort.value.prop, defaultSort.value.order)
 }
 
@@ -186,8 +186,8 @@ function handleSelectionChange(selection) {
 
 /** 排序触发事件 */
 function handleSortChange(column, prop, order) {
-  queryParams.value.orderByColumn = column.prop
-  queryParams.value.isAsc = column.order
+  quecremsParams.value.orderByColumn = column.prop
+  quecremsParams.value.isAsc = column.order
   getList()
 }
 
@@ -225,7 +225,7 @@ function handleUnlock() {
 /** 导出按钮操作 */
 function handleExport() {
   proxy.download("monitor/logininfor/export", {
-    ...queryParams.value,
+    ...quecremsParams.value,
   }, `logininfor_${new Date().getTime()}.xlsx`)
 }
 

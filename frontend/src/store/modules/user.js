@@ -57,13 +57,15 @@ const useUserStore = defineStore(
             this.avatar = avatar
             cache.session.set('pwrChrtype', res.pwdChrtype)
             /* 初始密码提示 */
-            if(res.isDefaultModifyPwd) {
+            if(res.isDefaultModifyPwd && cache.session.get('defaultPwdPromptShown') !== 'true') {
+              cache.session.set('defaultPwdPromptShown', 'true')
               ElMessageBox.confirm('您的密码还是初始密码，请修改密码！',  '安全提示', {  confirmButtonText: '确定',  cancelButtonText: '取消',  type: 'warning' }).then(() => {
                 router.push({ name: 'Profile', params: { activeTab: 'resetPwd' } })
               }).catch(() => {})
             }
             /* 过期密码提示 */
-            if(!res.isDefaultModifyPwd && res.isPasswordExpired) {
+            if(!res.isDefaultModifyPwd && res.isPasswordExpired && cache.session.get('expiredPwdPromptShown') !== 'true') {
+              cache.session.set('expiredPwdPromptShown', 'true')
               ElMessageBox.confirm('您的密码已过期，请尽快修改密码！',  '安全提示', {  confirmButtonText: '确定',  cancelButtonText: '取消',  type: 'warning' }).then(() => {
                 router.push({ name: 'Profile', params: { activeTab: 'resetPwd' } })
               }).catch(() => {})
@@ -81,6 +83,8 @@ const useUserStore = defineStore(
             this.token = ''
             this.roles = []
             this.permissions = []
+            cache.session.remove('defaultPwdPromptShown')
+            cache.session.remove('expiredPwdPromptShown')
             removeToken()
             resolve()
           }).catch(error => {

@@ -1,9 +1,9 @@
 <template>
    <div class="app-container">
-      <el-form :model="queryParams" ref="queryRef" :inline="true">
+      <el-form :model="quecremsParams" ref="queryRef" :inline="true">
          <el-form-item label="登录地址" prop="ipaddr">
             <el-input
-               v-model="queryParams.ipaddr"
+               v-model="quecremsParams.ipaddr"
                placeholder="请输入登录地址"
                clearable
                style="width: 200px"
@@ -12,7 +12,7 @@
          </el-form-item>
          <el-form-item label="用户名称" prop="userName">
             <el-input
-               v-model="queryParams.userName"
+               v-model="quecremsParams.userName"
                placeholder="请输入用户名称"
                clearable
                style="width: 200px"
@@ -68,7 +68,7 @@ const total = ref(0)
 const pageNum = ref(1)
 const pageSize = ref(10)
 
-const queryParams = ref({
+const quecremsParams = ref({
   ipaddr: undefined,
   userName: undefined
 })
@@ -76,7 +76,7 @@ const queryParams = ref({
 /** 查询登录日志列表 */
 function getList() {
   loading.value = true
-  initData(queryParams.value).then(response => {
+  initData(quecremsParams.value).then(response => {
     onlineList.value = response.rows
     total.value = response.total
     loading.value = false
