@@ -3,6 +3,7 @@ package com.crems.crems.service.impl;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.crems.crems.domain.CremsApplication;
 import com.crems.crems.mapper.CremsApplicationMapper;
 import com.crems.crems.service.ICremsApplicationService;
@@ -31,24 +32,28 @@ public class CremsApplicationServiceImpl implements ICremsApplicationService
     }
 
     @Override
+    @Transactional
     public int insertApplication(CremsApplication application)
     {
         return applicationMapper.insertApplication(application);
     }
 
     @Override
+    @Transactional
     public int updateApplication(CremsApplication application)
     {
         return applicationMapper.updateApplication(application);
     }
 
     @Override
+    @Transactional
     public int deleteApplicationByIds(Long[] applicationIds)
     {
         return applicationMapper.deleteApplicationByIds(applicationIds);
     }
 
     @Override
+    @Transactional
     public int deleteApplicationById(Long applicationId)
     {
         return applicationMapper.deleteApplicationById(applicationId);

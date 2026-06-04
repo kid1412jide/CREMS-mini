@@ -146,7 +146,7 @@
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button type="primary" @click="submitForm">确 定</el-button>
+          <el-button type="primary" :loading="submitting" @click="submitForm">确 定</el-button>
           <el-button @click="cancel">取 消</el-button>
         </div>
       </template>
@@ -219,6 +219,7 @@ import { getToken } from "@/utils/auth"
 const { proxy } = getCurrentInstance()
 const { crems_job_type, crems_job_status, crems_education } = toRefs(reactive(proxy.useDict('crems_job_type', 'crems_job_status', 'crems_education')))
 const loading = ref(true)
+const submitting = ref(false)
 const showSearch = ref(true)
 const jobList = ref([])
 const total = ref(0)
@@ -301,26 +302,22 @@ function handleUpdate(row) {
 }
 
 function handleView(row) {
-  viewData.value = row
+  viewData.value = { ...row }
   viewOpen.value = true
 }
 
 function submitForm() {
   proxy.$refs["formRef"].validate(valid => {
     if (valid) {
-      if (form.value.jobId !== undefined) {
-        updateJob(form.value).then(() => {
-          proxy.$modal.msgSuccess("修改成功")
-          open.value = false
-          getList()
-        })
-      } else {
-        addJob(form.value).then(() => {
-          proxy.$modal.msgSuccess("新增成功")
-          open.value = false
-          getList()
-        })
-      }
+      submitting.value = true
+      const action = form.value.jobId !== undefined ? updateJob(form.value) : addJob(form.value)
+      action.then(() => {
+        proxy.$modal.msgSuccess(form.value.jobId !== undefined ? "修改成功" : "新增成功")
+        open.value = false
+        getList()
+      }).finally(() => {
+        submitting.value = false
+      })
     }
   })
 }

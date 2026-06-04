@@ -48,6 +48,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         delete from crems_favorite where favorite_id = #{favoriteId}
     </delete>
 
+    <delete id="deleteFavoriteByIds" parameterType="Long">
+        delete from crems_favorite where favorite_id in
+        <foreach item="favoriteId" collection="array" open="(" separator="," close=")">
+            #{favoriteId}
+        </foreach>
+    </delete>
+
     <delete id="deleteFavoriteByJobAndStudent">
         delete from crems_favorite where job_id = #{param1} and student_id = #{param2}
     </delete>

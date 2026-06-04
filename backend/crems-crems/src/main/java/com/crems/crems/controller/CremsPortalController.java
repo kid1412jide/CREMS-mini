@@ -147,6 +147,9 @@ public class CremsPortalController extends BaseController
             CremsCompany company = companyService.selectCompanyByUserId(userId);
             if (company != null) {
                 application.setCompanyId(company.getCompanyId());
+            } else {
+                // 非学生非企业用户（如admin）不允许通过portal访问
+                return getDataTable(List.of());
             }
         }
         List<CremsApplication> list = applicationService.selectApplicationList(application);
@@ -178,14 +181,20 @@ public class CremsPortalController extends BaseController
     @PutMapping("/application")
     public AjaxResult updateApplication(@RequestBody CremsApplication application)
     {
-        application.setUpdateBy(getUsername());
         // 企业只能更新自己公司职位的投递状态
         Long companyId = getCurrentCompanyId();
         CremsApplication existing = applicationService.selectApplicationById(application.getApplicationId());
         if (existing == null || !companyId.equals(existing.getCompanyId())) {
             return error("无权修改此投递记录");
         }
-        return toAjax(applicationService.updateApplication(application));
+        // 只允许更新状态、反馈、查看时间，防止越权修改其他字段
+        CremsApplication updateEntity = new CremsApplication();
+        updateEntity.setApplicationId(application.getApplicationId());
+        updateEntity.setStatus(application.getStatus());
+        updateEntity.setFeedback(application.getFeedback());
+        updateEntity.setViewTime(application.getViewTime());
+        updateEntity.setUpdateBy(getUsername());
+        return toAjax(applicationService.updateApplication(updateEntity));
     }
 
     // ==================== 面试 ====================
@@ -205,6 +214,9 @@ public class CremsPortalController extends BaseController
             CremsCompany company = companyService.selectCompanyByUserId(userId);
             if (company != null) {
                 interview.setCompanyId(company.getCompanyId());
+            } else {
+                // 非学生非企业用户（如admin）不允许通过portal访问
+                return getDataTable(List.of());
             }
         }
         List<CremsInterview> list = interviewService.selectInterviewList(interview);
@@ -214,10 +226,20 @@ public class CremsPortalController extends BaseController
     @PostMapping("/interview")
     public AjaxResult addInterview(@RequestBody CremsInterview interview)
     {
-        interview.setCreateBy(getUsername());
         // 企业只能为自己的公司安排面试
         Long companyId = getCurrentCompanyId();
+        // 校验关联的投递记录属于当前企业
+        if (interview.getApplicationId() != null) {
+            CremsApplication existingApp = applicationService.selectApplicationById(interview.getApplicationId());
+            if (existingApp == null || !companyId.equals(existingApp.getCompanyId())) {
+                return error("无权为其他企业的投递安排面试");
+            }
+            // 从投递记录中继承学生和职位信息，防止客户端伪造
+            interview.setStudentId(existingApp.getStudentId());
+            interview.setJobId(existingApp.getJobId());
+        }
         interview.setCompanyId(companyId);
+        interview.setCreateBy(getUsername());
         return toAjax(interviewService.insertInterview(interview));
     }
 

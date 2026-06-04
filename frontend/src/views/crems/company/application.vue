@@ -79,7 +79,7 @@
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button type="primary" @click="submitForm">确 定</el-button>
+          <el-button type="primary" :loading="submitting" @click="submitForm">确 定</el-button>
           <el-button @click="cancel">取 消</el-button>
         </div>
       </template>
@@ -155,6 +155,7 @@ import { listApplication, updateApplication } from "@/api/crems/application"
 
 const { proxy } = getCurrentInstance()
 const loading = ref(true)
+const submitting = ref(false)
 const showSearch = ref(true)
 const applicationList = ref([])
 const total = ref(0)
@@ -209,7 +210,7 @@ function resetQuery() {
 }
 
 function handleView(row) {
-  viewData.value = row
+  viewData.value = { ...row }
   viewOpen.value = true
   // 待查看状态自动标记为已查看
   if (row.status === '0') {
@@ -242,10 +243,13 @@ function handleUpdateStatus(row) {
 function submitForm() {
   proxy.$refs["formRef"].validate(valid => {
     if (valid) {
+      submitting.value = true
       updateApplication(form.value).then(() => {
         proxy.$modal.msgSuccess("处理成功")
         open.value = false
         getList()
+      }).finally(() => {
+        submitting.value = false
       })
     }
   })

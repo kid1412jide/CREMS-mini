@@ -15,9 +15,14 @@ frontend/dist/
 .idea/
 .vscode/
 *.iml
+.DS_Store
 
 # Logs
 *.log
+
+# Local/private files
+D:/
+gitee.rtf
 
 # Exclude all markdown files except README.md at root
 *.md

@@ -132,7 +132,7 @@ function resetQuery() {
 }
 
 function handleView(row) {
-  viewData.value = row
+  viewData.value = { ...row }
   viewOpen.value = true
 }
 

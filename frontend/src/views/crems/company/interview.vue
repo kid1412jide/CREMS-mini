@@ -154,7 +154,7 @@
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button type="primary" @click="submitForm">确 定</el-button>
+          <el-button type="primary" :loading="submitting" @click="submitForm">确 定</el-button>
           <el-button @click="cancel">取 消</el-button>
         </div>
       </template>
@@ -203,6 +203,7 @@ import { listInterview, addInterview, updateInterview, delInterview } from "@/ap
 
 const { proxy } = getCurrentInstance()
 const loading = ref(true)
+const submitting = ref(false)
 const showSearch = ref(true)
 const interviewList = ref([])
 const total = ref(0)
@@ -275,26 +276,22 @@ function handleUpdate(row) {
 }
 
 function handleView(row) {
-  viewData.value = row
+  viewData.value = { ...row }
   viewOpen.value = true
 }
 
 function submitForm() {
   proxy.$refs["formRef"].validate(valid => {
     if (valid) {
-      if (form.value.interviewId !== undefined) {
-        updateInterview(form.value).then(() => {
-          proxy.$modal.msgSuccess("修改成功")
-          open.value = false
-          getList()
-        })
-      } else {
-        addInterview(form.value).then(() => {
-          proxy.$modal.msgSuccess("新增成功")
-          open.value = false
-          getList()
-        })
-      }
+      submitting.value = true
+      const action = form.value.interviewId !== undefined ? updateInterview(form.value) : addInterview(form.value)
+      action.then(() => {
+        proxy.$modal.msgSuccess(form.value.interviewId !== undefined ? "修改成功" : "新增成功")
+        open.value = false
+        getList()
+      }).finally(() => {
+        submitting.value = false
+      })
     }
   })
 }

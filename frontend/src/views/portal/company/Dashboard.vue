@@ -36,8 +36,8 @@
             <div class="job-title">投递：{{ app.jobTitle }}</div>
           </div>
           <div class="recent-row__right">
-            <el-tag :type="getStatusType(app.status)" size="small" class="portal-tag">
-              {{ getStatusLabel(app.status) }}
+            <el-tag :type="_getStatusType(app.status)" size="small" class="portal-tag">
+              {{ _getStatusLabel(app.status) }}
             </el-tag>
             <span class="apply-time">{{ parseTime(app.applyTime, '{m}-{d} {h}:{i}') }}</span>
           </div>
@@ -54,6 +54,7 @@
 import { Briefcase, Document, Bell, Calendar, Plus } from '@element-plus/icons-vue'
 import { listJob, listApplication, listInterview } from '@/api/portal'
 import { parseTime } from '@/utils/crems'
+import { APPLICATION_STATUS_MAP, getStatusLabel, getStatusType } from '@/constants/crems'
 import StatCard from '@/components/portal/StatCard.vue'
 
 const router = useRouter()
@@ -62,16 +63,8 @@ const loading = ref(false)
 const recentApps = ref([])
 const stats = reactive({ jobCount: 0, applyCount: 0, pendingCount: 0, interviewCount: 0 })
 
-const statusMap = {
-  '0': { label: '待查看', type: 'warning' },
-  '1': { label: '已查看', type: '' },
-  '2': { label: '初筛通过', type: 'success' },
-  '3': { label: '面试邀请', type: 'success' },
-  '4': { label: '已拒绝', type: 'danger' },
-  '5': { label: '已录用', type: 'success' }
-}
-const getStatusLabel = (s) => statusMap[s]?.label || s
-const getStatusType = (s) => statusMap[s]?.type || 'info'
+const _getStatusLabel = (s) => getStatusLabel(APPLICATION_STATUS_MAP, s)
+const _getStatusType = (s) => getStatusType(APPLICATION_STATUS_MAP, s)
 
 onMounted(async () => {
   loading.value = true

@@ -28,13 +28,15 @@ public class CremsStatisticsServiceImpl implements ICremsStatisticsService
         CremsStatisticsOverview overview = new CremsStatisticsOverview();
         // 优化：使用单条SQL查询所有统计数据，减少数据库往返
         Map<String, Long> counts = statisticsMapper.selectOverviewCounts();
-        overview.setCompanyCount(counts.get("companyCount"));
-        overview.setCertifiedCompanyCount(counts.get("certifiedCompanyCount"));
-        overview.setStudentCount(counts.get("studentCount"));
-        overview.setJobCount(counts.get("jobCount"));
-        overview.setPublishedJobCount(counts.get("publishedJobCount"));
-        overview.setApplicationCount(counts.get("applicationCount"));
-        overview.setInterviewCount(counts.get("interviewCount"));
+        if (counts != null) {
+            overview.setCompanyCount(counts.getOrDefault("companyCount", 0L));
+            overview.setCertifiedCompanyCount(counts.getOrDefault("certifiedCompanyCount", 0L));
+            overview.setStudentCount(counts.getOrDefault("studentCount", 0L));
+            overview.setJobCount(counts.getOrDefault("jobCount", 0L));
+            overview.setPublishedJobCount(counts.getOrDefault("publishedJobCount", 0L));
+            overview.setApplicationCount(counts.getOrDefault("applicationCount", 0L));
+            overview.setInterviewCount(counts.getOrDefault("interviewCount", 0L));
+        }
         return overview;
     }
 

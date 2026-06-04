@@ -18,5 +18,7 @@ public interface CremsFavoriteMapper
 
     public int deleteFavoriteById(Long favoriteId);
 
+    public int deleteFavoriteByIds(Long[] favoriteIds);
+
     public int deleteFavoriteByJobAndStudent(Long jobId, Long studentId);
 }

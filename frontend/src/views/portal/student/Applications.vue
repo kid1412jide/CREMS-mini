@@ -23,8 +23,8 @@
             <div class="job-title">{{ app.jobTitle }}</div>
             <div class="company-name">{{ app.companyName }}</div>
           </div>
-          <el-tag :type="getStatusType(app.status)" class="portal-tag">
-            {{ getStatusLabel(app.status) }}
+          <el-tag :type="_getStatusType(app.status)" class="portal-tag">
+            {{ _getStatusLabel(app.status) }}
           </el-tag>
         </div>
         <div class="app-card__body">
@@ -55,7 +55,7 @@
               <el-descriptions-item label="企业名称">{{ viewData.companyName }}</el-descriptions-item>
               <el-descriptions-item label="投递时间">{{ parseTime(viewData.applyTime) }}</el-descriptions-item>
               <el-descriptions-item label="状态">
-                <el-tag :type="getStatusType(viewData.status)">{{ getStatusLabel(viewData.status) }}</el-tag>
+                <el-tag :type="_getStatusType(viewData.status)">{{ _getStatusLabel(viewData.status) }}</el-tag>
               </el-descriptions-item>
               <el-descriptions-item label="查看时间">{{ parseTime(viewData.viewTime) || '-' }}</el-descriptions-item>
               <el-descriptions-item label="求职信" :span="2">{{ viewData.coverLetter || '未填写' }}</el-descriptions-item>
@@ -88,6 +88,7 @@
 <script setup>
 import { listApplication } from '@/api/portal'
 import { parseTime } from '@/utils/crems'
+import { APPLICATION_STATUS_MAP, getStatusLabel, getStatusType } from '@/constants/crems'
 
 const loading = ref(false)
 const appList = ref([])
@@ -101,16 +102,8 @@ const quecremsParams = reactive({
   status: ''
 })
 
-const statusMap = {
-  '0': { label: '待查看', type: 'warning' },
-  '1': { label: '已查看', type: '' },
-  '2': { label: '初筛通过', type: 'success' },
-  '3': { label: '面试邀请', type: 'success' },
-  '4': { label: '已拒绝', type: 'danger' },
-  '5': { label: '已录用', type: 'success' }
-}
-const getStatusLabel = (s) => statusMap[s]?.label || s
-const getStatusType = (s) => statusMap[s]?.type || 'info'
+const _getStatusLabel = (s) => getStatusLabel(APPLICATION_STATUS_MAP, s)
+const _getStatusType = (s) => getStatusType(APPLICATION_STATUS_MAP, s)
 
 function getList() {
   loading.value = true
