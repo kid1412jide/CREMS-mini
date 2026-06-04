@@ -13,8 +13,8 @@
         <div class="iv-card__main">
           <div class="iv-card__header">
             <div class="iv-card__title">{{ item.jobTitle }}</div>
-            <el-tag :type="getStatusType(item.status)" size="small" class="portal-tag">
-              {{ getStatusLabel(item.status) }}
+            <el-tag :type="_getStatusType(item.status)" size="small" class="portal-tag">
+              {{ _getStatusLabel(item.status) }}
             </el-tag>
           </div>
           <div class="iv-card__company">{{ item.companyName }}</div>
@@ -58,6 +58,7 @@
 import { Clock, User, Monitor, Location } from '@element-plus/icons-vue'
 import { listInterview } from '@/api/portal'
 import { parseTime } from '@/utils/crems'
+import { INTERVIEW_STATUS_MAP, INTERVIEW_TYPE_MAP, INTERVIEW_METHOD_MAP, getStatusLabel, getStatusType } from '@/constants/crems'
 
 const loading = ref(false)
 const interviewList = ref([])
@@ -65,19 +66,10 @@ const total = ref(0)
 
 const quecremsParams = reactive({ pageNum: 1, pageSize: 10 })
 
-const statusMap = {
-  '0': { label: '待确认', type: 'warning' },
-  '1': { label: '已确认', type: 'success' },
-  '2': { label: '已完成', type: '' },
-  '3': { label: '已取消', type: 'info' }
-}
-const typeMap = { first: '初试', second: '复试', final: '终试' }
-const methodMap = { onsite: '现场面试', video: '视频面试', phone: '电话面试' }
-
-const getStatusLabel = (s) => statusMap[s]?.label || s
-const getStatusType = (s) => statusMap[s]?.type || 'info'
-const formatType = (t) => typeMap[t] || t
-const formatMethod = (m) => methodMap[m] || m
+const _getStatusLabel = (s) => getStatusLabel(INTERVIEW_STATUS_MAP, s)
+const _getStatusType = (s) => getStatusType(INTERVIEW_STATUS_MAP, s)
+const formatType = (t) => INTERVIEW_TYPE_MAP[t] || t
+const formatMethod = (m) => INTERVIEW_METHOD_MAP[m] || m
 
 function getList() {
   loading.value = true

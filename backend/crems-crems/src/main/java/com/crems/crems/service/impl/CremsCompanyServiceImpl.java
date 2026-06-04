@@ -3,6 +3,7 @@ package com.crems.crems.service.impl;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.crems.crems.domain.CremsCompany;
 import com.crems.crems.mapper.CremsCompanyMapper;
 import com.crems.crems.service.ICremsCompanyService;
@@ -37,24 +38,28 @@ public class CremsCompanyServiceImpl implements ICremsCompanyService
     }
 
     @Override
+    @Transactional
     public int insertCompany(CremsCompany company)
     {
         return companyMapper.insertCompany(company);
     }
 
     @Override
+    @Transactional
     public int updateCompany(CremsCompany company)
     {
         return companyMapper.updateCompany(company);
     }
 
     @Override
+    @Transactional
     public int deleteCompanyByIds(Long[] companyIds)
     {
         return companyMapper.deleteCompanyByIds(companyIds);
     }
 
     @Override
+    @Transactional
     public int deleteCompanyById(Long companyId)
     {
         return companyMapper.deleteCompanyById(companyId);

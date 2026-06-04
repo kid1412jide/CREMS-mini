@@ -58,6 +58,7 @@ public class CremsApplicationController extends BaseController
         return success(applicationService.selectApplicationById(applicationId));
     }
 
+    @PreAuthorize("@ss.hasPermi('crems:application:add')")
     @Log(title = "简历投递", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody CremsApplication application)

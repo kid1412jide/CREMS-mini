@@ -147,7 +147,7 @@
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button type="primary" @click="submitForm">确 定</el-button>
+          <el-button type="primary" :loading="submitting" @click="submitForm">确 定</el-button>
           <el-button @click="cancel">取 消</el-button>
         </div>
       </template>
@@ -216,6 +216,7 @@ import { getToken } from "@/utils/auth"
 const { proxy } = getCurrentInstance()
 const { crems_company_type, crems_company_scale, crems_company_status } = toRefs(reactive(proxy.useDict('crems_company_type', 'crems_company_scale', 'crems_company_status')))
 const loading = ref(true)
+const submitting = ref(false)
 const showSearch = ref(true)
 const companyList = ref([])
 const single = ref(true)
@@ -313,7 +314,7 @@ function handleUpdate(row) {
 
 /** 详情按钮操作 */
 function handleView(row) {
-  viewData.value = row
+  viewData.value = { ...row }
   viewOpen.value = true
 }
 
@@ -321,19 +322,15 @@ function handleView(row) {
 function submitForm() {
   proxy.$refs["formRef"].validate(valid => {
     if (valid) {
-      if (form.value.companyId !== undefined) {
-        updateCompany(form.value).then(() => {
-          proxy.$modal.msgSuccess("修改成功")
-          open.value = false
-          getList()
-        })
-      } else {
-        addCompany(form.value).then(() => {
-          proxy.$modal.msgSuccess("新增成功")
-          open.value = false
-          getList()
-        })
-      }
+      submitting.value = true
+      const action = form.value.companyId !== undefined ? updateCompany(form.value) : addCompany(form.value)
+      action.then(() => {
+        proxy.$modal.msgSuccess(form.value.companyId !== undefined ? "修改成功" : "新增成功")
+        open.value = false
+        getList()
+      }).finally(() => {
+        submitting.value = false
+      })
     }
   })
 }

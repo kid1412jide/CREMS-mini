@@ -50,7 +50,7 @@ public class CremsFavoriteController extends BaseController
     @GetMapping(value = "/{favoriteId}")
     public AjaxResult getInfo(@PathVariable("favoriteId") Long favoriteId)
     {
-        return success(favoriteService.selectFavoriteList(new CremsFavorite() {{ setFavoriteId(favoriteId); }}));
+        return success(favoriteService.selectFavoriteById(favoriteId));
     }
 
     /**
@@ -72,12 +72,7 @@ public class CremsFavoriteController extends BaseController
     @DeleteMapping("/{favoriteIds}")
     public AjaxResult remove(@PathVariable Long[] favoriteIds)
     {
-        // 批量删除所有收藏记录
-        int count = 0;
-        for (Long favoriteId : favoriteIds) {
-            count += favoriteService.deleteFavoriteById(favoriteId);
-        }
-        return count > 0 ? success() : error("删除失败");
+        return toAjax(favoriteService.deleteFavoriteByIds(favoriteIds));
     }
 
     /**

@@ -3,6 +3,7 @@ package com.crems.crems.service.impl;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import com.crems.crems.domain.CremsStudent;
 import com.crems.crems.mapper.CremsStudentMapper;
 import com.crems.crems.service.ICremsStudentService;
@@ -37,24 +38,28 @@ public class CremsStudentServiceImpl implements ICremsStudentService
     }
 
     @Override
+    @Transactional
     public int insertStudent(CremsStudent student)
     {
         return studentMapper.insertStudent(student);
     }
 
     @Override
+    @Transactional
     public int updateStudent(CremsStudent student)
     {
         return studentMapper.updateStudent(student);
     }
 
     @Override
+    @Transactional
     public int deleteStudentByIds(Long[] studentIds)
     {
         return studentMapper.deleteStudentByIds(studentIds);
     }
 
     @Override
+    @Transactional
     public int deleteStudentById(Long studentId)
     {
         return studentMapper.deleteStudentById(studentId);

@@ -102,21 +102,6 @@
           </div>
         </div>
 
-        <!-- Similar jobs -->
-        <div class="detail-card" v-if="similarJobs.length > 0">
-          <h3 class="section-title">相似职位</h3>
-          <div class="similar-list">
-            <div
-              v-for="s in similarJobs"
-              :key="s.jobId"
-              class="similar-item"
-              @click="router.push(`/portal/student/job/${s.jobId}`)"
-            >
-              <div class="similar-item__title">{{ s.jobTitle }}</div>
-              <div class="similar-item__info">{{ s.salaryMin }}-{{ s.salaryMax }}元/月</div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -176,7 +161,6 @@ const jobId = computed(() => route.params.jobId)
 const loading = ref(false)
 const job = ref({})
 const company = ref({})
-const similarJobs = ref([])
 const hasApplied = ref(false)
 const isFavorited = ref(false)
 const applyOpen = ref(false)
@@ -187,7 +171,7 @@ const uploadedFileName = ref('')
 
 // 上传相关
 const uploadUrl = import.meta.env.VITE_APP_BASE_API + '/common/upload'
-const uploadHeaders = { Authorization: 'Bearer ' + getToken() }
+const uploadHeaders = computed(() => ({ Authorization: 'Bearer ' + getToken() }))
 
 const jobTypeMap = { full_time: '全职', internship: '实习', part_time: '兼职' }
 const eduMap = { junior_college: '专科', bachelor: '本科', master: '硕士', doctor: '博士' }

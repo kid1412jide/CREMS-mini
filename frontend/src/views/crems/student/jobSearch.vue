@@ -144,19 +144,16 @@
 </template>
 
 <script setup name="JobSearch">
-import { listJob, getJob } from "@/api/crems/job"
+import { listJob } from "@/api/crems/job"
 import { addApplication } from "@/api/crems/application"
 import { addFavorite, delFavoriteByJobAndStudent } from "@/api/crems/favorite"
+import { getCurrentStudent } from "@/api/portal"
 import { getToken } from "@/utils/auth"
-import useUserStore from "@/store/modules/user"
 
 const { proxy } = getCurrentInstance()
-const router = useRouter()
-const userStore = useUserStore()
 const loading = ref(true)
 const showSearch = ref(true)
 const jobList = ref([])
-const total = ref(0)
 const viewOpen = ref(false)
 const applyOpen = ref(false)
 const viewData = ref({})
@@ -167,7 +164,7 @@ const currentStudentId = ref(null)
 
 // 上传相关
 const uploadUrl = import.meta.env.VITE_APP_BASE_API + '/common/upload'
-const uploadHeaders = { Authorization: 'Bearer ' + getToken() }
+const uploadHeaders = computed(() => ({ Authorization: 'Bearer ' + getToken() }))
 
 const columns = ref({
   jobTitle: { visible: true, label: '职位名称' },
@@ -200,7 +197,6 @@ function getList() {
   loading.value = true
   listJob(quecremsParams.value).then(res => {
     jobList.value = res.rows || []
-    total.value = res.total
   }).finally(() => {
     loading.value = false
   })
@@ -319,12 +315,9 @@ function handleFavorite(job) {
 // 获取当前登录学生的studentId
 async function loadCurrentStudentId() {
   try {
-    const res = await fetch('/portal/api/student/list?pageSize=1&pageNum=1', {
-      headers: { Authorization: 'Bearer ' + getToken() }
-    })
-    const data = await res.json()
-    if (data.rows && data.rows.length > 0) {
-      currentStudentId.value = data.rows[0].studentId
+    const res = await getCurrentStudent()
+    if (res.data) {
+      currentStudentId.value = res.data.studentId
     }
   } catch (e) {
     console.error('获取学生信息失败', e)

@@ -166,7 +166,7 @@
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button type="primary" @click="submitForm">确 定</el-button>
+          <el-button type="primary" :loading="submitting" @click="submitForm">确 定</el-button>
           <el-button @click="cancel">取 消</el-button>
         </div>
       </template>
@@ -243,6 +243,7 @@ import { getToken } from "@/utils/auth"
 const { proxy } = getCurrentInstance()
 const { crems_education } = toRefs(reactive(proxy.useDict('crems_education')))
 const loading = ref(true)
+const submitting = ref(false)
 const showSearch = ref(true)
 const studentList = ref([])
 const single = ref(true)
@@ -334,26 +335,22 @@ function handleUpdate(row) {
 }
 
 function handleView(row) {
-  viewData.value = row
+  viewData.value = { ...row }
   viewOpen.value = true
 }
 
 function submitForm() {
   proxy.$refs["formRef"].validate(valid => {
     if (valid) {
-      if (form.value.studentId !== undefined) {
-        updateStudent(form.value).then(() => {
-          proxy.$modal.msgSuccess("修改成功")
-          open.value = false
-          getList()
-        })
-      } else {
-        addStudent(form.value).then(() => {
-          proxy.$modal.msgSuccess("新增成功")
-          open.value = false
-          getList()
-        })
-      }
+      submitting.value = true
+      const action = form.value.studentId !== undefined ? updateStudent(form.value) : addStudent(form.value)
+      action.then(() => {
+        proxy.$modal.msgSuccess(form.value.studentId !== undefined ? "修改成功" : "新增成功")
+        open.value = false
+        getList()
+      }).finally(() => {
+        submitting.value = false
+      })
     }
   })
 }
