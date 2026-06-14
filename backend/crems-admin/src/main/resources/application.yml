@@ -6,8 +6,9 @@ crems:
   version: 1.1
   # 版权年份
   copyrightYear: 2026
-  # 文件路径 示例（ Windows配置D:/crems/uploadPath，Linux配置 /home/crems/uploadPath）
-  profile: D:/crems/uploadPath
+  # 文件上传根路径。默认使用当前用户主目录，生产环境可通过 CREMS_UPLOAD_PATH 覆盖
+  # 示例：CREMS_UPLOAD_PATH=/data/crems/uploadPath
+  profile: ${CREMS_UPLOAD_PATH:${user.home}/.crems/uploadPath}
   # 获取ip地址开关
   addressEnabled: false
   # 验证码类型 math 数字计算 char 字符验证

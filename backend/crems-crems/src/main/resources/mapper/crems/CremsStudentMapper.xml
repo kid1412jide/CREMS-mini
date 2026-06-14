@@ -127,6 +127,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateStudent" parameterType="CremsStudent">
         update crems_student
         <trim prefix="SET" suffixOverrides=",">
+            <if test="studentNo != null and studentNo != ''">student_no = #{studentNo},</if>
             <if test="studentName != null and studentName != ''">student_name = #{studentName},</if>
             <if test="gender != null">gender = #{gender},</if>
             <if test="birthDate != null">birth_date = #{birthDate},</if>

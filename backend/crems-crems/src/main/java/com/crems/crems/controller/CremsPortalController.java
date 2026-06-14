@@ -15,6 +15,8 @@ import com.crems.common.core.controller.BaseController;
 import com.crems.common.core.domain.AjaxResult;
 import com.crems.common.core.page.TableDataInfo;
 import com.crems.common.exception.ServiceException;
+import com.crems.common.utils.SecurityUtils;
+import com.crems.common.utils.StringUtils;
 import com.crems.crems.domain.CremsApplication;
 import com.crems.crems.domain.CremsCompany;
 import com.crems.crems.domain.CremsFavorite;
@@ -53,6 +55,14 @@ public class CremsPortalController extends BaseController
     @Autowired
     private ICremsStatisticsService statisticsService;
 
+    private boolean isStudentRole() {
+        return SecurityUtils.hasRole("student");
+    }
+
+    private boolean isCompanyRole() {
+        return SecurityUtils.hasRole("company");
+    }
+
     /**
      * 获取当前登录学生的studentId，如果不是学生则抛出异常
      */
@@ -83,6 +93,13 @@ public class CremsPortalController extends BaseController
     public TableDataInfo jobList(CremsJob job)
     {
         startPage();
+        if (isCompanyRole()) {
+            CremsCompany company = companyService.selectCompanyByUserId(getUserId());
+            if (company == null) {
+                return getDataTable(List.of());
+            }
+            job.setCompanyId(company.getCompanyId());
+        }
         List<CremsJob> list = jobService.selectJobList(job);
         return getDataTable(list);
     }
@@ -90,9 +107,23 @@ public class CremsPortalController extends BaseController
     @GetMapping("/job/{jobId}")
     public AjaxResult getJob(@PathVariable("jobId") Long jobId)
     {
+        CremsJob job = jobService.selectJobById(jobId);
+        if (job == null) {
+            return error("职位不存在");
+        }
+        if (isCompanyRole()) {
+            CremsCompany company = companyService.selectCompanyByUserId(getUserId());
+            if (company == null) {
+                return error("请先完善企业资料");
+            }
+            if (!company.getCompanyId().equals(job.getCompanyId())) {
+                return error("无权查看此职位");
+            }
+            return success(job);
+        }
         // 浏览量+1
         jobService.incrementViewCount(jobId);
-        return success(jobService.selectJobById(jobId));
+        return success(job);
     }
 
     @PostMapping("/job")
@@ -263,8 +294,11 @@ public class CremsPortalController extends BaseController
     {
         startPage();
         // 学生只能查看自己的收藏
-        Long studentId = getCurrentStudentId();
-        favorite.setStudentId(studentId);
+        CremsStudent student = studentService.selectStudentByUserId(getUserId());
+        if (student == null) {
+            return getDataTable(List.of());
+        }
+        favorite.setStudentId(student.getStudentId());
         List<CremsFavorite> list = favoriteService.selectFavoriteList(favorite);
         return getDataTable(list);
     }
@@ -310,6 +344,11 @@ public class CremsPortalController extends BaseController
         if (currentStudent != null) {
             // 学生用户只能查看自己的信息
             student.setStudentId(currentStudent.getStudentId());
+        } else if (isStudentRole()) {
+            // 学生角色尚未创建个人资料时，不能回退为全表查询
+            return getDataTable(List.of());
+        } else if (!isCompanyRole()) {
+            return getDataTable(List.of());
         }
         // 企业用户不过滤，可以查看所有学生（用于筛选投递候选人等场景）
         List<CremsStudent> list = studentService.selectStudentList(student);
@@ -323,7 +362,7 @@ public class CremsPortalController extends BaseController
         Long userId = getUserId();
         CremsStudent student = studentService.selectStudentByUserId(userId);
         if (student == null) {
-            return error("未找到当前用户的学生信息");
+            return AjaxResult.success((Object) null);
         }
         return success(student);
     }
@@ -337,6 +376,35 @@ public class CremsPortalController extends BaseController
             return error("无权查看其他学生信息");
         }
         return success(studentService.selectStudentById(studentId));
+    }
+
+    @PostMapping("/student")
+    public AjaxResult addStudent(@Validated @RequestBody CremsStudent student)
+    {
+        if (!isStudentRole()) {
+            return error("当前用户不是学生角色");
+        }
+        if (StringUtils.isEmpty(student.getStudentName())) {
+            return warn("请输入姓名");
+        }
+        if (StringUtils.isEmpty(student.getStudentNo())) {
+            return warn("请输入学号");
+        }
+
+        Long userId = getUserId();
+        CremsStudent existing = studentService.selectStudentByUserId(userId);
+        student.setUserId(userId);
+        if (existing != null) {
+            student.setStudentId(existing.getStudentId());
+            student.setUpdateBy(getUsername());
+            return studentService.updateStudent(student) > 0 ? success(student) : error();
+        }
+
+        student.setCreateBy(getUsername());
+        if (StringUtils.isEmpty(student.getStatus())) {
+            student.setStatus("0");
+        }
+        return studentService.insertStudent(student) > 0 ? success(student) : error();
     }
 
     @PutMapping("/student")
@@ -361,6 +429,11 @@ public class CremsPortalController extends BaseController
         if (currentCompany != null) {
             // 企业用户只能查看自己的信息
             company.setCompanyId(currentCompany.getCompanyId());
+        } else if (isCompanyRole()) {
+            // 企业角色尚未创建企业资料时，不能回退为全表查询
+            return getDataTable(List.of());
+        } else if (!isStudentRole()) {
+            return getDataTable(List.of());
         }
         // 学生用户不过滤，可以查看所有企业（用于选择投递目标等场景）
         List<CremsCompany> list = companyService.selectCompanyList(company);
@@ -374,7 +447,7 @@ public class CremsPortalController extends BaseController
         Long userId = getUserId();
         CremsCompany company = companyService.selectCompanyByUserId(userId);
         if (company == null) {
-            return error("未找到当前用户的企业信息");
+            return AjaxResult.success((Object) null);
         }
         return success(company);
     }
@@ -384,6 +457,35 @@ public class CremsPortalController extends BaseController
     {
         // 公开接口：任何登录用户都可以查看企业基本信息
         return success(companyService.selectCompanyById(companyId));
+    }
+
+    @PostMapping("/company")
+    public AjaxResult addCompany(@Validated @RequestBody CremsCompany company)
+    {
+        if (!isCompanyRole()) {
+            return error("当前用户不是企业角色");
+        }
+        if (StringUtils.isEmpty(company.getCompanyName())) {
+            return warn("请输入企业名称");
+        }
+        if (StringUtils.isEmpty(company.getCompanyCode())) {
+            return warn("请输入统一社会信用代码");
+        }
+
+        Long userId = getUserId();
+        CremsCompany existing = companyService.selectCompanyByUserId(userId);
+        company.setUserId(userId);
+        if (existing != null) {
+            company.setCompanyId(existing.getCompanyId());
+            company.setUpdateBy(getUsername());
+            return companyService.updateCompany(company) > 0 ? success(company) : error();
+        }
+
+        company.setCreateBy(getUsername());
+        if (StringUtils.isEmpty(company.getStatus())) {
+            company.setStatus("0");
+        }
+        return companyService.insertCompany(company) > 0 ? success(company) : error();
     }
 
     @PutMapping("/company")

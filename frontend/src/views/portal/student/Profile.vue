@@ -153,10 +153,8 @@
 </template>
 
 <script setup>
-import { getStudent, getCurrentStudent, updateStudent, listStudent } from '@/api/portal'
-import useUserStore from '@/store/modules/user'
+import { getCurrentStudent, addStudent, updateStudent } from '@/api/portal'
 
-const userStore = useUserStore()
 const { proxy } = getCurrentInstance()
 
 const formRef = ref(null)
@@ -213,7 +211,6 @@ function removeSkill(skill) {
 
 async function loadProfile() {
   try {
-    // 使用专门的接口按当前用户ID查询学生信息
     const res = await getCurrentStudent()
     if (res.data) {
       const student = res.data
@@ -225,19 +222,7 @@ async function loadProfile() {
       })
     }
   } catch (e) {
-    // 如果获取失败，尝试列表接口
-    try {
-      const res = await listStudent({ pageSize: 1, pageNum: 1 })
-      if (res.rows && res.rows.length > 0) {
-        const student = res.rows[0]
-        studentId.value = student.studentId
-        Object.keys(form).forEach(key => {
-          if (student[key] !== undefined && student[key] !== null) {
-            form[key] = student[key]
-          }
-        })
-      }
-    } catch (e2) { /* ignore */ }
+    // 保持空表单，避免展示其他学生资料。
   }
 }
 
@@ -249,10 +234,11 @@ async function submitForm() {
   try {
     if (studentId.value) {
       await updateStudent({ studentId: studentId.value, ...form })
-      proxy.$modal.msgSuccess('保存成功')
     } else {
-      proxy.$modal.msgWarning('未找到学生信息')
+      const res = await addStudent({ ...form })
+      studentId.value = res.data?.studentId || studentId.value
     }
+    proxy.$modal.msgSuccess('保存成功')
   } catch (e) {
     proxy.$modal.msgError('保存失败')
   } finally {

@@ -109,7 +109,7 @@
 </template>
 
 <script setup>
-import { getCompany, getCurrentCompany, updateCompany, listCompany } from '@/api/portal'
+import { getCurrentCompany, addCompany, updateCompany } from '@/api/portal'
 
 const { proxy } = getCurrentInstance()
 
@@ -143,7 +143,6 @@ const formatScale = (s) => scaleMap[s] || s
 
 async function loadProfile() {
   try {
-    // 使用专门的接口按当前用户ID查询企业信息
     const res = await getCurrentCompany()
     if (res.data) {
       const company = res.data
@@ -155,19 +154,7 @@ async function loadProfile() {
       })
     }
   } catch (e) {
-    // 如果获取失败，尝试列表接口
-    try {
-      const res = await listCompany({ pageSize: 1, pageNum: 1 })
-      if (res.rows && res.rows.length > 0) {
-        const company = res.rows[0]
-        companyId.value = company.companyId
-        Object.keys(form).forEach(key => {
-          if (company[key] !== undefined && company[key] !== null) {
-            form[key] = company[key]
-          }
-        })
-      }
-    } catch (e2) { /* ignore */ }
+    // 保持空表单，避免展示其他企业资料。
   }
 }
 
@@ -179,10 +166,11 @@ async function submitForm() {
   try {
     if (companyId.value) {
       await updateCompany({ companyId: companyId.value, ...form })
-      proxy.$modal.msgSuccess('保存成功')
     } else {
-      proxy.$modal.msgWarning('未找到企业信息')
+      const res = await addCompany({ ...form })
+      companyId.value = res.data?.companyId || companyId.value
     }
+    proxy.$modal.msgSuccess('保存成功')
   } catch (e) {
     proxy.$modal.msgError('保存失败')
   } finally {

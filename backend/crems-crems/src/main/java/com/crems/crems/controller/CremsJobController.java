@@ -18,8 +18,11 @@ import com.crems.common.core.controller.BaseController;
 import com.crems.common.core.domain.AjaxResult;
 import com.crems.common.core.page.TableDataInfo;
 import com.crems.common.enums.BusinessType;
+import com.crems.common.utils.SecurityUtils;
 import com.crems.common.utils.poi.ExcelUtil;
+import com.crems.crems.domain.CremsCompany;
 import com.crems.crems.domain.CremsJob;
+import com.crems.crems.service.ICremsCompanyService;
 import com.crems.crems.service.ICremsJobService;
 
 /**
@@ -34,11 +37,57 @@ public class CremsJobController extends BaseController
     @Autowired
     private ICremsJobService jobService;
 
+    @Autowired
+    private ICremsCompanyService companyService;
+
+    private boolean isCompanyRole()
+    {
+        return SecurityUtils.hasRole("company");
+    }
+
+    private CremsCompany getCurrentCompany()
+    {
+        return companyService.selectCompanyByUserId(getUserId());
+    }
+
+    private boolean applyCompanyScope(CremsJob job)
+    {
+        if (isCompanyRole())
+        {
+            CremsCompany company = getCurrentCompany();
+            if (company == null)
+            {
+                return false;
+            }
+            job.setCompanyId(company.getCompanyId());
+        }
+        return true;
+    }
+
+    private boolean isOwnCompanyJob(Long jobId)
+    {
+        if (!isCompanyRole())
+        {
+            return true;
+        }
+        CremsCompany company = getCurrentCompany();
+        if (company == null)
+        {
+            return false;
+        }
+        CremsJob existing = jobService.selectJobById(jobId);
+        return existing != null && company.getCompanyId().equals(existing.getCompanyId());
+    }
+
     @PreAuthorize("@ss.hasPermi('crems:job:list')")
     @GetMapping("/list")
     public TableDataInfo list(CremsJob job)
     {
         startPage();
+        if (!applyCompanyScope(job))
+        {
+            return getDataTable(List.of());
+        }
         List<CremsJob> list = jobService.selectJobList(job);
         return getDataTable(list);
     }
@@ -48,6 +97,12 @@ public class CremsJobController extends BaseController
     @PostMapping("/export")
     public void export(CremsJob job, jakarta.servlet.http.HttpServletResponse response)
     {
+        if (!applyCompanyScope(job))
+        {
+            ExcelUtil<CremsJob> util = new ExcelUtil<CremsJob>(CremsJob.class);
+            util.exportExcel(response, List.of(), "职位数据");
+            return;
+        }
         List<CremsJob> list = jobService.selectJobList(job);
         ExcelUtil<CremsJob> util = new ExcelUtil<CremsJob>(CremsJob.class);
         util.exportExcel(response, list, "职位数据");
@@ -114,6 +169,10 @@ public class CremsJobController extends BaseController
     @GetMapping(value = "/{jobId}")
     public AjaxResult getInfo(@PathVariable("jobId") Long jobId)
     {
+        if (!isOwnCompanyJob(jobId))
+        {
+            return error("无权查看此职位");
+        }
         return success(jobService.selectJobById(jobId));
     }
 
@@ -122,6 +181,10 @@ public class CremsJobController extends BaseController
     @PostMapping
     public AjaxResult add(@Validated @RequestBody CremsJob job)
     {
+        if (!applyCompanyScope(job))
+        {
+            return error("请先完善企业资料");
+        }
         job.setCreateBy(getUsername());
         return toAjax(jobService.insertJob(job));
     }
@@ -131,6 +194,14 @@ public class CremsJobController extends BaseController
     @PutMapping
     public AjaxResult edit(@Validated @RequestBody CremsJob job)
     {
+        if (!isOwnCompanyJob(job.getJobId()))
+        {
+            return error("无权修改此职位");
+        }
+        if (!applyCompanyScope(job))
+        {
+            return error("请先完善企业资料");
+        }
         job.setUpdateBy(getUsername());
         return toAjax(jobService.updateJob(job));
     }
@@ -140,6 +211,16 @@ public class CremsJobController extends BaseController
     @DeleteMapping("/{jobIds}")
     public AjaxResult remove(@PathVariable Long[] jobIds)
     {
+        if (isCompanyRole())
+        {
+            for (Long jobId : jobIds)
+            {
+                if (!isOwnCompanyJob(jobId))
+                {
+                    return error("无权删除此职位");
+                }
+            }
+        }
         return toAjax(jobService.deleteJobByIds(jobIds));
     }
 
@@ -151,6 +232,14 @@ public class CremsJobController extends BaseController
     @PutMapping("/audit")
     public AjaxResult audit(@RequestBody CremsJob job)
     {
+        if (!isOwnCompanyJob(job.getJobId()))
+        {
+            return error("无权审核此职位");
+        }
+        if (!applyCompanyScope(job))
+        {
+            return error("请先完善企业资料");
+        }
         job.setUpdateBy(getUsername());
         return toAjax(jobService.updateJob(job));
     }

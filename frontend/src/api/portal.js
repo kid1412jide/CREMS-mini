@@ -148,6 +148,14 @@ export function getCurrentStudent() {
   })
 }
 
+export function addStudent(data) {
+  return request({
+    url: '/portal/api/student',
+    method: 'post',
+    data: data
+  })
+}
+
 export function updateStudent(data) {
   return request({
     url: '/portal/api/student',
@@ -177,6 +185,14 @@ export function getCurrentCompany() {
   return request({
     url: '/portal/api/company/current',
     method: 'get'
+  })
+}
+
+export function addCompany(data) {
+  return request({
+    url: '/portal/api/company',
+    method: 'post',
+    data: data
   })
 }
 
