@@ -20,6 +20,7 @@ frontend/dist/
 # Local/private files
 D:/
 gitee.rtf
+docs/
 
 # Exclude all markdown files except README.md at root
 *.md
