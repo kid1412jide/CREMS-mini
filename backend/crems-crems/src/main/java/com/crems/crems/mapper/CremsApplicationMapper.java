@@ -1,6 +1,7 @@
 package com.crems.crems.mapper;
 
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 import com.crems.crems.domain.CremsApplication;
 
 /**
@@ -17,6 +18,11 @@ public interface CremsApplicationMapper
     public int insertApplication(CremsApplication application);
 
     public int updateApplication(CremsApplication application);
+
+    public int updateApplicationStatusIfCurrent(@Param("applicationId") Long applicationId,
+                                                @Param("currentStatus") String currentStatus,
+                                                @Param("newStatus") String newStatus,
+                                                @Param("updateBy") String updateBy);
 
     public int deleteApplicationById(Long applicationId);
 

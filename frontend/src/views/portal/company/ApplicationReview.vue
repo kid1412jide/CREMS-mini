@@ -264,12 +264,8 @@ async function submitInvite() {
     const app = currentApp.value
     await addInterview({
       applicationId: app.applicationId,
-      jobId: app.jobId,
-      studentId: app.studentId,
-      companyId: app.companyId,
       ...inviteForm
     })
-    await updateApplication({ applicationId: app.applicationId, status: '3' })
     proxy.$modal.msgSuccess('面试邀请已发送')
     inviteOpen.value = false
     getList()

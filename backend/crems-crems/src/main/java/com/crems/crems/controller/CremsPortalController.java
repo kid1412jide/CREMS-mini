@@ -257,21 +257,8 @@ public class CremsPortalController extends BaseController
     @PostMapping("/interview")
     public AjaxResult addInterview(@RequestBody CremsInterview interview)
     {
-        // 企业只能为自己的公司安排面试
         Long companyId = getCurrentCompanyId();
-        // 校验关联的投递记录属于当前企业
-        if (interview.getApplicationId() != null) {
-            CremsApplication existingApp = applicationService.selectApplicationById(interview.getApplicationId());
-            if (existingApp == null || !companyId.equals(existingApp.getCompanyId())) {
-                return error("无权为其他企业的投递安排面试");
-            }
-            // 从投递记录中继承学生和职位信息，防止客户端伪造
-            interview.setStudentId(existingApp.getStudentId());
-            interview.setJobId(existingApp.getJobId());
-        }
-        interview.setCompanyId(companyId);
-        interview.setCreateBy(getUsername());
-        return toAjax(interviewService.insertInterview(interview));
+        return toAjax(interviewService.inviteInterview(interview, companyId, getUsername()));
     }
 
     @PutMapping("/interview")

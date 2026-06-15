@@ -125,6 +125,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where application_id = #{applicationId}
     </update>
 
+    <update id="updateApplicationStatusIfCurrent">
+        update crems_application
+        set status = #{newStatus},
+            update_by = #{updateBy},
+            update_time = sysdate()
+        where application_id = #{applicationId}
+          and status = #{currentStatus}
+    </update>
+
     <delete id="deleteApplicationById" parameterType="Long">
         delete from crems_application where application_id = #{applicationId}
     </delete>

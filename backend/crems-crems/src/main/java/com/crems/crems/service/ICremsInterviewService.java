@@ -16,6 +16,8 @@ public interface ICremsInterviewService
 
     public int insertInterview(CremsInterview interview);
 
+    public int inviteInterview(CremsInterview interview, Long companyId, String username);
+
     public int updateInterview(CremsInterview interview);
 
     public int deleteInterviewByIds(Long[] interviewIds);
