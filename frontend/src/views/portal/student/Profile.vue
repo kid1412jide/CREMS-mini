@@ -154,8 +154,10 @@
 
 <script setup>
 import { getCurrentStudent, addStudent, updateStudent } from '@/api/portal'
+import useUserStore from '@/store/modules/user'
 
 const { proxy } = getCurrentInstance()
+const userStore = useUserStore()
 
 const formRef = ref(null)
 const submitting = ref(false)
@@ -239,6 +241,8 @@ async function submitForm() {
       studentId.value = res.data?.studentId || studentId.value
     }
     proxy.$modal.msgSuccess('保存成功')
+    // 刷新 store 中的用户信息，更新右上角显示
+    userStore.getInfo()
   } catch (e) {
     proxy.$modal.msgError('保存失败')
   } finally {

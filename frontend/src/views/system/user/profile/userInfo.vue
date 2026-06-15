@@ -24,6 +24,9 @@
 
 <script setup>
 import { updateUserProfile } from "@/api/system/user"
+import useUserStore from "@/store/modules/user"
+
+const userStore = useUserStore()
 
 const props = defineProps({
   user: {
@@ -48,6 +51,8 @@ function submit() {
         proxy.$modal.msgSuccess("修改成功")
         props.user.phonenumber = form.value.phonenumber
         props.user.email = form.value.email
+        // 刷新 store 中的用户信息，更新右上角显示
+        userStore.getInfo()
       })
     }
   })
