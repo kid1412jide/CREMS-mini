@@ -25,10 +25,6 @@ import com.crems.crems.domain.CremsJob;
 import com.crems.crems.domain.CremsStudent;
 import com.crems.crems.mapper.SysUserExtMapper;
 import com.crems.crems.service.ICremsApplicationService;
-import com.crems.common.constant.CacheConstants;
-import com.crems.common.core.domain.model.LoginUser;
-import com.crems.common.core.redis.RedisCache;
-import com.crems.framework.web.service.TokenService;
 import com.crems.crems.service.ICremsCompanyService;
 import com.crems.crems.service.ICremsFavoriteService;
 import com.crems.crems.service.ICremsInterviewService;
@@ -61,10 +57,6 @@ public class CremsPortalController extends BaseController
     private ICremsStatisticsService statisticsService;
     @Autowired
     private SysUserExtMapper sysUserExtMapper;
-    @Autowired
-    private TokenService tokenService;
-    @Autowired
-    private RedisCache redisCache;
 
     private boolean isStudentRole() {
         return SecurityUtils.hasRole("student");
@@ -585,19 +577,6 @@ public class CremsPortalController extends BaseController
         Long userId = getUserId();
         int rows = sysUserExtMapper.updateNickName(userId, nickname);
         if (rows > 0) {
-            // 直接更新 Redis 缓存中的用户信息
-            LoginUser loginUser = SecurityUtils.getLoginUser();
-            if (loginUser != null && loginUser.getUser() != null) {
-                loginUser.getUser().setNickName(nickname);
-                String token = loginUser.getToken();
-                if (StringUtils.isNotEmpty(token)) {
-                    String userKey = CacheConstants.LOGIN_TOKEN_KEY + token;
-                    // 计算剩余过期时间
-                    long remainTime = loginUser.getExpireTime() - System.currentTimeMillis();
-                    long expireMinutes = Math.max(remainTime / (60 * 1000), 1);
-                    redisCache.setCacheObject(userKey, loginUser, (int) expireMinutes, java.util.concurrent.TimeUnit.MINUTES);
-                }
-            }
             return success();
         }
         return error("修改失败");

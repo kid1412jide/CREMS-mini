@@ -2,6 +2,7 @@ import router from '@/router'
 import cache from '@/plugins/cache'
 import { ElMessageBox, } from 'element-plus'
 import { login, logout, getInfo } from '@/api/login'
+import { getNickname } from '@/api/portal'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { isHttp, isEmpty } from "@/utils/validate"
 import useLockStore from '@/store/modules/lock'
@@ -73,6 +74,26 @@ const useUserStore = defineStore(
             resolve(res)
           }).catch(error => {
             reject(error)
+          })
+        })
+      },
+      // 从数据库刷新昵称（解决 Redis 缓存不同步问题）
+      refreshNickname() {
+        return new Promise((resolve, reject) => {
+          getNickname().then(res => {
+            let nickname = ''
+            if (typeof res === 'string') {
+              nickname = res
+            } else if (res && res.data) {
+              nickname = res.data
+            }
+            if (nickname) {
+              this.nickName = nickname
+            }
+            resolve(nickname)
+          }).catch(error => {
+            // 静默失败，不影响正常使用
+            resolve('')
           })
         })
       },

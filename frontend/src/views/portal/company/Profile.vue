@@ -202,8 +202,8 @@ async function submitForm() {
     // 保存昵称
     if (nickname.value) {
       await updateNickname(nickname.value)
-      // 直接更新 store 中的昵称，立即生效
-      userStore.nickName = nickname.value
+      // 从数据库刷新昵称，确保一致性
+      await userStore.refreshNickname()
     }
     proxy.$modal.msgSuccess('保存成功')
   } catch (e) {

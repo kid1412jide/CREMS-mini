@@ -43,6 +43,8 @@ router.beforeEach(async (to, from) => {
       try {
         // 拉取user_info信息
         await useUserStore().getInfo()
+        // 从数据库刷新昵称（解决 Redis 缓存不同步问题）
+        await useUserStore().refreshNickname()
         isRelogin.show = false
         const roles = useUserStore().roles
         // 根据角色重定向：学生和企业用户进入门户，管理员进入后台
