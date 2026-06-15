@@ -95,6 +95,9 @@ public class CremsInterviewServiceImpl implements ICremsInterviewService
     @Transactional
     public int deleteInterviewByIds(Long[] interviewIds)
     {
+        for (Long interviewId : interviewIds) {
+            revertApplicationStatus(interviewId);
+        }
         return interviewMapper.deleteInterviewByIds(interviewIds);
     }
 
@@ -102,6 +105,21 @@ public class CremsInterviewServiceImpl implements ICremsInterviewService
     @Transactional
     public int deleteInterviewById(Long interviewId)
     {
+        revertApplicationStatus(interviewId);
         return interviewMapper.deleteInterviewById(interviewId);
+    }
+
+    /**
+     * 删除面试时，将关联的投递状态从"面试邀请"(3)回退到"初筛通过"(2)
+     */
+    private void revertApplicationStatus(Long interviewId) {
+        CremsInterview interview = interviewMapper.selectInterviewById(interviewId);
+        if (interview != null && interview.getApplicationId() != null) {
+            CremsApplication application = applicationMapper.selectApplicationById(interview.getApplicationId());
+            if (application != null && "3".equals(application.getStatus())) {
+                applicationMapper.updateApplicationStatusIfCurrent(
+                        application.getApplicationId(), "3", "2", interview.getUpdateBy());
+            }
+        }
     }
 }

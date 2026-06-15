@@ -16,7 +16,17 @@ public interface ICremsApplicationService
 
     public int insertApplication(CremsApplication application);
 
+    /**
+     * 投递职位（在同一事务中同时更新投递计数）
+     */
+    public int applyForJob(CremsApplication application);
+
     public int updateApplication(CremsApplication application);
+
+    /**
+     * CAS 更新投递状态（仅当当前状态匹配时才更新）
+     */
+    public int updateApplicationStatusIfCurrent(Long applicationId, String currentStatus, String newStatus, String updateBy);
 
     public int deleteApplicationByIds(Long[] applicationIds);
 

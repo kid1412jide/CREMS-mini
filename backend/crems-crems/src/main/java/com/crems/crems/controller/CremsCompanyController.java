@@ -18,6 +18,7 @@ import com.crems.common.core.controller.BaseController;
 import com.crems.common.core.domain.AjaxResult;
 import com.crems.common.core.page.TableDataInfo;
 import com.crems.common.enums.BusinessType;
+import com.crems.common.utils.SecurityUtils;
 import com.crems.common.utils.poi.ExcelUtil;
 import com.crems.crems.domain.CremsCompany;
 import com.crems.crems.service.ICremsCompanyService;
@@ -162,13 +163,18 @@ public class CremsCompanyController extends BaseController
     }
 
     /**
-     * 企业审核
+     * 企业审核（仅管理员可操作）
      */
     @PreAuthorize("@ss.hasPermi('crems:company:audit')")
     @Log(title = "企业审核", businessType = BusinessType.UPDATE)
     @PutMapping("/audit")
     public AjaxResult audit(@RequestBody CremsCompany company)
     {
+        // 禁止企业用户自行审核
+        if (SecurityUtils.hasRole("company"))
+        {
+            return error("企业用户无权执行审核操作");
+        }
         company.setUpdateBy(getUsername());
         return toAjax(companyService.updateCompany(company));
     }

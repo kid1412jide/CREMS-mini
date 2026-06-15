@@ -73,7 +73,38 @@ public class CremsApplicationController extends BaseController
     public AjaxResult edit(@RequestBody CremsApplication application)
     {
         application.setUpdateBy(getUsername());
+
+        // 如果状态发生变化，使用 CAS 更新并校验状态机
+        if (application.getStatus() != null && application.getApplicationId() != null) {
+            CremsApplication existing = applicationService.selectApplicationById(application.getApplicationId());
+            if (existing != null && !application.getStatus().equals(existing.getStatus())) {
+                if (!isValidStatusTransition(existing.getStatus(), application.getStatus())) {
+                    return error("不允许从状态 " + existing.getStatus() + " 转换到 " + application.getStatus());
+                }
+                int updated = applicationService.updateApplicationStatusIfCurrent(
+                        application.getApplicationId(), existing.getStatus(), application.getStatus(), getUsername());
+                if (updated == 0) {
+                    return error("投递状态已变化，请刷新后重试");
+                }
+                // 更新其他字段
+                application.setStatus(null); // 状态已更新，不再重复更新
+            }
+        }
+
         return toAjax(applicationService.updateApplication(application));
+    }
+
+    /**
+     * 校验投递状态转换是否合法
+     */
+    private boolean isValidStatusTransition(String current, String target) {
+        return switch (current) {
+            case "0" -> "1".equals(target) || "2".equals(target) || "4".equals(target);
+            case "1" -> "2".equals(target) || "4".equals(target);
+            case "2" -> "3".equals(target) || "4".equals(target);
+            case "3" -> "5".equals(target) || "4".equals(target);
+            default -> false;
+        };
     }
 
     @PreAuthorize("@ss.hasPermi('crems:application:remove')")

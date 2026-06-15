@@ -47,6 +47,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectCompanyList" parameterType="CremsCompany" resultMap="CremsCompanyResult">
         <include refid="selectCompanyVo"/>
         <where>
+            <if test="companyId != null">
+                AND company_id = #{companyId}
+            </if>
             <if test="companyName != null and companyName != ''">
                 AND company_name like concat('%', #{companyName}, '%')
             </if>

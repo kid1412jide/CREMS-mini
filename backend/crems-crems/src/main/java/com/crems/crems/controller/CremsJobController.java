@@ -225,20 +225,21 @@ public class CremsJobController extends BaseController
     }
 
     /**
-     * 职位审核
+     * 职位审核（仅管理员可操作）
      */
     @PreAuthorize("@ss.hasPermi('crems:job:audit')")
     @Log(title = "职位审核", businessType = BusinessType.UPDATE)
     @PutMapping("/audit")
     public AjaxResult audit(@RequestBody CremsJob job)
     {
+        // 禁止企业用户自行审核职位
+        if (isCompanyRole())
+        {
+            return error("企业用户无权执行审核操作");
+        }
         if (!isOwnCompanyJob(job.getJobId()))
         {
             return error("无权审核此职位");
-        }
-        if (!applyCompanyScope(job))
-        {
-            return error("请先完善企业资料");
         }
         job.setUpdateBy(getUsername());
         return toAjax(jobService.updateJob(job));

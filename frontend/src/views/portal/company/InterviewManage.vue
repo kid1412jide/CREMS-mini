@@ -20,7 +20,7 @@
         <div class="iv-card__left">
           <div class="iv-card__date">
             <div class="date-day">{{ parseTime(item.interviewTime, '{d}') }}</div>
-            <div class="date-month">{{ parseTime(item.interviewTime, '{M}月') }}</div>
+            <div class="date-month">{{ parseTime(item.interviewTime, '{m}月') }}</div>
           </div>
         </div>
         <div class="iv-card__main">

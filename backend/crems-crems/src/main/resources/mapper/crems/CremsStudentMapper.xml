@@ -52,6 +52,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectStudentList" parameterType="CremsStudent" resultMap="CremsStudentResult">
         <include refid="selectStudentVo"/>
         <where>
+            <if test="studentId != null">
+                AND student_id = #{studentId}
+            </if>
             <if test="studentNo != null and studentNo != ''">
                 AND student_no = #{studentNo}
             </if>

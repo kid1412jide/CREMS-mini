@@ -200,13 +200,19 @@ public class CremsPortalController extends BaseController
             return error("职位不存在");
         }
         application.setCompanyId(job.getCompanyId());
-        int rows = applicationService.insertApplication(application);
-        if (rows > 0) {
-            // 投递成功后，职位投递数+1
-            jobService.incrementApplyCount(application.getJobId());
-            return success();
+
+        // 检查是否已投递过该职位
+        CremsApplication query = new CremsApplication();
+        query.setStudentId(studentId);
+        query.setJobId(application.getJobId());
+        java.util.List<CremsApplication> existing = applicationService.selectApplicationList(query);
+        if (existing != null && !existing.isEmpty()) {
+            return error("您已投递过该职位，请勿重复投递");
         }
-        return error("投递失败，可能已经投递过该职位");
+
+        // 使用统一事务方法，同时插入投递记录和更新投递计数
+        int rows = applicationService.applyForJob(application);
+        return rows > 0 ? success() : error("投递失败");
     }
 
     @PutMapping("/application")
@@ -218,14 +224,50 @@ public class CremsPortalController extends BaseController
         if (existing == null || !companyId.equals(existing.getCompanyId())) {
             return error("无权修改此投递记录");
         }
-        // 只允许更新状态、反馈、查看时间，防止越权修改其他字段
-        CremsApplication updateEntity = new CremsApplication();
-        updateEntity.setApplicationId(application.getApplicationId());
-        updateEntity.setStatus(application.getStatus());
-        updateEntity.setFeedback(application.getFeedback());
-        updateEntity.setViewTime(application.getViewTime());
-        updateEntity.setUpdateBy(getUsername());
-        return toAjax(applicationService.updateApplication(updateEntity));
+
+        String newStatus = application.getStatus();
+        String currentStatus = existing.getStatus();
+
+        // 如果状态发生变化，使用 CAS 更新并校验状态机
+        if (newStatus != null && !newStatus.equals(currentStatus)) {
+            if (!isValidStatusTransition(currentStatus, newStatus)) {
+                return error("不允许从状态 " + currentStatus + " 转换到 " + newStatus);
+            }
+            int updated = applicationService.updateApplicationStatusIfCurrent(
+                    application.getApplicationId(), currentStatus, newStatus, getUsername());
+            if (updated == 0) {
+                return error("投递状态已变化，请刷新后重试");
+            }
+        }
+
+        // 更新其他字段（反馈、查看时间等）
+        if (application.getFeedback() != null || application.getViewTime() != null) {
+            CremsApplication updateEntity = new CremsApplication();
+            updateEntity.setApplicationId(application.getApplicationId());
+            updateEntity.setFeedback(application.getFeedback());
+            updateEntity.setViewTime(application.getViewTime());
+            updateEntity.setUpdateBy(getUsername());
+            applicationService.updateApplication(updateEntity);
+        }
+
+        return success();
+    }
+
+    /**
+     * 校验投递状态转换是否合法
+     * 0:待查看 -> 1:已查看, 2:初筛通过, 4:已拒绝
+     * 1:已查看 -> 2:初筛通过, 4:已拒绝
+     * 2:初筛通过 -> 3:面试邀请, 4:已拒绝
+     * 3:面试邀请 -> 5:已录用, 4:已拒绝
+     */
+    private boolean isValidStatusTransition(String current, String target) {
+        return switch (current) {
+            case "0" -> "1".equals(target) || "2".equals(target) || "4".equals(target);
+            case "1" -> "2".equals(target) || "4".equals(target);
+            case "2" -> "3".equals(target) || "4".equals(target);
+            case "3" -> "5".equals(target) || "4".equals(target);
+            default -> false;
+        };
     }
 
     // ==================== 面试 ====================
@@ -271,7 +313,29 @@ public class CremsPortalController extends BaseController
         if (existing == null || !companyId.equals(existing.getCompanyId())) {
             return error("无权修改此面试记录");
         }
+
+        // 校验面试状态转换
+        String newStatus = interview.getStatus();
+        if (newStatus != null && !newStatus.equals(existing.getStatus())) {
+            if (!isValidInterviewStatusTransition(existing.getStatus(), newStatus)) {
+                return error("不允许从状态 " + existing.getStatus() + " 转换到 " + newStatus);
+            }
+        }
+
         return toAjax(interviewService.updateInterview(interview));
+    }
+
+    /**
+     * 校验面试状态转换是否合法
+     * 0:待确认 -> 1:已确认, 3:已取消
+     * 1:已确认 -> 2:已完成, 3:已取消
+     */
+    private boolean isValidInterviewStatusTransition(String current, String target) {
+        return switch (current) {
+            case "0" -> "1".equals(target) || "3".equals(target);
+            case "1" -> "2".equals(target) || "3".equals(target);
+            default -> false;
+        };
     }
 
     // ==================== 收藏 ====================

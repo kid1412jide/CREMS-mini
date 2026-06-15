@@ -66,7 +66,7 @@
           <div v-for="item in upcomingInterviews" :key="item.interviewId" class="interview-item">
             <div class="interview-item__time">
               <div class="time-day">{{ parseTime(item.interviewTime, '{d}') }}</div>
-              <div class="time-month">{{ parseTime(item.interviewTime, '{M}月') }}</div>
+              <div class="time-month">{{ parseTime(item.interviewTime, '{m}月') }}</div>
             </div>
             <div class="interview-item__info">
               <div class="info-title">{{ item.jobTitle }}</div>

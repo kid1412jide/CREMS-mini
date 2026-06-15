@@ -73,7 +73,31 @@ public class CremsInterviewController extends BaseController
     public AjaxResult edit(@RequestBody CremsInterview interview)
     {
         interview.setUpdateBy(getUsername());
+
+        // 校验面试状态转换
+        if (interview.getStatus() != null && interview.getInterviewId() != null) {
+            CremsInterview existing = interviewService.selectInterviewById(interview.getInterviewId());
+            if (existing != null && !interview.getStatus().equals(existing.getStatus())) {
+                if (!isValidInterviewStatusTransition(existing.getStatus(), interview.getStatus())) {
+                    return error("不允许从状态 " + existing.getStatus() + " 转换到 " + interview.getStatus());
+                }
+            }
+        }
+
         return toAjax(interviewService.updateInterview(interview));
+    }
+
+    /**
+     * 校验面试状态转换是否合法
+     * 0:待确认 -> 1:已确认, 3:已取消
+     * 1:已确认 -> 2:已完成, 3:已取消
+     */
+    private boolean isValidInterviewStatusTransition(String current, String target) {
+        return switch (current) {
+            case "0" -> "1".equals(target) || "3".equals(target);
+            case "1" -> "2".equals(target) || "3".equals(target);
+            default -> false;
+        };
     }
 
     @PreAuthorize("@ss.hasPermi('crems:interview:remove')")
