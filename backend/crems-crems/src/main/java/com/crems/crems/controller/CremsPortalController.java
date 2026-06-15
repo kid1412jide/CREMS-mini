@@ -23,6 +23,7 @@ import com.crems.crems.domain.CremsFavorite;
 import com.crems.crems.domain.CremsInterview;
 import com.crems.crems.domain.CremsJob;
 import com.crems.crems.domain.CremsStudent;
+import com.crems.crems.mapper.SysUserExtMapper;
 import com.crems.crems.service.ICremsApplicationService;
 import com.crems.crems.service.ICremsCompanyService;
 import com.crems.crems.service.ICremsFavoriteService;
@@ -54,6 +55,8 @@ public class CremsPortalController extends BaseController
     private ICremsCompanyService companyService;
     @Autowired
     private ICremsStatisticsService statisticsService;
+    @Autowired
+    private SysUserExtMapper sysUserExtMapper;
 
     private boolean isStudentRole() {
         return SecurityUtils.hasRole("student");
@@ -448,14 +451,26 @@ public class CremsPortalController extends BaseController
         if (existing != null) {
             student.setStudentId(existing.getStudentId());
             student.setUpdateBy(getUsername());
-            return studentService.updateStudent(student) > 0 ? success(student) : error();
+            int updateRows = studentService.updateStudent(student);
+            if (updateRows > 0 && student.getStudentName() != null) {
+                // 同步更新 sys_user 的 nick_name，使右上角显示正确
+                sysUserExtMapper.updateNickName(userId, student.getStudentName());
+                return success(student);
+            }
+            return error();
         }
 
         student.setCreateBy(getUsername());
         if (StringUtils.isEmpty(student.getStatus())) {
             student.setStatus("0");
         }
-        return studentService.insertStudent(student) > 0 ? success(student) : error();
+        int rows = studentService.insertStudent(student);
+        if (rows > 0) {
+            // 同步更新 sys_user 的 nick_name，使右上角显示正确
+            sysUserExtMapper.updateNickName(userId, student.getStudentName());
+            return success(student);
+        }
+        return error();
     }
 
     @PutMapping("/student")
@@ -465,7 +480,12 @@ public class CremsPortalController extends BaseController
         Long currentStudentId = getCurrentStudentId();
         student.setStudentId(currentStudentId);
         student.setUpdateBy(getUsername());
-        return toAjax(studentService.updateStudent(student));
+        int rows = studentService.updateStudent(student);
+        if (rows > 0 && student.getStudentName() != null) {
+            // 同步更新 sys_user 的 nick_name，使右上角显示正确
+            sysUserExtMapper.updateNickName(getUserId(), student.getStudentName());
+        }
+        return toAjax(rows);
     }
 
     // ==================== 企业 ====================
@@ -529,14 +549,26 @@ public class CremsPortalController extends BaseController
         if (existing != null) {
             company.setCompanyId(existing.getCompanyId());
             company.setUpdateBy(getUsername());
-            return companyService.updateCompany(company) > 0 ? success(company) : error();
+            int updateRows = companyService.updateCompany(company);
+            if (updateRows > 0 && company.getCompanyName() != null) {
+                // 同步更新 sys_user 的 nick_name，使右上角显示正确
+                sysUserExtMapper.updateNickName(userId, company.getCompanyName());
+                return success(company);
+            }
+            return error();
         }
 
         company.setCreateBy(getUsername());
         if (StringUtils.isEmpty(company.getStatus())) {
             company.setStatus("0");
         }
-        return companyService.insertCompany(company) > 0 ? success(company) : error();
+        int rows = companyService.insertCompany(company);
+        if (rows > 0) {
+            // 同步更新 sys_user 的 nick_name，使右上角显示正确
+            sysUserExtMapper.updateNickName(userId, company.getCompanyName());
+            return success(company);
+        }
+        return error();
     }
 
     @PutMapping("/company")
@@ -546,7 +578,12 @@ public class CremsPortalController extends BaseController
         Long currentCompanyId = getCurrentCompanyId();
         company.setCompanyId(currentCompanyId);
         company.setUpdateBy(getUsername());
-        return toAjax(companyService.updateCompany(company));
+        int rows = companyService.updateCompany(company);
+        if (rows > 0 && company.getCompanyName() != null) {
+            // 同步更新 sys_user 的 nick_name，使右上角显示正确
+            sysUserExtMapper.updateNickName(getUserId(), company.getCompanyName());
+        }
+        return toAjax(rows);
     }
 
     // ==================== 统计 ====================
