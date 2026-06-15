@@ -238,12 +238,21 @@ async function loadProfile() {
   } catch (e) {
     // 保持空表单，避免展示其他学生资料。
   }
-  // 加载当前昵称
+  // 加载当前昵称 - 从 API 获取最新值
   try {
     const nickRes = await getNickname()
-    nickname.value = nickRes.data || ''
+    // 兼容不同的响应格式
+    if (typeof nickRes === 'string') {
+      nickname.value = nickRes
+    } else if (nickRes && nickRes.data) {
+      nickname.value = nickRes.data
+    } else {
+      // 从 store 读取作为兜底
+      nickname.value = userStore.nickName || ''
+    }
   } catch (e) {
-    // 忽略错误
+    // 从 store 读取作为兜底
+    nickname.value = userStore.nickName || ''
   }
 }
 
@@ -262,10 +271,10 @@ async function submitForm() {
     // 保存昵称
     if (nickname.value) {
       await updateNickname(nickname.value)
+      // 直接更新 store 中的昵称，立即生效
+      userStore.nickName = nickname.value
     }
     proxy.$modal.msgSuccess('保存成功')
-    // 刷新 store 中的用户信息，更新右上角显示
-    userStore.getInfo()
   } catch (e) {
     proxy.$modal.msgError('保存失败')
   } finally {
