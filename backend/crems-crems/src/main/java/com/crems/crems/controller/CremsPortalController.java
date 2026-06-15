@@ -451,26 +451,14 @@ public class CremsPortalController extends BaseController
         if (existing != null) {
             student.setStudentId(existing.getStudentId());
             student.setUpdateBy(getUsername());
-            int updateRows = studentService.updateStudent(student);
-            if (updateRows > 0 && student.getStudentName() != null) {
-                // 同步更新 sys_user 的 nick_name，使右上角显示正确
-                sysUserExtMapper.updateNickName(userId, student.getStudentName());
-                return success(student);
-            }
-            return error();
+            return studentService.updateStudent(student) > 0 ? success(student) : error();
         }
 
         student.setCreateBy(getUsername());
         if (StringUtils.isEmpty(student.getStatus())) {
             student.setStatus("0");
         }
-        int rows = studentService.insertStudent(student);
-        if (rows > 0) {
-            // 同步更新 sys_user 的 nick_name，使右上角显示正确
-            sysUserExtMapper.updateNickName(userId, student.getStudentName());
-            return success(student);
-        }
-        return error();
+        return studentService.insertStudent(student) > 0 ? success(student) : error();
     }
 
     @PutMapping("/student")
@@ -480,12 +468,7 @@ public class CremsPortalController extends BaseController
         Long currentStudentId = getCurrentStudentId();
         student.setStudentId(currentStudentId);
         student.setUpdateBy(getUsername());
-        int rows = studentService.updateStudent(student);
-        if (rows > 0 && student.getStudentName() != null) {
-            // 同步更新 sys_user 的 nick_name，使右上角显示正确
-            sysUserExtMapper.updateNickName(getUserId(), student.getStudentName());
-        }
-        return toAjax(rows);
+        return toAjax(studentService.updateStudent(student));
     }
 
     // ==================== 企业 ====================
@@ -549,26 +532,14 @@ public class CremsPortalController extends BaseController
         if (existing != null) {
             company.setCompanyId(existing.getCompanyId());
             company.setUpdateBy(getUsername());
-            int updateRows = companyService.updateCompany(company);
-            if (updateRows > 0 && company.getCompanyName() != null) {
-                // 同步更新 sys_user 的 nick_name，使右上角显示正确
-                sysUserExtMapper.updateNickName(userId, company.getCompanyName());
-                return success(company);
-            }
-            return error();
+            return companyService.updateCompany(company) > 0 ? success(company) : error();
         }
 
         company.setCreateBy(getUsername());
         if (StringUtils.isEmpty(company.getStatus())) {
             company.setStatus("0");
         }
-        int rows = companyService.insertCompany(company);
-        if (rows > 0) {
-            // 同步更新 sys_user 的 nick_name，使右上角显示正确
-            sysUserExtMapper.updateNickName(userId, company.getCompanyName());
-            return success(company);
-        }
-        return error();
+        return companyService.insertCompany(company) > 0 ? success(company) : error();
     }
 
     @PutMapping("/company")
@@ -578,12 +549,33 @@ public class CremsPortalController extends BaseController
         Long currentCompanyId = getCurrentCompanyId();
         company.setCompanyId(currentCompanyId);
         company.setUpdateBy(getUsername());
-        int rows = companyService.updateCompany(company);
-        if (rows > 0 && company.getCompanyName() != null) {
-            // 同步更新 sys_user 的 nick_name，使右上角显示正确
-            sysUserExtMapper.updateNickName(getUserId(), company.getCompanyName());
+        return toAjax(companyService.updateCompany(company));
+    }
+
+    // ==================== 用户设置 ====================
+
+    @GetMapping("/user/nickname")
+    public AjaxResult getNickname()
+    {
+        Long userId = getUserId();
+        // 通过 userId 查询 sys_user 的 nick_name
+        String nickname = sysUserExtMapper.selectNickNameByUserId(userId);
+        return success(nickname);
+    }
+
+    @PutMapping("/user/nickname")
+    public AjaxResult updateNickname(@RequestBody java.util.Map<String, String> body)
+    {
+        String nickname = body.get("nickname");
+        if (StringUtils.isEmpty(nickname)) {
+            return warn("昵称不能为空");
         }
-        return toAjax(rows);
+        if (nickname.length() > 30) {
+            return warn("昵称不能超过30个字符");
+        }
+        Long userId = getUserId();
+        int rows = sysUserExtMapper.updateNickName(userId, nickname);
+        return rows > 0 ? success() : error("修改失败");
     }
 
     // ==================== 统计 ====================

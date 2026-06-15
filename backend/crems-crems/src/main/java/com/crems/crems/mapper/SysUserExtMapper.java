@@ -8,6 +8,11 @@ import org.apache.ibatis.annotations.Param;
 public interface SysUserExtMapper
 {
     /**
+     * 查询用户昵称
+     */
+    public String selectNickNameByUserId(@Param("userId") Long userId);
+
+    /**
      * 更新用户昵称
      */
     public int updateNickName(@Param("userId") Long userId, @Param("nickName") String nickName);

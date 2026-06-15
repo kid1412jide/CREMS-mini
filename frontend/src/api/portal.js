@@ -204,6 +204,23 @@ export function updateCompany(data) {
   })
 }
 
+// ==================== 用户设置 ====================
+
+export function getNickname() {
+  return request({
+    url: '/portal/api/user/nickname',
+    method: 'get'
+  })
+}
+
+export function updateNickname(nickname) {
+  return request({
+    url: '/portal/api/user/nickname',
+    method: 'put',
+    data: { nickname }
+  })
+}
+
 // ==================== 统计 ====================
 
 export function getStatisticsOverview() {

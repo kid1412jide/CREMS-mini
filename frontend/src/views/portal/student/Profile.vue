@@ -4,6 +4,17 @@
 
     <div class="profile-layout">
       <div class="profile-main">
+        <!-- Nickname -->
+        <div class="profile-card">
+          <h3 class="card-title">显示昵称</h3>
+          <el-form label-width="80px">
+            <el-form-item label="昵称">
+              <el-input v-model="nickname" placeholder="设置您的显示昵称" maxlength="30" />
+              <div class="form-tip">此昵称将显示在右上角和对外信息中</div>
+            </el-form-item>
+          </el-form>
+        </div>
+
         <!-- Basic Info -->
         <div class="profile-card">
           <h3 class="card-title">基本信息</h3>
@@ -153,13 +164,14 @@
 </template>
 
 <script setup>
-import { getCurrentStudent, addStudent, updateStudent } from '@/api/portal'
+import { getCurrentStudent, addStudent, updateStudent, getNickname, updateNickname } from '@/api/portal'
 import useUserStore from '@/store/modules/user'
 
 const { proxy } = getCurrentInstance()
 const userStore = useUserStore()
 
 const formRef = ref(null)
+const nickname = ref('')
 const submitting = ref(false)
 const studentId = ref(null)
 const form = reactive({
@@ -226,6 +238,13 @@ async function loadProfile() {
   } catch (e) {
     // 保持空表单，避免展示其他学生资料。
   }
+  // 加载当前昵称
+  try {
+    const nickRes = await getNickname()
+    nickname.value = nickRes.data || ''
+  } catch (e) {
+    // 忽略错误
+  }
 }
 
 async function submitForm() {
@@ -239,6 +258,10 @@ async function submitForm() {
     } else {
       const res = await addStudent({ ...form })
       studentId.value = res.data?.studentId || studentId.value
+    }
+    // 保存昵称
+    if (nickname.value) {
+      await updateNickname(nickname.value)
     }
     proxy.$modal.msgSuccess('保存成功')
     // 刷新 store 中的用户信息，更新右上角显示
@@ -285,6 +308,12 @@ onMounted(() => loadProfile())
 
 .skill-tag {
   border-radius: 4px;
+}
+
+.form-tip {
+  font-size: 12px;
+  color: #909399;
+  margin-top: 4px;
 }
 
 .form-actions {

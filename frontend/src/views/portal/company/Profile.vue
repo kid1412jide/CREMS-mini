@@ -5,6 +5,16 @@
     <div class="profile-layout">
       <div class="profile-main">
         <div class="profile-card">
+          <h3 class="card-title">显示昵称</h3>
+          <el-form label-width="100px">
+            <el-form-item label="昵称">
+              <el-input v-model="nickname" placeholder="设置您的显示昵称" maxlength="30" />
+              <div class="form-tip">此昵称将显示在右上角和对外信息中</div>
+            </el-form-item>
+          </el-form>
+        </div>
+
+        <div class="profile-card">
           <h3 class="card-title">基本信息</h3>
           <el-form :model="form" :rules="rules" ref="formRef" label-width="100px">
             <el-row :gutter="20">
@@ -109,13 +119,14 @@
 </template>
 
 <script setup>
-import { getCurrentCompany, addCompany, updateCompany } from '@/api/portal'
+import { getCurrentCompany, addCompany, updateCompany, getNickname, updateNickname } from '@/api/portal'
 import useUserStore from '@/store/modules/user'
 
 const { proxy } = getCurrentInstance()
 const userStore = useUserStore()
 
 const formRef = ref(null)
+const nickname = ref('')
 const submitting = ref(false)
 const companyId = ref(null)
 const form = reactive({
@@ -158,6 +169,13 @@ async function loadProfile() {
   } catch (e) {
     // 保持空表单，避免展示其他企业资料。
   }
+  // 加载当前昵称
+  try {
+    const nickRes = await getNickname()
+    nickname.value = nickRes.data || ''
+  } catch (e) {
+    // 忽略错误
+  }
 }
 
 async function submitForm() {
@@ -171,6 +189,10 @@ async function submitForm() {
     } else {
       const res = await addCompany({ ...form })
       companyId.value = res.data?.companyId || companyId.value
+    }
+    // 保存昵称
+    if (nickname.value) {
+      await updateNickname(nickname.value)
     }
     proxy.$modal.msgSuccess('保存成功')
     // 刷新 store 中的用户信息，更新右上角显示
@@ -211,6 +233,12 @@ onMounted(() => loadProfile())
 .form-actions {
   text-align: center;
   padding: 8px 0;
+}
+
+.form-tip {
+  font-size: 12px;
+  color: #909399;
+  margin-top: 4px;
 }
 
 .preview-card {
