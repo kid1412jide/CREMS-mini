@@ -1,5 +1,6 @@
 import PortalLayout from '@/layout/portal'
 
+// 门户路由独立于后台菜单：学生端、企业端用 meta.portal 标记给路由守卫识别。
 export const portalRoutes = [
   {
     path: '/portal',

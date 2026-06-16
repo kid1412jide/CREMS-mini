@@ -1,5 +1,7 @@
 import request from '@/utils/request'
 
+// 门户端所有业务接口统一从这里出口，页面只关心函数语义，不直接拼后端路径。
+
 // ==================== 职位 ====================
 
 export function listJob(query) {
@@ -77,6 +79,7 @@ export function listInterview(query) {
 }
 
 export function addInterview(data) {
+  // 邀请面试只传表单和 applicationId，职位/学生/企业归属由后端事务内反查。
   return request({
     url: '/portal/api/interview',
     method: 'post',
@@ -207,6 +210,7 @@ export function updateCompany(data) {
 // ==================== 用户设置 ====================
 
 export function getNickname() {
+  // 昵称属于轻量设置接口，关闭重复提交拦截避免连续刷新时被误判。
   return request({
     url: '/portal/api/user/nickname',
     method: 'get',
@@ -215,6 +219,7 @@ export function getNickname() {
 }
 
 export function updateNickname(nickname) {
+  // 后端按登录用户更新昵称，前端不传 userId。
   return request({
     url: '/portal/api/user/nickname',
     method: 'put',

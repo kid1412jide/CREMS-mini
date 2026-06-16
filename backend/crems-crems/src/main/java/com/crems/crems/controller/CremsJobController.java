@@ -54,6 +54,7 @@ public class CremsJobController extends BaseController
     {
         if (isCompanyRole())
         {
+            // 企业角色访问后台式职位接口时，也必须强制绑定自己的 companyId。
             CremsCompany company = getCurrentCompany();
             if (company == null)
             {
@@ -70,6 +71,7 @@ public class CremsJobController extends BaseController
         {
             return true;
         }
+        // 详情、编辑、删除这类按主键操作，需要额外校验职位归属。
         CremsCompany company = getCurrentCompany();
         if (company == null)
         {
@@ -130,6 +132,7 @@ public class CremsJobController extends BaseController
         {
             try
             {
+                // 导入沿用普通新增逻辑，保证字段校验和默认值处理入口一致。
                 job.setCreateBy(operName);
                 jobService.insertJob(job);
                 successNum++;
@@ -198,6 +201,7 @@ public class CremsJobController extends BaseController
         {
             return error("无权修改此职位");
         }
+        // 重新套用企业范围，防止请求体把职位改挂到其他企业。
         if (!applyCompanyScope(job))
         {
             return error("请先完善企业资料");

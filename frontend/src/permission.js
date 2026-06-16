@@ -15,6 +15,7 @@ NProgress.configure({ showSpinner: false })
 const whiteList = ['/login', '/register', '/portal', '/portal/home']
 
 const isWhiteList = (path) => {
+  // 白名单支持路径模式匹配，门户首页和登录注册不需要动态路由。
   return whiteList.some(pattern => isPathMatch(pattern, path))
 }
 
@@ -62,7 +63,7 @@ router.beforeEach(async (to, from) => {
         if (to.path.startsWith('/portal/company/') && (roles.includes('student') || roles.includes('ROLE_DEFAULT')) && !roles.includes('admin')) {
           return { path: '/portal/student/dashboard', replace: true }
         }
-        // 门户路由跳过动态路由生成
+        // 门户路由是前端静态注册的，跳过后台菜单生成，避免被管理端权限菜单影响。
         if (to.meta && to.meta.portal) {
           return { ...to, replace: true }
         }
@@ -83,6 +84,7 @@ router.beforeEach(async (to, from) => {
     }
     // 角色路由隔离（roles已加载的情况）
     const roles = useUserStore().roles
+    // 用户信息已加载后仍做一次门户隔离，处理直接输入 URL 或刷新页面的场景。
     if (to.path.startsWith('/portal/student/') && roles.includes('company') && !roles.includes('admin')) {
       return { path: '/portal/company/dashboard', replace: true }
     }

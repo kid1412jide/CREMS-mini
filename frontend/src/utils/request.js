@@ -29,10 +29,12 @@ service.interceptors.request.use(config => {
   // 间隔时间(ms)，小于此时间视为重复提交
   const interval = (config.headers || {}).interval || 1000
   if (getToken() && !isToken) {
+    // 登录后的普通接口统一携带 JWT，少数公开接口可通过 headers.isToken=false 跳过。
     config.headers['Authorization'] = 'Bearer ' + getToken() // 让每个请求携带自定义token 请根据实际情况自行修改
   }
   // get请求映射params参数
   if (config.method === 'get' && config.params) {
+    // 若依后端常按 query string 接收查询条件，这里把 params 展平成 URL 参数。
     let url = config.url + '?' + tansParams(config.params)
     url = url.slice(0, -1)
     config.params = {}
@@ -44,6 +46,7 @@ service.interceptors.request.use(config => {
       data: typeof config.data === 'object' ? JSON.stringify(config.data) : config.data,
       time: new Date().getTime()
     }
+    // 用最近一次请求的 url+data+time 做前端防抖，降低重复点击造成的重复写入。
     const requestSize = Object.keys(JSON.stringify(requestObj)).length // 请求数据大小
     const limitSize = 5 * 1024 * 1024 // 限制存放数据5M
     if (requestSize >= limitSize) {
@@ -83,6 +86,7 @@ service.interceptors.response.use(res => {
       return res.data
     }
     if (code === 401) {
+      // 多个接口同时 401 时只弹一次重新登录确认框，避免页面被弹窗堆满。
       if (!isRelogin.show) {
         isRelogin.show = true
         ElMessageBox.confirm('登录状态已过期，您可以继续留在该页面，或者重新登录', '系统提示', { confirmButtonText: '重新登录', cancelButtonText: '取消', type: 'warning' }).then(() => {
@@ -137,6 +141,7 @@ export function download(url, params, filename, config) {
       const blob = new Blob([data])
       saveAs(blob, filename)
     } else {
+      // 文件接口失败时后端会返回 JSON 文本，需要转回对象再展示业务错误。
       const resText = await data.text()
       const rspObj = JSON.parse(resText)
       const errMsg = errorCode[rspObj.code] || rspObj.msg || errorCode['default']

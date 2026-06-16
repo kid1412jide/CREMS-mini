@@ -3,6 +3,7 @@ import { animate } from 'animejs'
 // 按钮悬停 + 点击动画指令
 export const vAnimeButton = {
   mounted(el) {
+    // 保存事件函数到元素实例，卸载时才能准确移除监听，避免页面切换后残留。
     el.style.position = el.style.position || 'relative'
     el.style.overflow = el.style.overflow || 'hidden'
 
@@ -53,6 +54,7 @@ export const vAnimeCard = {
 // 列表项交错入场指令
 export const vAnimeStagger = {
   mounted(el, binding) {
+    // binding.value 控制每一项延迟时间，列表页可按索引形成依次入场效果。
     const delay = binding.value ?? 0
     el.style.opacity = '0'
     animate(el, {

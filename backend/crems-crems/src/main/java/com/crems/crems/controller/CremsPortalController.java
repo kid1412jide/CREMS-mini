@@ -60,6 +60,7 @@ public class CremsPortalController extends BaseController
 
     private boolean isStudentRole() {
         try {
+            // 门户端按业务角色分流，管理员拥有更高权限时不套用学生端限制。
             return SecurityUtils.hasRole("student") && !SecurityUtils.hasRole("admin");
         } catch (Exception e) {
             return false;
@@ -68,6 +69,7 @@ public class CremsPortalController extends BaseController
 
     private boolean isCompanyRole() {
         try {
+            // 企业门户只处理纯企业账号，避免管理员被误判后进入企业数据边界。
             return SecurityUtils.hasRole("company") && !SecurityUtils.hasRole("admin");
         } catch (Exception e) {
             return false;
@@ -105,6 +107,7 @@ public class CremsPortalController extends BaseController
     {
         startPage();
         if (isCompanyRole()) {
+            // 企业端列表强制绑定当前企业，防止通过请求参数查看其他企业职位。
             CremsCompany company = companyService.selectCompanyByUserId(getUserId());
             if (company == null) {
                 return getDataTable(List.of());
@@ -123,6 +126,7 @@ public class CremsPortalController extends BaseController
             return error("职位不存在");
         }
         if (isCompanyRole()) {
+            // 企业查看职位详情时先做归属校验；学生端只能查看已发布职位。
             CremsCompany company = companyService.selectCompanyByUserId(getUserId());
             if (company == null) {
                 return error("请先完善企业资料");
@@ -181,7 +185,7 @@ public class CremsPortalController extends BaseController
     public TableDataInfo applicationList(CremsApplication application)
     {
         startPage();
-        // 根据当前用户角色过滤数据
+        // 投递列表是学生端和企业端共用接口，入口处统一收窄数据范围。
         Long userId = getUserId();
         CremsStudent student = studentService.selectStudentByUserId(userId);
         if (student != null) {
@@ -205,10 +209,10 @@ public class CremsPortalController extends BaseController
     public AjaxResult addApplication(@RequestBody CremsApplication application)
     {
         application.setCreateBy(getUsername());
-        // 学生只能以自己的身份投递
+        // 学生身份从登录态获取，不能信任前端传来的 studentId。
         Long studentId = getCurrentStudentId();
         application.setStudentId(studentId);
-        // 获取职位信息以设置companyId
+        // companyId 由职位反查得到，保证投递记录和职位归属一致。
         CremsJob job = jobService.selectJobById(application.getJobId());
         if (job == null) {
             return error("职位不存在");
@@ -232,7 +236,7 @@ public class CremsPortalController extends BaseController
     @PutMapping("/application")
     public AjaxResult updateApplication(@RequestBody CremsApplication application)
     {
-        // 企业只能更新自己公司职位的投递状态
+        // 企业只能处理自己公司职位下的投递，状态变更也在这个边界内完成。
         Long companyId = getCurrentCompanyId();
         CremsApplication existing = applicationService.selectApplicationById(application.getApplicationId());
         if (existing == null || !companyId.equals(existing.getCompanyId())) {
@@ -290,7 +294,7 @@ public class CremsPortalController extends BaseController
     public TableDataInfo interviewList(CremsInterview interview)
     {
         startPage();
-        // 根据当前用户角色过滤数据
+        // 面试列表同样按当前账号身份收窄：学生看本人，企业看本公司。
         Long userId = getUserId();
         CremsStudent student = studentService.selectStudentByUserId(userId);
         if (student != null) {
@@ -314,6 +318,7 @@ public class CremsPortalController extends BaseController
     public AjaxResult addInterview(@RequestBody CremsInterview interview)
     {
         Long companyId = getCurrentCompanyId();
+        // 邀请面试交给 Service 做事务处理：校验投递归属、推进状态、创建面试。
         return toAjax(interviewService.inviteInterview(interview, companyId, getUsername()));
     }
 
@@ -331,6 +336,7 @@ public class CremsPortalController extends BaseController
             if (!studentId.equals(existing.getStudentId())) {
                 return error("无权修改此面试记录");
             }
+            // 学生端只负责确认邀请，不能替企业修改面试安排或结果。
             if (!"0".equals(existing.getStatus()) || !"1".equals(interview.getStatus())) {
                 return error("学生只能确认待确认的面试");
             }
@@ -425,7 +431,7 @@ public class CremsPortalController extends BaseController
     public TableDataInfo studentList(CremsStudent student)
     {
         startPage();
-        // 根据当前用户角色过滤数据
+        // 学生资料列表用于不同门户场景，必须先判断当前账号已有的业务档案。
         Long userId = getUserId();
         CremsStudent currentStudent = studentService.selectStudentByUserId(userId);
         if (currentStudent != null) {
@@ -482,6 +488,7 @@ public class CremsPortalController extends BaseController
         CremsStudent existing = studentService.selectStudentByUserId(userId);
         student.setUserId(userId);
         if (existing != null) {
+            // 个人资料采用“有则更新、无则创建”，避免同一账号产生多条学生档案。
             student.setStudentId(existing.getStudentId());
             student.setUpdateBy(getUsername());
             return studentService.updateStudent(student) > 0 ? success(student) : error();
@@ -510,7 +517,7 @@ public class CremsPortalController extends BaseController
     public TableDataInfo companyList(CremsCompany company)
     {
         startPage();
-        // 根据当前用户角色过滤数据
+        // 企业资料列表和学生资料列表互为镜像，防止未建档账号回退成全表查询。
         Long userId = getUserId();
         CremsCompany currentCompany = companyService.selectCompanyByUserId(userId);
         if (currentCompany != null) {
@@ -563,6 +570,7 @@ public class CremsPortalController extends BaseController
         CremsCompany existing = companyService.selectCompanyByUserId(userId);
         company.setUserId(userId);
         if (existing != null) {
+            // 企业资料也按 userId 维持一对一关系，重复提交时更新原记录。
             company.setCompanyId(existing.getCompanyId());
             company.setUpdateBy(getUsername());
             return companyService.updateCompany(company) > 0 ? success(company) : error();

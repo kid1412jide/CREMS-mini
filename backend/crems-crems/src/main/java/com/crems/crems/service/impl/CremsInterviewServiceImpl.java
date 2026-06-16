@@ -48,6 +48,7 @@ public class CremsInterviewServiceImpl implements ICremsInterviewService
     @Transactional
     public int inviteInterview(CremsInterview interview, Long companyId, String username)
     {
+        // 面试邀请必须基于一条已有投递，后续职位/学生/企业信息都从投递记录派生。
         if (interview.getApplicationId() == null) {
             throw new ServiceException("投递记录不能为空");
         }
@@ -61,16 +62,19 @@ public class CremsInterviewServiceImpl implements ICremsInterviewService
         if (application == null || !companyId.equals(application.getCompanyId())) {
             throw new ServiceException("无权为其他企业的投递安排面试");
         }
+        // 只有初筛通过后才能进入面试邀请，保持投递状态机单向推进。
         if (!"2".equals(application.getStatus())) {
             throw new ServiceException("只有初筛通过的投递才能发送面试邀请");
         }
 
+        // CAS 条件更新避免多人同时操作时重复发送邀请或覆盖最新状态。
         int updated = applicationMapper.updateApplicationStatusIfCurrent(
                 application.getApplicationId(), "2", "3", username);
         if (updated != 1) {
             throw new ServiceException("投递状态已变化，请刷新后重试");
         }
 
+        // 敏感归属字段以后端查询结果为准，不接收前端传入的 jobId/studentId/companyId。
         interview.setJobId(application.getJobId());
         interview.setStudentId(application.getStudentId());
         interview.setCompanyId(companyId);
@@ -117,6 +121,7 @@ public class CremsInterviewServiceImpl implements ICremsInterviewService
         if (interview != null && interview.getApplicationId() != null) {
             CremsApplication application = applicationMapper.selectApplicationById(interview.getApplicationId());
             if (application != null && "3".equals(application.getStatus())) {
+                // 仅回退仍停留在“面试邀请”的投递，避免覆盖已录用或已拒绝的后续处理。
                 applicationMapper.updateApplicationStatusIfCurrent(
                         application.getApplicationId(), "3", "2", interview.getUpdateBy());
             }

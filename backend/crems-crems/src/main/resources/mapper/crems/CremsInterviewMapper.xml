@@ -32,6 +32,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectInterviewVo">
+        <!-- 面试列表带出职位、企业、学生名称，供学生端和企业端共用展示。 -->
         select i.interview_id, i.application_id, i.job_id, i.student_id, i.company_id,
                j.job_title, c.company_name, s.student_name,
                i.interview_type, i.interview_method, i.interview_time, i.interview_address,

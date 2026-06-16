@@ -29,3 +29,6 @@ gitee.rtf
 !README.md
 **/README.md
 !docs/**/*.md
+
+# Tools directory
+tools/

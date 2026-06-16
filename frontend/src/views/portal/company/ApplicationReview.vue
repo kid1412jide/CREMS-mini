@@ -215,6 +215,7 @@ function handleQuery() {
 
 async function handleStatus(app, status) {
   try {
+    // 只提交目标状态，状态机和企业归属校验交给后端统一判断。
     await updateApplication({ applicationId: app.applicationId, status })
     proxy.$modal.msgSuccess('操作成功')
     getList()
@@ -231,7 +232,7 @@ function handleView(app) {
   }
   viewData.value = { ...app }
   expandedId.value = app.applicationId
-  // 待查看状态自动标记为已查看
+  // 展开详情即代表企业已查看简历，待查看状态自动推进到“已查看”。
   if (app.status === '0') {
     updateApplication({ applicationId: app.applicationId, status: '1' }).then(() => {
       app.status = '1'
@@ -262,6 +263,7 @@ async function submitInvite() {
   inviteLoading.value = true
   try {
     const app = currentApp.value
+    // 前端只提交 applicationId 和面试表单，后端会在同一事务里推进投递状态。
     await addInterview({
       applicationId: app.applicationId,
       ...inviteForm

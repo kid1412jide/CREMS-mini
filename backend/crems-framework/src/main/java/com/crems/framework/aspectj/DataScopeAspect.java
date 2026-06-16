@@ -72,6 +72,7 @@ public class DataScopeAspect
         user.getRoles().forEach(role -> {
             if (Constants.Dept.DATA_SCOPE_CUSTOM.equals(role.getDataScope()) && StringUtils.equals(role.getStatus(), UserConstants.ROLE_NORMAL) && (StringUtils.isEmpty(permission) || StringUtils.containsAny(role.getPermissions(), Convert.toStrArray(permission))))
             {
+                // 先收集自定义权限角色，后面统一拼 IN，减少重复 SQL 片段。
                 scopeCustomIds.add(Convert.toStr(role.getRoleId()));
             }
         });
@@ -85,6 +86,7 @@ public class DataScopeAspect
             }
             if (StringUtils.isNotEmpty(permission) && !StringUtils.containsAny(role.getPermissions(), Convert.toStrArray(permission)))
             {
+                // 注解指定权限时，只让命中的角色参与数据范围计算。
                 continue;
             }
             if (Constants.Dept.DATA_SCOPE_ALL.equals(dataScope))
@@ -117,6 +119,7 @@ public class DataScopeAspect
             {
                 if (StringUtils.isNotBlank(userAlias))
                 {
+                    // “仅本人”优先使用业务表用户字段过滤，适合企业/学生等个人数据场景。
                     sqlString.append(StringUtils.format(" OR {}.{} = {} ", userAlias, userField, user.getUserId()));
                 }
                 else
@@ -140,6 +143,7 @@ public class DataScopeAspect
             if (StringUtils.isNotNull(params) && params instanceof BaseEntity)
             {
                 BaseEntity baseEntity = (BaseEntity) params;
+                // Mapper XML 通过 ${params.dataScope} 注入这段受控 SQL。
                 baseEntity.getParams().put(DATA_SCOPE, " AND (" + sqlString.substring(4) + ")");
             }
         }

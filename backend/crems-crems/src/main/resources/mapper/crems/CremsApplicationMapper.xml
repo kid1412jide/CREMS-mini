@@ -38,6 +38,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectApplicationVo">
+        <!-- 投递列表直接带出职位、企业、学生摘要，支撑企业端简历处理页一次查询展示。 -->
         select a.application_id, a.job_id, a.student_id, a.company_id,
                j.job_title, c.company_name, s.student_name,
                s.student_no, s.gender, s.phone, s.email,
@@ -125,6 +126,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where application_id = #{applicationId}
     </update>
 
+    <!-- 条件更新用于状态机 CAS：只有当前状态仍匹配时才推进，避免并发覆盖。 -->
     <update id="updateApplicationStatusIfCurrent">
         update crems_application
         set status = #{newStatus},
