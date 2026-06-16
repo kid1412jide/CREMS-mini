@@ -24,6 +24,9 @@ public interface ICremsJobService
     /** 投递数+1 */
     public int incrementApplyCount(Long jobId);
 
+    /** 同步投递数 */
+    public int syncApplyCount(Long jobId);
+
     public int deleteJobByIds(Long[] jobIds);
 
     public int deleteJobById(Long jobId);

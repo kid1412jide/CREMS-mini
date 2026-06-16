@@ -209,7 +209,8 @@ export function updateCompany(data) {
 export function getNickname() {
   return request({
     url: '/portal/api/user/nickname',
-    method: 'get'
+    method: 'get',
+    headers: { repeatSubmit: false }
   })
 }
 
@@ -217,7 +218,8 @@ export function updateNickname(nickname) {
   return request({
     url: '/portal/api/user/nickname',
     method: 'put',
-    data: { nickname }
+    data: { nickname },
+    headers: { repeatSubmit: false }
   })
 }
 

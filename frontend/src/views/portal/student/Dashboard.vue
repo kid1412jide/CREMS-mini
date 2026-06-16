@@ -117,6 +117,10 @@ const interviewTypeMap = { first: '初试', second: '复试', final: '终试' }
 const methodMap = { onsite: '现场', video: '视频', phone: '电话' }
 const formatInterviewType = (t) => interviewTypeMap[t] || t
 const formatMethod = (m) => methodMap[m] || m
+const isFutureInterview = (item) => {
+  const time = item.interviewTime ? new Date(item.interviewTime).getTime() : NaN
+  return (item.status === '0' || item.status === '1') && !Number.isNaN(time) && time >= Date.now()
+}
 
 onMounted(async () => {
   appLoading.value = true
@@ -127,12 +131,19 @@ onMounted(async () => {
     stats.applyCount = res.total || 0
   }).finally(() => { appLoading.value = false })
 
+  listApplication({ status: '5', pageSize: 1, pageNum: 1 }).then(res => {
+    stats.offerCount = res.total || 0
+  }).catch(() => {})
+
   listJob({ status: '1', pageSize: 6, pageNum: 1 }).then(res => {
     recommendJobs.value = res.rows || []
   }).finally(() => { jobLoading.value = false })
 
-  listInterview({ pageSize: 5, pageNum: 1 }).then(res => {
-    upcomingInterviews.value = (res.rows || []).filter(i => i.status === '0' || i.status === '1')
+  listInterview({ pageSize: 100, pageNum: 1 }).then(res => {
+    upcomingInterviews.value = (res.rows || [])
+      .filter(isFutureInterview)
+      .sort((a, b) => new Date(a.interviewTime).getTime() - new Date(b.interviewTime).getTime())
+      .slice(0, 5)
     stats.interviewCount = res.total || 0
   }).catch(() => {})
 

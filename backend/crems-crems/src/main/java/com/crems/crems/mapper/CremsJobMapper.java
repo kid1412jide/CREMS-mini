@@ -24,6 +24,9 @@ public interface CremsJobMapper
     /** 投递数+1 */
     public int incrementApplyCount(Long jobId);
 
+    /** 同步投递数 */
+    public int syncApplyCount(Long jobId);
+
     public int deleteJobById(Long jobId);
 
     public int deleteJobByIds(Long[] jobIds);

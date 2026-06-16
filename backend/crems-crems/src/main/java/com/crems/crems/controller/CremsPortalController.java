@@ -59,11 +59,19 @@ public class CremsPortalController extends BaseController
     private SysUserExtMapper sysUserExtMapper;
 
     private boolean isStudentRole() {
-        return SecurityUtils.hasRole("student");
+        try {
+            return SecurityUtils.hasRole("student") && !SecurityUtils.hasRole("admin");
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private boolean isCompanyRole() {
-        return SecurityUtils.hasRole("company");
+        try {
+            return SecurityUtils.hasRole("company") && !SecurityUtils.hasRole("admin");
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**
@@ -124,9 +132,12 @@ public class CremsPortalController extends BaseController
             }
             return success(job);
         }
+        if (!"1".equals(job.getStatus())) {
+            return error("职位未发布");
+        }
         // 浏览量+1
         jobService.incrementViewCount(jobId);
-        return success(job);
+        return success(jobService.selectJobById(jobId));
     }
 
     @PostMapping("/job")
@@ -310,16 +321,38 @@ public class CremsPortalController extends BaseController
     public AjaxResult updateInterview(@RequestBody CremsInterview interview)
     {
         interview.setUpdateBy(getUsername());
+        CremsInterview existing = interviewService.selectInterviewById(interview.getInterviewId());
+        if (existing == null) {
+            return error("面试记录不存在");
+        }
+
+        if (isStudentRole()) {
+            Long studentId = getCurrentStudentId();
+            if (!studentId.equals(existing.getStudentId())) {
+                return error("无权修改此面试记录");
+            }
+            if (!"0".equals(existing.getStatus()) || !"1".equals(interview.getStatus())) {
+                return error("学生只能确认待确认的面试");
+            }
+            CremsInterview updateEntity = new CremsInterview();
+            updateEntity.setInterviewId(interview.getInterviewId());
+            updateEntity.setStatus("1");
+            updateEntity.setUpdateBy(getUsername());
+            return toAjax(interviewService.updateInterview(updateEntity));
+        }
+
         // 企业只能更新自己公司的面试
         Long companyId = getCurrentCompanyId();
-        CremsInterview existing = interviewService.selectInterviewById(interview.getInterviewId());
-        if (existing == null || !companyId.equals(existing.getCompanyId())) {
+        if (!companyId.equals(existing.getCompanyId())) {
             return error("无权修改此面试记录");
         }
 
         // 校验面试状态转换
         String newStatus = interview.getStatus();
         if (newStatus != null && !newStatus.equals(existing.getStatus())) {
+            if ("1".equals(newStatus)) {
+                return error("面试确认需由学生本人操作");
+            }
             if (!isValidInterviewStatusTransition(existing.getStatus(), newStatus)) {
                 return error("不允许从状态 " + existing.getStatus() + " 转换到 " + newStatus);
             }
@@ -330,7 +363,7 @@ public class CremsPortalController extends BaseController
 
     /**
      * 校验面试状态转换是否合法
-     * 0:待确认 -> 1:已确认, 3:已取消
+     * 0:待确认 -> 1:已确认（学生）, 3:已取消
      * 1:已确认 -> 2:已完成, 3:已取消
      */
     private boolean isValidInterviewStatusTransition(String current, String target) {

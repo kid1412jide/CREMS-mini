@@ -42,7 +42,7 @@ public class CremsJobController extends BaseController
 
     private boolean isCompanyRole()
     {
-        return SecurityUtils.hasRole("company");
+        return SecurityUtils.hasRole("company") && !SecurityUtils.hasRole("admin");
     }
 
     private CremsCompany getCurrentCompany()
