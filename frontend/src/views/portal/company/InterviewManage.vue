@@ -50,7 +50,6 @@
           </div>
         </div>
         <div class="iv-card__actions">
-          <el-button v-if="item.status === '0'" type="primary" size="small" @click="handleConfirm(item)">确认</el-button>
           <el-button v-if="item.status === '1'" type="success" size="small" @click="handleComplete(item)">完成</el-button>
           <el-button v-if="item.status !== '2' && item.status !== '3'" type="danger" size="small" plain @click="handleCancel(item)">取消</el-button>
           <el-button type="primary" link size="small" @click="handleEdit(item)">编辑</el-button>
@@ -160,12 +159,6 @@ function getList() {
 
 function handleQuery() {
   quecremsParams.pageNum = 1
-  getList()
-}
-
-async function handleConfirm(item) {
-  await updateInterview({ interviewId: item.interviewId, status: '1' })
-  proxy.$modal.msgSuccess('已确认')
   getList()
 }
 

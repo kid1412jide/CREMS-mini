@@ -39,7 +39,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                j.department, j.recruit_num, j.work_city, j.work_address, j.salary_min,
                j.salary_max, j.education_required, j.experience_required, j.job_description,
                j.job_requirements, j.welfare, j.publish_date, j.deadline, j.view_count,
-               j.apply_count,
+               (select count(1) from crems_application a where a.job_id = j.job_id) as apply_count,
                j.status, j.create_by, j.create_time, j.update_by,
                j.update_time, j.remark
         from crems_job j
@@ -164,6 +164,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <!-- 投递数+1 -->
     <update id="incrementApplyCount">
         update crems_job set apply_count = apply_count + 1 where job_id = #{jobId}
+    </update>
+
+    <!-- 同步投递数，修正历史数据或删除后的计数漂移 -->
+    <update id="syncApplyCount">
+        update crems_job
+        set apply_count = (select count(1) from crems_application a where a.job_id = #{jobId})
+        where job_id = #{jobId}
     </update>
 
     <delete id="deleteJobById" parameterType="Long">

@@ -40,6 +40,11 @@
             <div class="notice-label">面试须知</div>
             <div class="notice-text">{{ item.interviewNotice }}</div>
           </div>
+          <div class="iv-card__actions" v-if="item.status === '0'">
+            <el-button type="primary" size="small" :loading="confirmingId === item.interviewId" @click="handleConfirm(item)">
+              确认参加
+            </el-button>
+          </div>
         </div>
       </div>
     </div>
@@ -56,13 +61,16 @@
 
 <script setup>
 import { Clock, User, Monitor, Location } from '@element-plus/icons-vue'
-import { listInterview } from '@/api/portal'
+import { listInterview, updateInterview } from '@/api/portal'
 import { parseTime } from '@/utils/crems'
 import { INTERVIEW_STATUS_MAP, INTERVIEW_TYPE_MAP, INTERVIEW_METHOD_MAP, getStatusLabel, getStatusType } from '@/constants/crems'
+
+const { proxy } = getCurrentInstance()
 
 const loading = ref(false)
 const interviewList = ref([])
 const total = ref(0)
+const confirmingId = ref(null)
 
 const quecremsParams = reactive({ pageNum: 1, pageSize: 10 })
 
@@ -77,6 +85,17 @@ function getList() {
     interviewList.value = res.rows || []
     total.value = res.total || 0
   }).finally(() => { loading.value = false })
+}
+
+async function handleConfirm(item) {
+  confirmingId.value = item.interviewId
+  try {
+    await updateInterview({ interviewId: item.interviewId, status: '1' })
+    proxy.$modal.msgSuccess('已确认参加面试')
+    getList()
+  } finally {
+    confirmingId.value = null
+  }
 }
 
 onMounted(() => getList())
@@ -182,6 +201,12 @@ onMounted(() => getList())
       color: #606266;
       line-height: 1.6;
     }
+  }
+
+  &__actions {
+    margin-top: 14px;
+    display: flex;
+    justify-content: flex-end;
   }
 }
 </style>

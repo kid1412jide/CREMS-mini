@@ -51,7 +51,7 @@ public class CremsApplicationServiceImpl implements ICremsApplicationService
     {
         int rows = applicationMapper.insertApplication(application);
         if (rows > 0 && application.getJobId() != null) {
-            jobMapper.incrementApplyCount(application.getJobId());
+            jobMapper.syncApplyCount(application.getJobId());
         }
         return rows;
     }
@@ -74,8 +74,13 @@ public class CremsApplicationServiceImpl implements ICremsApplicationService
     @Transactional
     public int deleteApplicationByIds(Long[] applicationIds)
     {
+        java.util.Set<Long> jobIds = new java.util.HashSet<>();
         // 先删除关联的面试记录
         for (Long applicationId : applicationIds) {
+            CremsApplication application = applicationMapper.selectApplicationById(applicationId);
+            if (application != null && application.getJobId() != null) {
+                jobIds.add(application.getJobId());
+            }
             CremsInterview query = new CremsInterview();
             query.setApplicationId(applicationId);
             java.util.List<CremsInterview> interviews = interviewMapper.selectInterviewList(query);
@@ -83,13 +88,18 @@ public class CremsApplicationServiceImpl implements ICremsApplicationService
                 interviewMapper.deleteInterviewById(interview.getInterviewId());
             }
         }
-        return applicationMapper.deleteApplicationByIds(applicationIds);
+        int rows = applicationMapper.deleteApplicationByIds(applicationIds);
+        for (Long jobId : jobIds) {
+            jobMapper.syncApplyCount(jobId);
+        }
+        return rows;
     }
 
     @Override
     @Transactional
     public int deleteApplicationById(Long applicationId)
     {
+        CremsApplication application = applicationMapper.selectApplicationById(applicationId);
         // 先删除关联的面试记录
         CremsInterview query = new CremsInterview();
         query.setApplicationId(applicationId);
@@ -97,6 +107,10 @@ public class CremsApplicationServiceImpl implements ICremsApplicationService
         for (CremsInterview interview : interviews) {
             interviewMapper.deleteInterviewById(interview.getInterviewId());
         }
-        return applicationMapper.deleteApplicationById(applicationId);
+        int rows = applicationMapper.deleteApplicationById(applicationId);
+        if (application != null && application.getJobId() != null) {
+            jobMapper.syncApplyCount(application.getJobId());
+        }
+        return rows;
     }
 }

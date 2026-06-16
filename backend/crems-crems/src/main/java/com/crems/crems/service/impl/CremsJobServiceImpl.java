@@ -69,6 +69,13 @@ public class CremsJobServiceImpl implements ICremsJobService
 
     @Override
     @Transactional
+    public int syncApplyCount(Long jobId)
+    {
+        return jobMapper.syncApplyCount(jobId);
+    }
+
+    @Override
+    @Transactional
     public int deleteJobByIds(Long[] jobIds)
     {
         for (Long jobId : jobIds) {
